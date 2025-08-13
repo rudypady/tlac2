@@ -9,8 +9,9 @@
     justify-content: flex-start;
     width: 100%;
     height: 100%;
-    padding: 2px;
-    gap: 1px;
+    padding: 2mm;
+    gap: 0;
+    font-family: Arial, sans-serif;
 }
 
 /* Štandardné štýly pre náhľad */
@@ -20,21 +21,22 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 2px;
+    margin-bottom: 1mm;
 }
 
 .template-default .preview-artikel {
     font-size: var(--label-artikel-font-size);
     font-weight: bold;
+    font-family: Arial, sans-serif;
     color: #000;
-    line-height: 1.1;
+    line-height: 1;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    margin-bottom: 1px;
-    padding: 2px 4px;
+    margin-bottom: 2mm;
+    padding: 0;
     cursor: pointer;
     transition: var(--transition);
     border-radius: 3px;
@@ -47,29 +49,31 @@
 
 .template-default .preview-nazov {
     font-size: var(--label-nazov-font-size);
+    font-weight: bold;
+    font-family: Arial, sans-serif;
     color: #000;
-    line-height: 1.1;
+    line-height: 1;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    margin-bottom: 1px;
+    margin-bottom: 1mm;
 }
 
 .template-default .preview-line {
     width: 100%;
-    height: 1px;
+    height: 0.2mm;
     background-color: #000;
-    margin: 1px 0;
+    margin-bottom: 1mm;
 }
 
 .template-default .preview-polica {
     font-size: var(--label-polica-font-size);
     font-weight: bold;
-    font-style: italic;
+    font-family: Arial, sans-serif;
     color: #000;
-    line-height: 1.1;
+    line-height: 1;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -85,6 +89,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        margin-bottom: 1mm !important;
     }
     
     .template-default .print-barcode-row svg {
@@ -96,46 +101,49 @@
     .template-default .print-artikel {
         font-size: var(--label-artikel-font-size) !important;
         font-weight: bold !important;
+        font-family: Arial, sans-serif !important;
         color: #000 !important;
-        line-height: 1.1 !important;
+        line-height: 1 !important;
         text-align: center !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-        margin: 1px 0 !important;
+        margin-bottom: 2mm !important;
     }
     
     .template-default .print-nazov {
         font-size: var(--label-nazov-font-size) !important;
+        font-weight: bold !important;
+        font-family: Arial, sans-serif !important;
         color: #000 !important;
-        line-height: 1.1 !important;
+        line-height: 1 !important;
         text-align: center !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-        margin: 1px 0 !important;
+        margin-bottom: 1mm !important;
     }
     
     .template-default .print-line {
         width: 100% !important;
-        height: 1px !important;
+        height: 0.2mm !important;
         background-color: #000 !important;
-        margin: 1px 0 !important;
+        margin-bottom: 1mm !important;
     }
     
     .template-default .print-polica {
         font-size: var(--label-polica-font-size) !important;
         font-weight: bold !important;
-        font-style: italic !important;
+        font-family: Arial, sans-serif !important;
         color: #000 !important;
-        line-height: 1.1 !important;
+        line-height: 1 !important;
         text-align: center !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-        margin: 1px 0 !important;
+        margin: 0 !important;
     }
 }
