@@ -84,7 +84,7 @@
 /* Štandardné štýly pre tlač */
 @media print {
     .template-default .print-barcode-row {
-        width: 100% !important;
+        width: 80% !important;
         height: var(--label-barcode-height) !important;
         display: flex;
         justify-content: center;
