@@ -1,5 +1,11 @@
 /* 🏷️ KOMPAKTNÁ ŠABLÓNA ŠTÍTKA - Compact label template styles */
 
+/* Barcode error styling */
+.template-compact .barcode-error {
+    font-size: 8px;
+    fill: red;
+}
+
 /* Kompaktné rozmery s menšími fontami a tight spacing */
 .template-compact .preview-content,
 .template-compact .print-content {

@@ -1,5 +1,11 @@
 /* 🏷️ ŠTANDARDNÁ ŠABLÓNA ŠTÍTKA - Default label template styles */
 
+/* Barcode error styling */
+.template-default .barcode-error {
+    font-size: 8px;
+    fill: red;
+}
+
 /* Štandardné rozmery a rozloženie */
 .template-default .preview-content,
 .template-default .print-content {

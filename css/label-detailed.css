@@ -1,5 +1,11 @@
 /* 🏷️ DETAILNÁ ŠABLÓNA ŠTÍTKA - Detailed label template styles */
 
+/* Barcode error styling */
+.template-detailed .barcode-error {
+    font-size: 8px;
+    fill: red;
+}
+
 /* Detailné rozmery s väčšími fontami a extra informáciami */
 .template-detailed .preview-content,
 .template-detailed .print-content {

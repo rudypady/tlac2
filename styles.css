@@ -23,6 +23,75 @@
     --label-barcode-height: 20px; /* Výška čiarového kódu */
 }
 
+/* Fallback barcode styling */
+.barcode-fallback {
+    font-size: 8px;
+    fill: black;
+}
+
+/* Utility classes for layout */
+.print-sets-section {
+    margin-bottom: 15px;
+    display: none;
+}
+
+.print-set-name-input {
+    flex: 1;
+}
+
+.bulk-actions-section {
+    margin-bottom: 15px;
+    display: none;
+}
+
+.form-row-spaced {
+    margin-bottom: 15px;
+}
+
+.chart-container-hidden {
+    display: none;
+}
+
+.bulk-status-hidden {
+    margin-top: 15px;
+    display: none;
+}
+
+.quick-actions {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.file-format-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.database-list-container {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.search-box-spaced {
+    margin-bottom: 20px;
+}
+
+.footer-center {
+    margin-top: 20px;
+    text-align: center;
+}
+
 /* Tmavá téma */
 [data-theme="dark"] {
     --bg-primary: #1a202c; /* Tmavé pozadie */

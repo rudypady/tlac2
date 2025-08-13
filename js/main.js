@@ -1051,7 +1051,7 @@ function updateNameTagPreview() {
             });
         } catch (e) {
             console.error("Chyba pri generovaní náhľadu čiarového kódu menovky:", e);
-            elements.nameTagPreviewBarcode.innerHTML = '<text x="0" y="20" font-size="8" fill="red">Neplatné osobné číslo</text>';
+            elements.nameTagPreviewBarcode.innerHTML = '<text x="0" y="20" class="barcode-error">Neplatné osobné číslo</text>';
         }
     }
 }
@@ -1086,7 +1086,7 @@ function updateShelfPreview() {
             });
         } catch (e) {
             console.error("Chyba pri generovaní náhľadu čiarového kódu police:", e);
-            elements.shelfPreviewBarcode.innerHTML = '<text x="0" y="20" font-size="8" fill="red">Neplatné údaje</text>';
+            elements.shelfPreviewBarcode.innerHTML = '<text x="0" y="20" class="barcode-error">Neplatné údaje</text>';
         }
     }
 }
