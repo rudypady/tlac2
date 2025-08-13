@@ -1,0 +1,187 @@
+/* 🏷️ DETAILNÁ ŠABLÓNA ŠTÍTKA - Detailed label template styles */
+
+/* Detailné rozmery s väčšími fontami a extra informáciami */
+.template-detailed .preview-content,
+.template-detailed .print-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 3px;
+    gap: 2px;
+}
+
+/* Detailné štýly pre náhľad */
+.template-detailed .preview-barcode-row {
+    width: 100%;
+    height: calc(var(--label-barcode-height) * 1.2); /* Väčší čiarový kód */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.template-detailed .preview-artikel {
+    font-size: calc(var(--label-artikel-font-size) * 1.1); /* 110% pôvodnej veľkosti */
+    font-weight: bold;
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 2px;
+    padding: 3px 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 4px;
+    border: 1px solid #e0e0e0; /* Jemný okraj */
+    background: rgba(0, 80, 140, 0.05); /* Jemné pozadie */
+}
+
+.template-detailed .preview-artikel:hover {
+    background-color: rgba(0, 80, 140, 0.15);
+    transform: scale(1.03);
+    border-color: rgba(0, 80, 140, 0.3);
+}
+
+.template-detailed .preview-nazov {
+    font-size: calc(var(--label-nazov-font-size) * 1.15); /* 115% pôvodnej veľkosti */
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 2px;
+    font-weight: 600; /* Tučnejšie */
+    padding: 1px 2px;
+}
+
+.template-detailed .preview-line {
+    width: 100%;
+    height: 2px; /* Hrubšia čiara */
+    background: linear-gradient(90deg, #000 0%, #666 50%, #000 100%); /* Gradient čiara */
+    margin: 2px 0;
+    border-radius: 1px;
+}
+
+.template-detailed .preview-polica {
+    font-size: calc(var(--label-polica-font-size) * 1.1); /* 110% pôvodnej veľkosti */
+    font-weight: bold;
+    font-style: italic;
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-top: 1px;
+    padding: 2px 4px;
+    background: rgba(255, 193, 7, 0.2); /* Jemné žlté pozadie pre policu */
+    border-radius: 3px;
+}
+
+/* Ďalšie detailné informácie (iba pre detailed template) */
+.template-detailed .preview-content::after {
+    content: "Schaeffler";
+    font-size: 6px;
+    color: #999;
+    text-align: center;
+    margin-top: 1px;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Detailné štýly pre tlač */
+@media print {
+    .template-detailed .print-barcode-row {
+        width: 100% !important;
+        height: calc(var(--label-barcode-height) * 1.2) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .template-detailed .print-barcode-row svg {
+        width: 100% !important;
+        height: calc(var(--label-barcode-height) * 1.2) !important;
+        overflow: visible;
+    }
+    
+    .template-detailed .print-artikel {
+        font-size: calc(var(--label-artikel-font-size) * 1.1) !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 2px 0 !important;
+        padding: 2px 4px !important;
+        border: 1px solid #e0e0e0 !important;
+        background: rgba(0, 80, 140, 0.05) !important;
+        border-radius: 3px !important;
+    }
+    
+    .template-detailed .print-nazov {
+        font-size: calc(var(--label-nazov-font-size) * 1.15) !important;
+        color: #000 !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 2px 0 !important;
+        font-weight: 600 !important;
+        padding: 1px 2px !important;
+    }
+    
+    .template-detailed .print-line {
+        width: 100% !important;
+        height: 2px !important;
+        background: #000 !important;
+        margin: 2px 0 !important;
+        border-radius: 1px !important;
+    }
+    
+    .template-detailed .print-polica {
+        font-size: calc(var(--label-polica-font-size) * 1.1) !important;
+        font-weight: bold !important;
+        font-style: italic !important;
+        color: #000 !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+        padding: 2px 4px !important;
+        background: rgba(255, 193, 7, 0.2) !important;
+        border-radius: 3px !important;
+    }
+    
+    /* Pridanie firemného označenia pre detailný template */
+    .template-detailed .print-content::after {
+        content: "Schaeffler" !important;
+        font-size: 6px !important;
+        color: #999 !important;
+        text-align: center !important;
+        margin-top: 1px !important;
+        font-style: italic !important;
+        opacity: 0.7 !important;
+        position: absolute !important;
+        bottom: 2px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+}

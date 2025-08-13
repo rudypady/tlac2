@@ -1,0 +1,393 @@
+/* 🏷️ MENOVKA A POLICA ŠTÍTKY - Name tag and shelf label specific styles */
+
+/* ===== NAME TAG SPECIFIC STYLES ===== */
+
+/* Name tag preview and print layout - 5 rows structure */
+.template-nametag .preview-content,
+.template-nametag .print-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    gap: 1px;
+}
+
+/* Name tag barcode styling */
+.template-nametag .preview-barcode-row {
+    width: 100%;
+    height: var(--label-barcode-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.template-nametag .preview-barcode-row svg {
+    width: 100%;
+    height: var(--label-barcode-height);
+    overflow: visible;
+}
+
+/* Name tag personal number (second row - replaces artikel) */
+.template-nametag .preview-personal-number {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 1px;
+    padding: 2px 4px;
+    background-color: rgba(0, 80, 140, 0.1);
+    border-radius: 3px;
+}
+
+/* Name tag full name (third row - replaces nazov) */
+.template-nametag .preview-full-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 1px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Name tag separator line (fourth row) */
+.template-nametag .preview-line {
+    width: 100%;
+    height: 1px;
+    background-color: #000;
+    margin: 1px 0;
+}
+
+/* Name tag department/position (fifth row - replaces polica) */
+.template-nametag .preview-department {
+    font-size: var(--label-polica-font-size);
+    font-weight: normal;
+    font-style: italic;
+    color: #666;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* ===== SHELF LABEL SPECIFIC STYLES ===== */
+
+/* Shelf label preview and print layout */
+.template-shelf .preview-content,
+.template-shelf .print-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    gap: 1px;
+}
+
+/* Shelf label barcode styling */
+.template-shelf .preview-barcode-row {
+    width: 100%;
+    height: var(--label-barcode-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.template-shelf .preview-barcode-row svg {
+    width: 100%;
+    height: var(--label-barcode-height);
+    overflow: visible;
+}
+
+/* Shelf label Fach (second row) */
+.template-shelf .preview-fach {
+    font-size: var(--label-artikel-font-size);
+    font-weight: bold;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 1px;
+    padding: 2px 4px;
+    background-color: rgba(255, 193, 7, 0.2);
+    border-radius: 3px;
+}
+
+/* Shelf label description (third row) */
+.template-shelf .preview-shelf-desc {
+    font-size: var(--label-nazov-font-size);
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 1px;
+    font-weight: 500;
+}
+
+/* Shelf label separator line (fourth row) */
+.template-shelf .preview-line {
+    width: 100%;
+    height: 1px;
+    background-color: #000;
+    margin: 1px 0;
+}
+
+/* Shelf label location (fifth row) */
+.template-shelf .preview-shelf-location {
+    font-size: var(--label-polica-font-size);
+    font-weight: bold;
+    font-style: italic;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* ===== PRINT STYLES FOR NAME TAGS AND SHELF LABELS ===== */
+
+@media print {
+    /* Name tag print styles */
+    .template-nametag .print-barcode-row {
+        width: 100% !important;
+        height: var(--label-barcode-height) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .template-nametag .print-barcode-row svg {
+        width: 100% !important;
+        height: var(--label-barcode-height) !important;
+        overflow: visible;
+    }
+    
+    .template-nametag .print-personal-number {
+        font-size: 14px !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+    }
+    
+    .template-nametag .print-full-name {
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        color: #000 !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .template-nametag .print-line {
+        width: 100% !important;
+        height: 1px !important;
+        background-color: #000 !important;
+        margin: 1px 0 !important;
+    }
+    
+    .template-nametag .print-department {
+        font-size: var(--label-polica-font-size) !important;
+        font-weight: normal !important;
+        font-style: italic !important;
+        color: #666 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+    }
+
+    /* Shelf label print styles */
+    .template-shelf .print-barcode-row {
+        width: 100% !important;
+        height: var(--label-barcode-height) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .template-shelf .print-barcode-row svg {
+        width: 100% !important;
+        height: var(--label-barcode-height) !important;
+        overflow: visible;
+    }
+    
+    .template-shelf .print-fach {
+        font-size: var(--label-artikel-font-size) !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+    }
+    
+    .template-shelf .print-shelf-desc {
+        font-size: var(--label-nazov-font-size) !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+        font-weight: 500 !important;
+    }
+    
+    .template-shelf .print-line {
+        width: 100% !important;
+        height: 1px !important;
+        background-color: #000 !important;
+        margin: 1px 0 !important;
+    }
+    
+    .template-shelf .print-shelf-location {
+        font-size: var(--label-polica-font-size) !important;
+        font-weight: bold !important;
+        font-style: italic !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+    }
+}
+
+/* ===== FORM STYLING FOR NAME TAG AND SHELF INPUTS ===== */
+
+/* Special styling for name tag form inputs */
+.name-tag-form .form-group {
+    margin-bottom: 15px;
+}
+
+.name-tag-form .form-input {
+    border: 2px solid var(--border-color);
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.name-tag-form .form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 80, 140, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Special styling for personal number input */
+.personal-number-input {
+    font-family: 'Courier New', monospace !important;
+    font-weight: 600;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.personal-number-input:focus {
+    background: white;
+}
+
+/* Special styling for shelf form inputs */
+.shelf-form .form-group {
+    margin-bottom: 15px;
+}
+
+.shelf-form .form-input {
+    border: 2px solid #ffc107;
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+}
+
+.shelf-form .form-input:focus {
+    border-color: #ff8f00;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+}
+
+/* Enhanced preview containers */
+.name-tag-preview {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border: 2px solid #1976d2;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.shelf-preview {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 2px solid #f57c00;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .name-tag-preview {
+    background: linear-gradient(135deg, #1a237e, #3949ab);
+    border-color: #3f51b5;
+}
+
+[data-theme="dark"] .shelf-preview {
+    background: linear-gradient(135deg, #e65100, #ff9800);
+    border-color: #ff5722;
+}
+
+[data-theme="dark"] .template-nametag .preview-department {
+    color: #bbb;
+}
+
+[data-theme="dark"] .personal-number-input {
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .shelf-form .form-input {
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    border-color: #ed8936;
+    color: var(--text-primary);
+}

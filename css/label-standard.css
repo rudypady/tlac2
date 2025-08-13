@@ -1,0 +1,141 @@
+/* 🏷️ ŠTANDARDNÁ ŠABLÓNA ŠTÍTKA - Default label template styles */
+
+/* Štandardné rozmery a rozloženie */
+.template-default .preview-content,
+.template-default .print-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    gap: 1px;
+}
+
+/* Štandardné štýly pre náhľad */
+.template-default .preview-barcode-row {
+    width: 100%;
+    height: var(--label-barcode-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.template-default .preview-artikel {
+    font-size: var(--label-artikel-font-size);
+    font-weight: bold;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 1px;
+    padding: 2px 4px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 3px;
+}
+
+.template-default .preview-artikel:hover {
+    background-color: rgba(0, 80, 140, 0.1);
+    transform: scale(1.02);
+}
+
+.template-default .preview-nazov {
+    font-size: var(--label-nazov-font-size);
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 1px;
+}
+
+.template-default .preview-line {
+    width: 100%;
+    height: 1px;
+    background-color: #000;
+    margin: 1px 0;
+}
+
+.template-default .preview-polica {
+    font-size: var(--label-polica-font-size);
+    font-weight: bold;
+    font-style: italic;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Štandardné štýly pre tlač */
+@media print {
+    .template-default .print-barcode-row {
+        width: 100% !important;
+        height: var(--label-barcode-height) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .template-default .print-barcode-row svg {
+        width: 100% !important;
+        height: var(--label-barcode-height) !important;
+        overflow: visible;
+    }
+    
+    .template-default .print-artikel {
+        font-size: var(--label-artikel-font-size) !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+    }
+    
+    .template-default .print-nazov {
+        font-size: var(--label-nazov-font-size) !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+    }
+    
+    .template-default .print-line {
+        width: 100% !important;
+        height: 1px !important;
+        background-color: #000 !important;
+        margin: 1px 0 !important;
+    }
+    
+    .template-default .print-polica {
+        font-size: var(--label-polica-font-size) !important;
+        font-weight: bold !important;
+        font-style: italic !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+    }
+}
