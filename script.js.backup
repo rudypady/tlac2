@@ -1,0 +1,2876 @@
+// 🚀 PROFESIONÁLNY SYSTÉM TLAČENIA ŠTÍTKOV
+
+// Globálne premenné pre uloženie stavu aplikácie
+let database = []; // Pole objektov pre databázu produktov (načítané z data.xlsm, zmeny v localStorage)
+let labels = []; // Pole objektov pre štítky pripravené na tlač (lokálne pre aktuálnu reláciu, vždy v localStorage)
+let printHistory = []; // História tlače (lokálne v localStorage)
+let printSets = {}; // Uložené tlačové sady (lokálne v localStorage)
+let labelIdCounter = 1; // Počítadlo pre unikátne ID štítkov
+let searchTimeout = null; // Pre debounce funkciu vyhľadávania
+let currentTheme = 'light'; // Aktuálna téma ('light', 'dark', 'auto')
+let currentLanguage = 'sk'; // Aktuálny jazyk ('sk', 'en', 'de')
+let showLogo = false; // Zobraziť logo na štítkoch - ZMENENÉ NA FALSE PODĽA POŽIADAVKY
+let currentTemplate = 'default'; // Aktuálna šablóna štítka
+
+// Preklady pre rôzne jazyky
+const translations = {
+    sk: {
+        'title': 'Tlačenie štítkov PRO',
+        'subtitle': 'Profesionálny systém pre Schaeffler',
+        'tab-labels': 'Štítky',
+        'tab-history': 'História tlače',
+        'tab-settings': 'Nastavenia',
+        'search-title': 'Vyhľadať v databáze',
+        'search-placeholder': 'Zadajte artikel, názov alebo policu... (Môžete použiť: polica:A1, nazov:"text", artikel:123)',
+        'filter-all': 'Všetko',
+        'filter-location': 'Umiestnenie',
+        'no-results': 'Žiadne výsledky',
+        'quick-label': 'Rýchly štítok',
+        'label-artikel': 'Artikel',
+        'label-name': 'Názov',
+        'label-shelf': 'Polica',
+        'btn-add-print': 'Pridať na tlač',
+        'btn-save-print': 'Uložiť + tlač', // Ponechané v prekladoch, ale tlačidlo je odstránené
+        'preview-title': 'Náhľad štítka (2" x 1")',
+        'template-default': 'Štandardný',
+        'template-compact': 'Kompaktný',
+        'template-detailed': 'Detailný',
+        'labels-title': 'Štítky na tlač',
+        'labels-count-suffix': 'štítkov',
+        'btn-preview': 'Náhľad tlače',
+        'btn-print': 'Tlačiť',
+        'btn-export-pdf': 'Exportovať PDF',
+        'empty-title': 'Zatiaľ žiadne štítky na tlač',
+        'empty-desc': 'Vyhľadajte produkt alebo pridajte rýchly štítok',
+        'stats-title': 'Štatistiky',
+        'stat-total': 'Počet artiklov v databáze',
+        'stat-today': 'Dnes', // Ponechané v prekladoch, ale údaj je odstránený
+        'chart-title': 'Graf kategórií', // Ponechané v prekladoch, ale graf je odstránený
+        'shortcuts-title': 'Klávesové skratky', // Ponechané v prekladoch, ale sekcia je odstránená
+        'shortcut-search': 'Vyhľadávanie',
+        'shortcut-add': 'Pridať štítok',
+        'shortcut-print': 'Tlačiť',
+        'shortcut-theme': 'Zmena témy',
+        'db-management': 'Správa databázy',
+        'quick-actions': 'Rýchle akcie',
+        'btn-clear': 'Vymazať DB',
+        'import-files': 'Import súborov',
+        'drop-text': 'Pretiahnite súbory sem alebo kliknite pre výber (data.xlsm pre databázu)',
+        'btn-import': 'Importovať súbory',
+        'bulk-upload': 'Hromadné nahrávanie (text)',
+        'bulk-format': 'Formát: Artikel;Názov;Polica',
+        'btn-bulk': 'Nahrať hromadne',
+        'add-single': 'Pridať jednotlivo',
+        'btn-add-db': 'Pridať do databázy',
+        'db-preview': 'Databáza (náhľad)',
+        'loading': 'Načítavam...',
+        'reports-title': 'Reporty a štatistiky',
+        'btn-generate': 'Generovať report',
+        'btn-export-report': 'Exportovať report',
+        'settings-title': 'Nastavenia',
+        'setting-theme': 'Téma vzhľadu',
+        'theme-light': 'Svetlá',
+        'theme-dark': 'Tmavá',
+        'theme-auto': 'Automatická',
+        'setting-lang': 'Jazyk',
+        'setting-logo': 'Logo na štítkoch',
+        'logo-show': 'Zobraziť',
+        'logo-hide': 'Skryť',
+        'setting-template': 'Predvolená šablóna',
+        'btn-save-settings': 'Uložiť nastavenia',
+        'history-title': 'História tlače',
+        'btn-clear-history': 'Vymazať históriu',
+        'btn-export-history': 'Exportovať históriu',
+        'stat-total-printed': 'Celkom vytlačených štítkov',
+        'stat-print-sessions': 'Relácií tlače',
+        'history-filter-placeholder': 'Filtrovať históriu...',
+        'no-history': 'Zatiaľ žiadna história tlače...',
+        'history-printed-at': 'Vytlačené',
+        'history-labels-count': 'štítkov',
+        'confirm-clear-history': 'Naozaj chcete vymazať celú históriu tlače?',
+        'btn-save-set': 'Uložiť sadu',
+        'btn-load-set': 'Načítať sadu',
+        'btn-delete-set': 'Zmazať sadu',
+        'select-print-set': 'Vyberte tlačovú sadu...',
+        'toast-success-save-set': 'Tlačová sada bola úspešne uložená!',
+        'toast-success-load-set': 'Tlačová sada bola úspešne načítaná!',
+        'toast-success-delete-set': 'Tlačová sada bola úspešne zmazaná!',
+        'toast-error-set-name': 'Zadajte názov tlačovej sady!',
+        'toast-error-no-labels-save': 'Žiadne štítky na uloženie do sady!',
+        'toast-error-no-set-selected': 'Vyberte tlačovú sadu na načítanie!',
+        'confirm-delete-set': 'Naozaj chcete zmazať túto tlačovú sadu?',
+        'select-all-labels': 'Označiť všetky',
+        'btn-bulk-delete': 'Zmazať označené',
+        'btn-bulk-quantity': 'Zmeniť množstvo',
+        'bulk-selected-count': 'označených',
+        'bulk-change-quantity': 'Nové množstvo pre označené štítky:',
+        'toast-success-bulk-delete': 'Označené štítky boli zmazané!',
+        'toast-success-bulk-quantity': 'Množstvo bolo zmenené!',
+        'toast-error-no-selection': 'Žiadne štítky nie sú označené!',
+        'toast-error-invalid-quantity': 'Zadajte platné množstvo!',
+        'confirm-bulk-delete': 'Naozaj chcete zmazať označené štítky?',
+        'preview-modal-title': 'Náhľad tlače',
+        'btn-print-now': 'Tlačiť teraz',
+        'toast-success-add-label': 'Štítok bol úspešne pridaný na tlač!',
+        'toast-success-save-label': 'Štítok bol úspešne uložený a pridaný na tlač!',
+        'toast-success-db-add': 'Položka bola úspešne pridaná do databázy!',
+        'toast-success-db-update': 'Položka bola úspešne aktualizovaná v databáze!',
+        'toast-success-db-delete': 'Položka bola úspešne odstránená z databázy!',
+        'toast-success-import': 'Dáta boli úspešne importované!',
+        'toast-success-export': 'Dáta boli úspešne exportované!',
+        'toast-success-clear-db': 'Databáza bola úspešne vymazaná!',
+        'toast-success-settings': 'Nastavenia boli úspešne uložené!',
+        'toast-error-import': 'Chyba pri importe súboru. Skontrolujte formát.',
+        'toast-error-barcode': 'Chyba pri generovaní čiarového kódu. Artikel musí byť platný.',
+        'toast-error-invalid-artikel': 'Neplatný artikel! Povolené sú len čísla vo formáte 123456789-0000 alebo 1234567890000.',
+        'toast-error-bulk': 'Chyba pri hromadnom nahrávaní. Skontrolujte formát riadkov.',
+        'toast-error-db-add': 'Chyba pri pridávaní položky do databázy. Skontrolujte vstupy.',
+        'toast-error-db-update': 'Chyba pri aktualizácii položky v databázy.',
+        'toast-error-db-delete': 'Chyba pri odstraňovaní položky z databázy.',
+        'toast-warning-no-labels': 'Žiadne štítky na tlač!',
+        'toast-warning-no-data': 'Žiadne dáta v databáze na export!',
+        'confirm-clear-db': 'Naozaj chcete vymazať celú databázu? Táto akcia je nevratná!',
+        'confirm-delete-item': 'Naozaj chcete odstrániť túto položku z databázy?',
+        'db-filter-placeholder': 'Filtrovať databázu...',
+        'report-total-items': 'Celkový počet položiek',
+        'report-items-today': 'Položky pridané dnes',
+        'report-items-per-shelf': 'Položky podľa police',
+        'report-average-name-length': 'Priemerná dĺžka názvu',
+        'btn-save-db': 'Aktualizovať v databáze',
+        'quantity-label': 'Množstvo:',
+        'unsupported-format': 'Nepodporovaný formát',
+        'missing-data-import': 'Chýbajúce dáta v importovanom riadku.',
+        'large-import-success': 'Úspešne spracovaných {count} položiek.',
+        'processing-items': 'Spracovávam {count} položiek...',
+        'local-storage-limit-warning': 'Upozornenie: Lokálne úložisko prehliadača môže mať obmedzenú kapacitu (zvyčajne 5-10 MB). Pre veľmi veľké databázy (napr. 100 000 artiklov) môže nastať problém s ukladaním všetkých dát. Zvážte export dát pre zálohovanie.',
+        'import-skipped-rows': ' (Preskočených {count} riadkov kvôli chýbajúcim dátam.)',
+        'import-all-skipped': 'Žiadne dáta neboli importované. Preskočených {count} riadkov kvôli chýbajúcim dátam.',
+        'database-not-loaded': 'Databáza nie je načítaná. Nahrajte súbor data.xlsm cez import súborov.',
+        // Name tag specific translations
+        'name-tag-name-label': 'Meno',
+        'name-tag-surname-label': 'Priezvisko',
+        'name-tag-personal-number-label': 'Osobné číslo',
+        'name-tag-department-label': 'Oddelenie (voliteľné)',
+        'name-tag-name-placeholder': 'Ján',
+        'name-tag-surname-placeholder': 'Novák',
+        'name-tag-personal-number-placeholder': '1234567890',
+        'name-tag-department-placeholder': 'IT Podpora',
+        'name-tag-preview-title': 'Náhľad menovky',
+        'name-tag-help-desc': 'Zadajte meno, priezvisko a osobné číslo zamestnanca. Čiarový kód sa vygeneruje z osobného čísla.',
+        'name-tag-example-name': 'Meno',
+        'name-tag-example-surname': 'Priezvisko',
+        'name-tag-example-personal-number': 'Osobné číslo',
+        'name-tag-example-department': 'Oddelenie',
+        'name-tag-example-barcode': 'Čiarový kód',
+        'name-tag-help-note': 'Osobné číslo slúži ako identifikátor a generuje sa do čiarového kódu. Oddelenie je voliteľné.',
+        'shelf-preview-title': 'Náhľad štítka police'
+    },
+    en: {
+        'title': 'Label Printing System PRO',
+        'subtitle': 'Professional System for Schaeffler',
+        'tab-labels': 'Labels',
+        'tab-database': 'Database',
+        'tab-settings': 'Settings',
+        'search-title': 'Search Database',
+        'search-placeholder': 'Enter article, name or shelf...',
+        'filter-all': 'All',
+        'filter-location': 'Location',
+        'no-results': 'No results',
+        'quick-label': 'Quick Label',
+        'label-artikel': 'Article',
+        'label-name': 'Name',
+        'label-shelf': 'Shelf',
+        'btn-add-print': 'Add to Print',
+        'btn-save-print': 'Save + Print',
+        'preview-title': 'Label Preview (2" x 1")',
+        'template-default': 'Standard',
+        'template-compact': 'Compact',
+        'template-detailed': 'Detailed',
+        'labels-title': 'Labels to Print',
+        'labels-count-suffix': 'labels',
+        'btn-preview': 'Print Preview',
+        'btn-print': 'Print',
+        'btn-export-pdf': 'Export PDF',
+        'empty-title': 'No labels to print yet',
+        'empty-desc': 'Search for a product or add a quick label',
+        'stats-title': 'Statistics',
+        'stat-total': 'Total',
+        'stat-today': 'Today',
+        'chart-title': 'Category Chart',
+        'shortcuts-title': 'Keyboard Shortcuts',
+        'shortcut-search': 'Search',
+        'shortcut-add': 'Add Label',
+        'shortcut-print': 'Print',
+        'shortcut-theme': 'Change Theme',
+        'db-management': 'Database Management',
+        'quick-actions': 'Quick Actions',
+        'btn-clear': 'Clear DB',
+        'import-files': 'Import Files',
+        'drop-text': 'Drag files here or click to select (data.xlsm for database)',
+        'btn-import': 'Import Files',
+        'bulk-upload': 'Bulk Upload (text)',
+        'bulk-format': 'Format: Article;Name;Shelf',
+        'btn-bulk': 'Upload Bulk',
+        'add-single': 'Add Individually',
+        'btn-add-db': 'Add to Database',
+        'db-preview': 'Database (Preview)',
+        'loading': 'Loading...',
+        'reports-title': 'Reports & Statistics',
+        'btn-generate': 'Generate Report',
+        'btn-export-report': 'Export Report',
+        'settings-title': 'Settings',
+        'setting-theme': 'Appearance Theme',
+        'theme-light': 'Light',
+        'theme-dark': 'Dark',
+        'theme-auto': 'Auto',
+        'setting-lang': 'Language',
+        'setting-logo': 'Logo on Labels',
+        'logo-show': 'Show',
+        'logo-hide': 'Hide',
+        'setting-template': 'Default Template',
+        'btn-save-settings': 'Save Settings',
+        'preview-modal-title': 'Print Preview',
+        'btn-print-now': 'Print Now',
+        'toast-success-add-label': 'Label successfully added for printing!',
+        'toast-success-save-label': 'Label successfully saved and added for printing!',
+        'toast-success-db-add': 'Item successfully added to database!',
+        'toast-success-db-update': 'Item successfully updated in database!',
+        'toast-success-db-delete': 'Item successfully deleted from database!',
+        'toast-success-import': 'Data successfully imported!',
+        'toast-error-barcode': 'Error generating barcode. Article must be valid.',
+        'toast-error-bulk': 'Error in bulk upload. Check line format.',
+        'toast-error-db-add': 'Error adding item to database. Check inputs.',
+        'toast-error-db-update': 'Error updating item in database.',
+        'toast-error-db-delete': 'Error deleting item from database.',
+        'toast-warning-no-labels': 'No labels to print!',
+        'toast-warning-no-data': 'No data in database to export!',
+        'confirm-clear-db': 'Are you sure you want to clear the entire database? This action is irreversible!',
+        'confirm-delete-item': 'Are you sure you want to delete this item from the database?',
+        'db-filter-placeholder': 'Filter database...',
+        'report-total-items': 'Total Items',
+        'report-items-today': 'Items Added Today',
+        'report-items-per-shelf': 'Items by Shelf',
+        'report-average-name-length': 'Average Name Length',
+        'btn-save-db': 'Update in database',
+        'quantity-label': 'Quantity:',
+        'unsupported-format': 'Unsupported format',
+        'missing-data-import': 'Missing data in imported row.',
+        'large-import-success': 'Successfully processed {count} items.',
+        'processing-items': 'Processing {count} items...',
+        'local-storage-limit-warning': 'Warning: Browser local storage may have limited capacity (typically 5-10 MB). For very large databases (e.g., 100,000 articles), there might be issues with storing all data. Consider exporting data for backup.',
+        'import-skipped-rows': ' ({count} rows skipped due to missing data.)',
+        'import-all-skipped': 'No data imported. {count} rows skipped due to missing data.',
+        'database-not-loaded': 'Database not loaded. Upload data.xlsm file via file import.',
+        // Name tag specific translations
+        'name-tag-name-label': 'Name',
+        'name-tag-surname-label': 'Surname',
+        'name-tag-personal-number-label': 'Personal Number',
+        'name-tag-department-label': 'Department (optional)',
+        'name-tag-name-placeholder': 'John',
+        'name-tag-surname-placeholder': 'Smith',
+        'name-tag-personal-number-placeholder': '1234567890',
+        'name-tag-department-placeholder': 'IT Support',
+        'name-tag-preview-title': 'Name Tag Preview',
+        'name-tag-help-desc': 'Enter employee name, surname and personal number. Barcode will be generated from the personal number.',
+        'name-tag-example-name': 'Name',
+        'name-tag-example-surname': 'Surname',
+        'name-tag-example-personal-number': 'Personal Number',
+        'name-tag-example-department': 'Department',
+        'name-tag-example-barcode': 'Barcode',
+        'name-tag-help-note': 'Personal number serves as identifier and is generated into barcode. Department is optional.',
+        'shelf-preview-title': 'Shelf Label Preview'
+    },
+    de: {
+        'title': 'Etikettendrucksystem PRO',
+        'subtitle': 'Professionelles System für Schaeffler',
+        'tab-labels': 'Etiketten',
+        'tab-database': 'Datenbank',
+        'tab-settings': 'Einstellungen',
+        'search-title': 'Datenbank durchsuchen',
+        'search-placeholder': 'Artikel, Name oder Regal eingeben...',
+        'filter-all': 'Alle',
+        'filter-location': 'Standort',
+        'no-results': 'Keine Ergebnisse',
+        'quick-label': 'Schnelles Etikett',
+        'label-artikel': 'Artikel',
+        'label-name': 'Name',
+        'label-shelf': 'Regal',
+        'btn-add-print': 'Zum Druck hinzufügen',
+        'btn-save-print': 'Speichern + Drucken',
+        'preview-title': 'Etikettenvorschau (2" x 1")',
+        'template-default': 'Standard',
+        'template-compact': 'Kompakt',
+        'template-detailed': 'Detailliert',
+        'labels-title': 'Etiketten zum Drucken',
+        'labels-count-suffix': 'Etiketten',
+        'btn-preview': 'Druckvorschau',
+        'btn-print': 'Drucken',
+        'btn-export-pdf': 'PDF Exportieren',
+        'empty-title': 'Noch keine Etiketten zum Drucken',
+        'empty-desc': 'Produkt suchen oder schnelles Etikett hinzufügen',
+        'stats-title': 'Statistiken',
+        'stat-total': 'Gesamt',
+        'stat-today': 'Heute',
+        'chart-title': 'Kategorien-Diagramm',
+        'shortcuts-title': 'Tastenkürzel',
+        'shortcut-search': 'Suche',
+        'shortcut-add': 'Etikett hinzufügen',
+        'shortcut-print': 'Drucken',
+        'shortcut-theme': 'Thema wechseln',
+        'db-management': 'Datenbankverwaltung',
+        'quick-actions': 'Schnelle Aktionen',
+        'btn-clear': 'DB leeren',
+        'import-files': 'Dateien importieren',
+        'drop-text': 'Dateien hierher ziehen oder klicken zum Auswählen (data.xlsm für Datenbank)',
+        'btn-import': 'Dateien importieren',
+        'bulk-upload': 'Massen-Upload (Text)',
+        'bulk-format': 'Format: Artikel;Name;Regal',
+        'btn-bulk': 'Massen-Upload',
+        'add-single': 'Einzeln hinzufügen',
+        'btn-add-db': 'Zur Datenbank hinzufügen',
+        'db-preview': 'Datenbank (Vorschau)',
+        'loading': 'Laden...',
+        'reports-title': 'Berichte & Statistiken',
+        'btn-generate': 'Bericht generieren',
+        'btn-export-report': 'Export Bericht',
+        'settings-title': 'Einstellungen',
+        'setting-theme': 'Erscheinungsbild Thema',
+        'theme-light': 'Hell',
+        'theme-dark': 'Dunkel',
+        'theme-auto': 'Automatisch',
+        'setting-lang': 'Sprache',
+        'setting-logo': 'Logo auf Etiketten',
+        'logo-show': 'Anzeigen',
+        'logo-hide': 'Ausblenden',
+        'setting-template': 'Standardvorlage',
+        'btn-save-settings': 'Einstellungen speichern',
+        'preview-modal-title': 'Druckvorschau',
+        'btn-print-now': 'Jetzt drucken',
+        'toast-success-add-label': 'Etikett erfolgreich zum Drucken hinzugefügt!',
+        'toast-success-save-label': 'Etikett erfolgreich gespeichert und zum Drucken hinzugefügt!',
+        'toast-success-db-add': 'Element erfolgreich zur Datenbank hinzugefügt!',
+        'toast-success-db-update': 'Element erfolgreich in der Datenbank aktualisiert!',
+        'toast-success-db-delete': 'Element erfolgreich aus der Datenbank gelöscht!',
+        'toast-success-import': 'Daten erfolgreich importiert!',
+        'toast-error-barcode': 'Fehler beim Generieren des Barcodes. Artikel muss gültig sein.',
+        'toast-error-bulk': 'Fehler im Massen-Upload. Zeilenformat überprüfen.',
+        'toast-error-db-add': 'Fehler beim Hinzufügen des Elements zur Datenbank. Eingaben überprüfen.',
+        'toast-error-db-update': 'Fehler beim Aktualisieren des Elements in der Datenbank.',
+        'toast-error-db-delete': 'Fehler beim Löschen des Elements aus der Datenbank.',
+        'toast-warning-no-labels': 'Keine Etiketten zum Drucken!',
+        'toast-warning-no-data': 'Keine Daten in der Datenbank zum Exportieren!',
+        'confirm-clear-db': 'Möchten Sie wirklich die gesamte Datenbank leeren? Diese Aktion ist irreversibel!',
+        'confirm-delete-item': 'Möchten Sie dieses Element wirklich aus der Datenbank löschen?',
+        'db-filter-placeholder': 'Datenbank filtern...',
+        'report-total-items': 'Gesamtzahl der Artikel',
+        'report-items-today': 'Heute hinzugefügte Artikel',
+        'report-items-per-shelf': 'Artikel pro Regal',
+        'report-average-name-length': 'Durchschnittliche Namenslänge',
+        'btn-save-db': 'In Datenbank aktualisieren',
+        'quantity-label': 'Menge:',
+        'unsupported-format': 'Nicht unterstütztes Format',
+        'missing-data-import': 'Fehlende Daten in importierter Zeile.',
+        'large-import-success': '{count} Artikel erfolgreich verarbeitet.',
+        'processing-items': 'Verarbeite {count} Artikel...',
+        'local-storage-limit-warning': 'Warnung: Der lokale Speicher des Browsers hat möglicherweise eine begrenzte Kapazität (typischerweise 5-10 MB). Bei sehr großen Datenbanken (z. B. 100.000 Artikel) kann es zu Problemen beim Speichern aller Daten kommen. Erwägen Sie den Export von Daten zur Sicherung.',
+        'import-skipped-rows': ' ({count} Zeilen wurden aufgrund fehlender Daten übersprungen.)',
+        'import-all-skipped': 'Keine Daten importiert. {count} Zeilen wurden aufgrund fehlender Daten übersprungen.',
+        'database-not-loaded': 'Datenbank nicht geladen. Laden Sie die Datei data.xlsm über den Datei-Import hoch.',
+        // Name tag specific translations
+        'name-tag-name-label': 'Name',
+        'name-tag-surname-label': 'Nachname',
+        'name-tag-personal-number-label': 'Personalnummer',
+        'name-tag-department-label': 'Abteilung (optional)',
+        'name-tag-name-placeholder': 'Hans',
+        'name-tag-surname-placeholder': 'Müller',
+        'name-tag-personal-number-placeholder': '1234567890',
+        'name-tag-department-placeholder': 'IT Support',
+        'name-tag-preview-title': 'Namensschild Vorschau',
+        'name-tag-help-desc': 'Namen, Nachnamen und Personalnummer des Mitarbeiters eingeben. Barcode wird aus der Personalnummer generiert.',
+        'name-tag-example-name': 'Name',
+        'name-tag-example-surname': 'Nachname',
+        'name-tag-example-personal-number': 'Personalnummer',
+        'name-tag-example-department': 'Abteilung',
+        'name-tag-example-barcode': 'Barcode',
+        'name-tag-help-note': 'Personalnummer dient als Identifikator und wird in den Barcode generiert. Abteilung ist optional.',
+        'shelf-preview-title': 'Regal-Etikett Vorschau'
+    }
+};
+
+// Získanie referencií na DOM elementy
+const elements = {
+    // Taby
+    tabButtons: document.querySelectorAll('.tab'),
+    tabContents: document.querySelectorAll('.tab-content'),
+
+    // Hlavička
+    languageSelect: document.getElementById('languageSelect'),
+    themeToggle: document.getElementById('themeToggle'),
+    themeIcon: document.getElementById('themeIcon'),
+
+    // Štítky (Labels) tab
+    searchInput: document.getElementById('searchInput'),
+    searchResults: document.getElementById('searchResults'),
+    resultsList: document.getElementById('resultsList'),
+    filterButtons: document.querySelectorAll('.filter-btn'),
+    
+    quickArtikel: document.getElementById('quickArtikel'),
+    quickNazov: document.getElementById('quickNazov'),
+    quickPolica: document.getElementById('quickPolica'),
+    addQuickBtn: document.getElementById('addQuickBtn'),
+
+    previewArtikel: document.getElementById('previewArtikel'),
+    previewNazov: document.getElementById('previewNazov'),
+    previewPolica: document.getElementById('previewPolica'),
+    previewBarcode: document.getElementById('previewBarcode'),
+    // Odstránené: previewLogo: document.getElementById('previewLogo'),
+    templateSelect: document.getElementById('templateSelect'),
+
+    labelsCount: document.getElementById('labelsCount'),
+    previewBtn: document.getElementById('previewBtn'),
+    printBtn: document.getElementById('printBtn'),
+    // Odstránené: exportPdfBtn: document.getElementById('exportPdfBtn'),
+    emptyState: document.getElementById('emptyState'),
+    labelsList: document.getElementById('labelsList'),
+
+    // Tlačové sady (Print Sets)
+    printSetsSection: document.getElementById('printSetsSection'),
+    printSetName: document.getElementById('printSetName'),
+    savePrintSetBtn: document.getElementById('savePrintSetBtn'),
+    printSetsSelect: document.getElementById('printSetsSelect'),
+    loadPrintSetBtn: document.getElementById('loadPrintSetBtn'),
+    deletePrintSetBtn: document.getElementById('deletePrintSetBtn'),
+
+    // Hromadné akcie (Bulk Actions)
+    bulkActionsSection: document.getElementById('bulkActionsSection'),
+    selectAllLabels: document.getElementById('selectAllLabels'),
+    selectedCount: document.getElementById('selectedCount'),
+    bulkDeleteBtn: document.getElementById('bulkDeleteBtn'),
+    bulkQuantityBtn: document.getElementById('bulkQuantityBtn'),
+
+    totalCount: document.getElementById('totalCount'),
+
+    // Name tag tab elements
+    nameTagMeno: document.getElementById('nameTagMeno'),
+    nameTagPriezvisko: document.getElementById('nameTagPriezvisko'),
+    nameTagOsobneCislo: document.getElementById('nameTagOsobneCislo'),
+    nameTagOddelenie: document.getElementById('nameTagOddelenie'),
+    addNameTagBtn: document.getElementById('addNameTagBtn'),
+    nameTagPreviewPersonalNumber: document.getElementById('nameTagPreviewPersonalNumber'),
+    nameTagPreviewFullName: document.getElementById('nameTagPreviewFullName'),
+    nameTagPreviewDepartment: document.getElementById('nameTagPreviewDepartment'),
+    nameTagPreviewBarcode: document.getElementById('nameTagPreviewBarcode'),
+
+    // Shelf label tab elements  
+    shelfFach: document.getElementById('shelfFach'),
+    shelfPolica: document.getElementById('shelfPolica'),
+    addShelfLabelBtn: document.getElementById('addShelfLabelBtn'),
+    shelfPreviewFach: document.getElementById('shelfPreviewFach'),
+    shelfPreviewShelfDesc: document.getElementById('shelfPreviewShelfDesc'),
+    shelfPreviewShelfLocation: document.getElementById('shelfPreviewShelfLocation'),
+    shelfPreviewBarcode: document.getElementById('shelfPreviewBarcode'),
+
+    // Databáza (Database) tab
+    clearDbBtn: document.getElementById('clearDbBtn'),
+    exportCsvBtn: document.getElementById('exportCsvBtn'),
+    exportExcelBtn: document.getElementById('exportExcelBtn'),
+    exportJsonBtn: document.getElementById('exportJsonBtn'),
+    dropZone: document.getElementById('dropZone'),
+    fileImport: document.getElementById('fileImport'),
+    importFileBtn: document.getElementById('importFileBtn'),
+    newArtikel: document.getElementById('newArtikel'),
+    newNazov: document.getElementById('newNazov'),
+    newPolica: document.getElementById('newPolica'),
+    addDatabaseBtn: document.getElementById('addDatabaseBtn'),
+    dbSearchInput: document.getElementById('dbSearchInput'),
+    databaseList: document.getElementById('databaseList'),
+
+    // Nastavenia (Settings) tab
+    themeSelect: document.getElementById('themeSelect'),
+    languageSettingSelect: document.getElementById('languageSettingSelect'),
+    logoSelect: document.getElementById('logoSelect'),
+    defaultTemplateSelect: document.getElementById('defaultTemplateSelect'),
+    saveSettingsBtn: document.getElementById('saveSettingsBtn'),
+
+    // História tlače (Print History) tab
+    printHistoryList: document.getElementById('printHistoryList'),
+    historySearchInput: document.getElementById('historySearchInput'),
+    clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+    exportHistoryBtn: document.getElementById('exportHistoryBtn'),
+    totalPrintedLabels: document.getElementById('totalPrintedLabels'),
+    totalPrintSessions: document.getElementById('totalPrintSessions'),
+
+    // Modály a toasty
+    printPreviewModal: document.getElementById('printPreviewModal'),
+    closePrintPreview: document.getElementById('closePrintPreview'),
+    printPreviewContainer: document.getElementById('printPreviewContainer'),
+    printArea: document.getElementById('printArea'),
+    toast: document.getElementById('toast'),
+};
+
+// --- Utility funkcie ---
+
+/**
+ * Validuje artikel podľa striktných pravidiel: len čísla vo formáte 123456789-0000 alebo 1234567890000.
+ * @param {string} artikel - Artikel na validáciu.
+ * @returns {boolean} True ak je artikel platný, false ak nie.
+ */
+function validateArtikel(artikel) {
+    if (!artikel) return false;
+    
+    // Odstráni všetky pomlčky a medzery
+    const cleanArtikel = artikel.replace(/[-\s]/g, '');
+    
+    // Kontrola, či obsahuje len čísla
+    if (!/^\d+$/.test(cleanArtikel)) {
+        return false;
+    }
+    
+    // Kontrola dĺžky: buď presne 13 znakov (123456789-0000) alebo presne 13 znakov (1234567890000)
+    return cleanArtikel.length === 13;
+}
+
+/**
+ * Formátuje artikel do formátu xxx-xxx-xxx (len prvých 9 číslic).
+ * @param {string} artikel - Pôvodný artikel.
+ * @returns {string} Formátovaný artikel s pomlčkami (len prvých 9 číslic).
+ */
+function formatArtikel(artikel) {
+    if (!artikel) return '';
+    
+    // Odstráni všetky pomlčky a medzery
+    const cleanArtikel = artikel.replace(/[-\s]/g, '');
+    
+    // Vezme len prvých 9 číslic podľa požiadavky
+    const first9Digits = cleanArtikel.substring(0, 9);
+    
+    // Ak je kratší ako 3 znaky, vráti ako je
+    if (first9Digits.length <= 3) return first9Digits;
+    
+    // Ak je kratší ako 6 znakov, pridá jednu pomlčku
+    if (first9Digits.length <= 6) {
+        return first9Digits.substring(0, 3) + '-' + first9Digits.substring(3);
+    }
+    
+    // Pre 7-9 znakov pridá dve pomlčky vo formáte xxx-xxx-xxx
+    return first9Digits.substring(0, 3) + '-' + 
+           first9Digits.substring(3, 6) + '-' + 
+           first9Digits.substring(6);
+}
+
+/**
+ * Formátuje artikel pre čiarový kód v tvare 123456789-0000 (plné číslo s pomlčkou po 9. znaku).
+ * @param {string} artikel - Pôvodný artikel.
+ * @returns {string} Formátovaný artikel pre čiarový kód.
+ */
+function formatArtikelForBarcode(artikel) {
+    if (!artikel) return '';
+    
+    // Odstráni všetky pomlčky a medzery
+    const cleanArtikel = artikel.replace(/[-\s]/g, '');
+    
+    // Ak má viac ako 9 znakov, pridá pomlčku po 9. znaku
+    if (cleanArtikel.length > 9) {
+        return cleanArtikel.substring(0, 9) + '-' + cleanArtikel.substring(9);
+    }
+    
+    // Ak má 9 alebo menej znakov, vráti bez pomlčky
+    return cleanArtikel;
+}
+
+/**
+ * Generuje unikátne ID.
+ * @returns {string} Unikátne ID.
+ */
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+/**
+ * Debounce funkcia pre obmedzenie volania funkcie (napr. pri písaní do vyhľadávania).
+ * @param {function} func - Funkcia, ktorá sa má vykonať.
+ * @param {number} delay - Oneskorenie v milisekundách.
+ * @returns {function} Debounced funkcia.
+ */
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}
+
+/**
+ * Zobrazí toast notifikáciu.
+ * @param {string} message - Správa, ktorá sa má zobraziť.
+ * @param {string} type - Typ notifikácie ('success', 'error', 'warning').
+ */
+function showToast(message, type = 'info') {
+    elements.toast.textContent = message;
+    elements.toast.className = `toast show ${type}`;
+    setTimeout(() => {
+        elements.toast.className = 'toast';
+    }, 3000); // Skryť po 3 sekundách
+}
+
+/**
+ * Zobrazí/skryje spinner (načítavanie).
+ * @param {HTMLElement} element - Element, do ktorého sa má spinner pridať/odstrániť.
+ * @param {boolean} show - True pre zobrazenie, false pre skrytie.
+ */
+function showLoading(element, show) {
+    if (show) {
+        const spinner = document.createElement('div');
+        spinner.className = 'spinner';
+        element.innerHTML = ''; // Vymaže existujúci obsah
+        element.appendChild(spinner);
+    } else {
+        // Obnoví pôvodný obsah alebo ho vymaže
+        element.innerHTML = '';
+    }
+}
+
+// --- Načítanie databázy z používateľského súboru a zo servera ---
+
+/**
+ * Automaticky načíta databázu z Excel súboru 'data.xlsm' zo servera.
+ * Volá sa pri štarte aplikácie, ak je databáza prázdna.
+ */
+async function loadDatabaseFromServer() {
+    try {
+        console.log('Pokúšam sa načítať data.xlsm zo servera...');
+        
+        // Stiahnutie súboru zo servera pomocou fetch
+        const response = await fetch('data.xlsm');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Konverzia na ArrayBuffer pre spracovanie cez XLSX
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // Spracovanie Excel súboru pomocou SheetJS
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        // Prvý riadok je hlavička, preskočíme ho
+        const dataRows = rawData.slice(1);
+        
+        // Vynulovanie databázy pred načítaním nových dát
+        database = [];
+        let loadedCount = 0;
+        
+        // Spracovanie jednotlivých riadkov
+        dataRows.forEach((row, index) => {
+            // Podporujeme rôzne varianty názvov stĺpcov (veľké aj malé písmená)
+            const artikel = (row[0] || '').toString().trim();
+            const nazov = (row[1] || '').toString().trim();
+            const polica = (row[2] || '').toString().trim();
+            
+            // Pridanie len platných záznamov (všetky polia musia byť vyplnené)
+            if (artikel && nazov && polica) {
+                database.push({
+                    id: uuidv4(),
+                    artikel: artikel,
+                    nazov: nazov,
+                    polica: polica,
+                    addedDate: new Date().toISOString().slice(0, 10)
+                });
+                loadedCount++;
+            }
+        });
+        
+        console.log(`Databáza automaticky načítaná zo servera: ${loadedCount} položiek`);
+        
+        // Aktualizácia UI po úspešnom načítaní
+        renderDatabaseList();
+        updateStats();
+        
+        // Uloženie do localStorage
+        saveDataToLocalStorage();
+        
+        // Zobrazenie úspešnej notifikácie
+        showToast(`Databáza automaticky načítaná: ${loadedCount} položiek zo servera`, 'success');
+        
+    } catch (error) {
+        console.error('Chyba pri automatickom načítaní databázy zo servera:', error);
+        
+        // Zobrazenie chybovej notifikácie
+        let errorMessage = 'Chyba pri načítaní databázy zo servera.';
+        if (error.message.includes('404')) {
+            errorMessage += ' Súbor data.xlsm nebol nájdený.';
+        } else if (error.message.includes('network')) {
+            errorMessage += ' Problém s pripojením k serveru.';
+        }
+        
+        showToast(errorMessage, 'error');
+    }
+}
+
+/**
+ * Načíta databázu z Excel súboru data.xlsm nahraného používateľom.
+ * @param {File} file - Excel súbor nahratý používateľom
+ */
+async function loadDatabaseFromUserFile(file) {
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        // Prvý riadok je hlavička, preskočíme ho
+        const dataRows = rawData.slice(1);
+        
+        database = [];
+        dataRows.forEach((row, index) => {
+            const artikel = (row[0] || '').toString().trim();
+            const nazov = (row[1] || '').toString().trim();
+            const polica = (row[2] || '').toString().trim();
+            
+            if (artikel && nazov && polica) {
+                database.push({
+                    id: uuidv4(),
+                    artikel: artikel,
+                    nazov: nazov,
+                    polica: polica,
+                    addedDate: new Date().toISOString().slice(0, 10)
+                });
+            }
+        });
+        
+        console.log(`Databáza načítaná z používateľského súboru: ${database.length} položiek`);
+        
+        // Aktualizovať UI
+        renderDatabaseList();
+        updateStats();
+        renderLabelsToPrint();
+        
+        showToast(`Databáza načítaná: ${database.length} položiek z súboru ${file.name}`, 'success');
+        
+    } catch (error) {
+        console.error('Chyba pri načítaní Excel súboru:', error);
+        showToast('Chyba pri načítaní súboru. Skontrolujte formát súboru.', 'error');
+    }
+}
+
+// --- Lokálne úložisko (pre nastavenia a dočasné zmeny) ---
+
+/**
+ * Uloží nastavenia, dočasné zmeny databázy a štítky do lokálneho úložiska.
+ * Používa sa pre nastavenia VŽDY a pre dočasné zmeny databázy (po refreshi sa načíta z Excel).
+ */
+function saveDataToLocalStorage() {
+    try {
+        // Uložiť dočasné zmeny databázy (budú prepísané po refreshi)
+        localStorage.setItem('schaffleLabelDatabase', JSON.stringify(database));
+        localStorage.setItem('schaffleLabelsToPrint', JSON.stringify(labels));
+        localStorage.setItem('schafflePrintHistory', JSON.stringify(printHistory));
+        localStorage.setItem('schafflePrintSets', JSON.stringify(printSets));
+        localStorage.setItem('schaffleLabelIdCounter', labelIdCounter);
+        localStorage.setItem('schaffleSettings', JSON.stringify({
+            theme: currentTheme,
+            language: currentLanguage,
+            showLogo: showLogo,
+            defaultTemplate: currentTemplate
+        }));
+    } catch (e) {
+        console.error("Chyba pri ukladaní dát do lokálneho úložiska:", e);
+        showToast(translations[currentLanguage]['local-storage-limit-warning'], 'warning');
+    }
+}
+
+/**
+ * Načíta nastavenia a dočasné dáta z lokálneho úložiska.
+ * Používa sa pre nastavenia VŽDY. Databáza sa musí načítať cez súbor.
+ */
+function loadDataFromLocalStorage() {
+    try {
+        // Databáza sa už nenačítava z localStorage - musí sa načítať cez súbor
+        database = [];
+
+        const savedLabels = localStorage.getItem('schaffleLabelsToPrint');
+        if (savedLabels) {
+            labels = JSON.parse(savedLabels);
+        } else {
+            labels = [];
+        }
+
+        const savedPrintHistory = localStorage.getItem('schafflePrintHistory');
+        if (savedPrintHistory) {
+            printHistory = JSON.parse(savedPrintHistory);
+        } else {
+            printHistory = [];
+        }
+
+        const savedPrintSets = localStorage.getItem('schafflePrintSets');
+        if (savedPrintSets) {
+            printSets = JSON.parse(savedPrintSets);
+        } else {
+            printSets = {};
+        }
+
+        const savedIdCounter = localStorage.getItem('schaffleLabelIdCounter');
+        if (savedIdCounter) {
+            labelIdCounter = parseInt(savedIdCounter, 10);
+        } else {
+            labelIdCounter = 1;
+        }
+
+        // Nastavenia sa načítavajú vždy
+        const savedSettings = localStorage.getItem('schaffleSettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            currentTheme = settings.theme || 'light';
+            currentLanguage = settings.language || 'sk';
+            showLogo = typeof settings.showLogo === 'boolean' ? settings.showLogo : false; // Predvolene skryť logo
+            currentTemplate = settings.defaultTemplate || 'default';
+        } else {
+            // Predvolené nastavenia, ak nič nie je uložené
+            currentTheme = 'light';
+            currentLanguage = 'sk';
+            showLogo = false; // Predvolene skryť logo
+            currentTemplate = 'default';
+        }
+    } catch (e) {
+        console.error("Chyba pri načítaní dát z lokálneho úložiska:", e);
+        showToast(translations[currentLanguage]['toast-error-import'], 'error');
+        // Ak nastane chyba, resetujeme dáta
+        database = [];
+        labels = [];
+        printHistory = [];
+        printSets = {};
+        labelIdCounter = 1;
+        currentTheme = 'light';
+        currentLanguage = 'sk';
+        showLogo = false; // Predvolene skryť logo
+        currentTemplate = 'default';
+    }
+}
+
+// --- Internationalizácia (i18n) ---
+
+/**
+ * Aplikuje zvolený jazyk na všetky elementy s atribútom data-lang.
+ * @param {string} lang - Kód jazyka ('sk', 'en', 'de').
+ */
+function applyLanguage(lang) {
+    currentLanguage = lang;
+    document.querySelectorAll('[data-lang]').forEach(element => {
+        const key = element.getAttribute('data-lang');
+        if (translations[lang] && translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+    document.querySelectorAll('[data-lang-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-lang-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            element.placeholder = translations[lang][key];
+        }
+    });
+    // Aktualizovať náhľad štítka
+    updatePreview();
+    // Prekresliť databázu
+    renderDatabaseList();
+    // Aktualizovať štatistiky
+    updateStats();
+}
+
+// --- Správa tém ---
+
+/**
+ * Aplikuje zvolenú tému na stránku.
+ * @param {string} theme - Názov témy ('light', 'dark', 'auto').
+ */
+function applyTheme(theme) {
+    currentTheme = theme;
+    const root = document.documentElement;
+    if (theme === 'auto') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        elements.themeIcon.textContent = prefersDark ? '☀️' : '🌙';
+    } else {
+        root.setAttribute('data-theme', theme);
+        elements.themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    // Nastaviť hodnotu v nastaveniach
+    elements.themeSelect.value = theme;
+}
+
+// --- Správa tabov ---
+
+/**
+ * Prepína medzi tabmi.
+ * @param {string} tabId - ID tabu, ktorý sa má zobraziť.
+ */
+function switchTab(tabId) {
+    elements.tabContents.forEach(content => content.classList.remove('active'));
+    elements.tabButtons.forEach(button => button.classList.remove('active'));
+
+    document.getElementById(`${tabId}-tab`).classList.add('active');
+    document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+
+    // Špeciálne akcie pre konkrétne taby
+    if (tabId === 'database') {
+        renderDatabaseList(); // Prekresliť databázu pri prepnutí
+    } else if (tabId === 'labels') {
+        updatePreview(); // Aktualizovať náhľad štítka
+    }
+}
+
+// --- Funkcie pre tab "Štítky" ---
+
+/**
+ * Filtruje databázu na základe vyhľadávacieho dopytu a aktívneho filtra.
+ * Podporuje prefixové vyhľadávanie: polica:A1, nazov:"text", artikel:123456789
+ * @returns {Array} Pole filtrovaných výsledkov.
+ */
+function filterDatabase() {
+    const query = elements.searchInput.value.trim();
+    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+
+    if (!query) {
+        elements.searchResults.classList.add('hidden');
+        return [];
+    }
+
+    // Spracovanie prefixového vyhľadávania
+    const prefixRegex = /^(polica|nazov|artikel):\s*"?([^"]+)"?$/i;
+    const match = query.match(prefixRegex);
+
+    if (match) {
+        const [, prefix, searchTerm] = match;
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        
+        return database.filter(item => {
+            switch (prefix.toLowerCase()) {
+                case 'polica':
+                    return item.polica.toLowerCase().includes(lowerSearchTerm);
+                case 'nazov':
+                    return item.nazov.toLowerCase().includes(lowerSearchTerm);
+                case 'artikel':
+                    return item.artikel.toLowerCase().includes(lowerSearchTerm);
+                default:
+                    return false;
+            }
+        });
+    }
+
+    // Klasické vyhľadávanie bez prefixov
+    const lowerQuery = query.toLowerCase();
+    
+    const filtered = database.filter(item => {
+        switch (activeFilter) {
+            case 'all':
+                return item.artikel.toLowerCase().includes(lowerQuery) ||
+                       item.nazov.toLowerCase().includes(lowerQuery) ||
+                       item.polica.toLowerCase().includes(lowerQuery);
+            case 'location':
+                return item.polica.toLowerCase().includes(lowerQuery);
+            default:
+                return false;
+        }
+    });
+    return filtered;
+}
+
+/**
+ * Vykreslí výsledky vyhľadávania.
+ */
+function renderSearchResults() {
+    const filteredResults = filterDatabase();
+    elements.resultsList.innerHTML = '';
+
+    if (filteredResults.length === 0) {
+        elements.resultsList.innerHTML = `<div class="no-results">${translations[currentLanguage]['no-results']}</div>`;
+        elements.searchResults.classList.remove('hidden');
+        return;
+    }
+
+    filteredResults.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'result-item';
+        div.innerHTML = `
+            <div class="result-artikel">${item.artikel}</div>
+            <div class="result-nazov">${item.nazov}</div>
+            <div class="result-poznamka">${item.polica}</div>
+        `;
+        div.dataset.id = item.id;
+        div.addEventListener('click', () => {
+            // Predvyplniť rýchly štítok a pridať na tlač
+            elements.quickArtikel.value = item.artikel;
+            elements.quickNazov.value = item.nazov;
+            elements.quickPolica.value = item.polica;
+            addLabelToPrintList({ ...item, quantity: 1 }, div); // Pridaj 1 ks s animáciou
+            elements.searchInput.value = ''; // Vyčisti vyhľadávanie
+            elements.searchResults.classList.add('hidden'); // Skry výsledky
+            updateQuickLabelButtons();
+            updatePreview(); // Aktualizovať náhľad
+            showToast(translations[currentLanguage]['toast-success-add-label'], 'success');
+        });
+        elements.resultsList.appendChild(div);
+    });
+    elements.searchResults.classList.remove('hidden');
+}
+
+/**
+ * Aktualizuje stav tlačidiel "Pridať na tlač".
+ */
+function updateQuickLabelButtons() {
+    const artikel = elements.quickArtikel.value.trim();
+    const nazov = elements.quickNazov.value.trim();
+    // Polica už nie je povinná podľa požiadavky
+
+    const isValid = artikel && nazov && validateArtikel(artikel); // Pridaná validácia artikla
+    elements.addQuickBtn.disabled = !isValid;
+}
+
+/**
+ * Pridá štítok do zoznamu na tlač.
+ * @param {object} item - Objekt štítka (artikel, nazov, polica, quantity).
+ */
+/**
+ * Vytvorí animáciu presunu štítka pri pridaní do zoznamu na tlač.
+ * @param {HTMLElement} sourceElement - Element, z ktorého sa štítok presúva.
+ */
+function animateLabelAddition(sourceElement) {
+    if (!sourceElement) return;
+    
+    // Vytvorenie dočasného animačného elementu
+    const animElement = document.createElement('div');
+    animElement.className = 'label-animation';
+    animElement.innerHTML = '📋 Štítok pridaný!';
+    
+    // Získanie pozície zdrojového elementu
+    const sourceRect = sourceElement.getBoundingClientRect();
+    const targetElement = document.getElementById('labelsList');
+    const targetRect = targetElement.getBoundingClientRect();
+    
+    // Nastavenie počiatočnej pozície
+    animElement.style.position = 'fixed';
+    animElement.style.left = sourceRect.left + 'px';
+    animElement.style.top = sourceRect.top + 'px';
+    animElement.style.zIndex = '10000';
+    animElement.style.background = 'var(--success-color)';
+    animElement.style.color = 'white';
+    animElement.style.padding = '8px 12px';
+    animElement.style.borderRadius = '4px';
+    animElement.style.fontSize = '14px';
+    animElement.style.fontWeight = 'bold';
+    animElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+    animElement.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    animElement.style.opacity = '1';
+    animElement.style.transform = 'scale(1)';
+    
+    document.body.appendChild(animElement);
+    
+    // Spustenie animácie
+    setTimeout(() => {
+        animElement.style.left = targetRect.left + 'px';
+        animElement.style.top = targetRect.top + 'px';
+        animElement.style.transform = 'scale(0.8)';
+        animElement.style.opacity = '0.8';
+    }, 50);
+    
+    // Odstránenie elementu po animácii
+    setTimeout(() => {
+        if (animElement.parentNode) {
+            animElement.parentNode.removeChild(animElement);
+        }
+    }, 650);
+}
+
+/**
+ * Pridá štítok do zoznamu na tlač.
+ * @param {Object} item - Štítok na pridanie.
+ * @param {HTMLElement} sourceElement - Element pre animáciu (voliteľný).
+ */
+function addLabelToPrintList(item, sourceElement = null) {
+    const existingLabelIndex = labels.findIndex(l => l.artikel === item.artikel && l.nazov === item.nazov && l.polica === item.polica);
+
+    if (existingLabelIndex > -1) {
+        labels[existingLabelIndex].quantity += item.quantity;
+    } else {
+        labels.push({
+            id: uuidv4(), // Unikátne ID pre štítok v zozname na tlač
+            artikel: item.artikel,
+            nazov: item.nazov,
+            polica: item.polica,
+            quantity: item.quantity || 1
+        });
+    }
+    
+    // Spustenie animácie
+    if (sourceElement) {
+        animateLabelAddition(sourceElement);
+    }
+    
+    renderLabelsToPrint();
+    saveDataToLocalStorage(); // Uložiť zmeny štítkov
+}
+
+/**
+ * Vykreslí zoznam štítkov pripravených na tlač.
+ */
+function renderLabelsToPrint() {
+    elements.labelsList.innerHTML = '';
+    if (labels.length === 0) {
+        elements.emptyState.classList.remove('hidden');
+        elements.labelsList.classList.add('hidden');
+        elements.previewBtn.classList.add('hidden');
+        elements.printBtn.classList.add('hidden');
+        if (elements.printSetsSection) {
+            elements.printSetsSection.style.display = 'none';
+        }
+        if (elements.bulkActionsSection) {
+            elements.bulkActionsSection.style.display = 'none';
+        }
+        // Odstránené: elements.exportPdfBtn.classList.add('hidden');
+    } else {
+        elements.emptyState.classList.add('hidden');
+        elements.labelsList.classList.remove('hidden');
+        elements.previewBtn.classList.remove('hidden');
+        elements.printBtn.classList.remove('hidden');
+        if (elements.printSetsSection) {
+            elements.printSetsSection.style.display = 'block';
+        }
+        if (elements.bulkActionsSection) {
+            elements.bulkActionsSection.style.display = 'block';
+        }
+        // Odstránené: elements.exportPdfBtn.classList.remove('hidden');
+
+        labels.forEach(label => {
+            const div = document.createElement('div');
+            div.className = 'label-item';
+            div.dataset.id = label.id; // Používame unikátne ID pre SortableJS
+            div.innerHTML = `
+                <div class="label-content">
+                    <div class="label-checkbox">
+                        <input type="checkbox" class="label-checkbox-input" data-label-id="${label.id}">
+                    </div>
+                    <div class="label-info">
+                        <div class="label-artikel">${label.artikel}</div>
+                        <div class="label-nazov">${label.nazov}</div>
+                        <div class="label-poznamka">
+                            <span class="database-polica">${label.polica}</span>
+                        </div>
+                    </div>
+                    <div class="label-controls">
+                        <span class="quantity-label" data-lang="quantity-label">Množstvo:</span>
+                        <input type="number" class="quantity-input" value="${label.quantity}" min="1" data-id="${label.id}">
+                        <button class="btn btn-danger btn-small remove-label-btn" data-id="${label.id}">
+                            ✖️
+                        </button>
+                    </div>
+                </div>
+            `;
+            elements.labelsList.appendChild(div);
+        });
+
+        // Pridanie event listenerov pre checkboxy
+        elements.labelsList.querySelectorAll('.label-checkbox-input').forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkSelection);
+        });
+
+        // Pridanie event listenerov pre zmenu množstva a odstránenie
+        elements.labelsList.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const id = e.target.dataset.id;
+                const newQuantity = parseInt(e.target.value, 10);
+                const labelIndex = labels.findIndex(l => l.id === id);
+                if (labelIndex > -1 && newQuantity >= 1) {
+                    labels[labelIndex].quantity = newQuantity;
+                    saveDataToLocalStorage(); // Uložiť zmeny štítkov
+                } else if (newQuantity < 1) {
+                    // Ak je množstvo menej ako 1, odstrániť štítok
+                    removeLabelFromPrintList(id);
+                }
+            });
+        });
+
+        elements.labelsList.querySelectorAll('.remove-label-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const id = e.currentTarget.dataset.id;
+                removeLabelFromPrintList(id);
+            });
+        });
+
+        // Inicializácia SortableJS
+        new Sortable(elements.labelsList, {
+            animation: 150,
+            onEnd: function (evt) {
+                const movedItem = labels.splice(evt.oldIndex, 1)[0];
+                labels.splice(evt.newIndex, 0, movedItem);
+                saveDataToLocalStorage(); // Uložiť zmeny štítkov
+                renderLabelsToPrint(); // Prekresliť pre správne zobrazenie
+            }
+        });
+    }
+    updateLabelsCount();
+    updatePrintButtons();
+}
+
+/**
+ * Odstráni štítok zo zoznamu na tlač.
+ * @param {string} id - ID štítka.
+ */
+function removeLabelFromPrintList(id) {
+    labels = labels.filter(label => label.id !== id);
+    renderLabelsToPrint();
+    saveDataToLocalStorage(); // Uložiť zmeny štítkov
+}
+
+/**
+ * Aktualizuje počet štítkov na tlač.
+ */
+function updateLabelsCount() {
+    const totalLabels = labels.reduce((sum, label) => sum + label.quantity, 0);
+    elements.labelsCount.textContent = `${totalLabels} ${translations[currentLanguage]['labels-count-suffix']}`;
+}
+
+/**
+ * Aktualizuje viditeľnosť tlačidiel "Náhľad tlače" a "Tlačiť".
+ */
+function updatePrintButtons() {
+    if (labels.length > 0) {
+        elements.previewBtn.classList.remove('hidden');
+        elements.printBtn.classList.remove('hidden');
+        // Odstránené: elements.exportPdfBtn.classList.remove('hidden');
+    } else {
+        elements.previewBtn.classList.add('hidden');
+        elements.printBtn.classList.add('hidden');
+        // Odstránené: elements.exportPdfBtn.classList.add('hidden');
+    }
+}
+
+/**
+ * Aktualizuje náhľad štítka na základe vstupov alebo vybraného štítka.
+ */
+function updatePreview() {
+    const artikel = elements.quickArtikel.value || '123456789';
+    const nazov = elements.quickNazov.value || translations[currentLanguage]['preview-nazov-placeholder'] || 'Ukážkový produkt s dlhším názvom';
+    const polica = elements.quickPolica.value || 'A1-B2-C3';
+
+    // Formátovanie artiklu s pomlčkami
+    const formattedArtikel = formatArtikel(artikel);
+    elements.previewArtikel.textContent = formattedArtikel;
+    elements.previewNazov.textContent = nazov;
+    elements.previewPolica.textContent = polica;
+
+    // Logo je vždy skryté podľa požiadavky
+    // Odstránené: elements.previewLogo.style.display = showLogo ? 'block' : 'none';
+
+    // Aplikovať šablónu
+    const template = elements.templateSelect.value || currentTemplate;
+    applyTemplateToPreview(template);
+
+    // Generovanie čiarového kódu (použije formátovaný artikel pre čiarový kód)
+    try {
+        const barcodeArtikel = formatArtikelForBarcode(artikel);
+        JsBarcode("#previewBarcode", barcodeArtikel, {
+            format: "CODE128",
+            displayValue: false,
+            height: 20, // Presná výška podľa špecifikácie
+            width: 1,
+            margin: 0
+        });
+    } catch (e) {
+        console.error("Chyba pri generovaní náhľadu čiarového kódu:", e);
+        // Môže sa stať, ak je artikel prázdny alebo neplatný
+        elements.previewBarcode.innerHTML = '<text x="0" y="20" font-size="8" fill="red">Neplatný artikel</text>';
+    }
+}
+
+/**
+ * Aplikuje šablónu na náhľad štítka.
+ * @param {string} template - Názov šablóny ('default', 'compact', 'detailed').
+ */
+function applyTemplateToPreview(template) {
+    const previewLabel = document.querySelector('.preview-label');
+    previewLabel.className = 'preview-label'; // Reset classes
+    previewLabel.classList.add(`template-${template}`);
+}
+
+/**
+ * Validuje osobné číslo pre menovky.
+ * @param {string} personalNumber - Osobné číslo na validáciu.
+ * @returns {boolean} True ak je osobné číslo platné, false ak nie.
+ */
+function validatePersonalNumber(personalNumber) {
+    if (!personalNumber) return false;
+    
+    // Odstráni všetky medzery a pomlčky
+    const cleanNumber = personalNumber.replace(/[-\s]/g, '');
+    
+    // Kontrola, či obsahuje len čísla
+    if (!/^\d+$/.test(cleanNumber)) {
+        return false;
+    }
+    
+    // Kontrola dĺžky: aspoň 6 číslic, maximálne 15
+    return cleanNumber.length >= 6 && cleanNumber.length <= 15;
+}
+
+/**
+ * Aktualizuje náhľad menovky na základe vstupov.
+ */
+function updateNameTagPreview() {
+    const meno = elements.nameTagMeno ? elements.nameTagMeno.value || 'Ján' : 'Ján';
+    const priezvisko = elements.nameTagPriezvisko ? elements.nameTagPriezvisko.value || 'Novák' : 'Novák';
+    const osobneCislo = elements.nameTagOsobneCislo ? elements.nameTagOsobneCislo.value || '1234567890' : '1234567890';
+    const oddelenie = elements.nameTagOddelenie ? elements.nameTagOddelenie.value || 'IT Podpora' : 'IT Podpora';
+
+    if (elements.nameTagPreviewPersonalNumber) {
+        elements.nameTagPreviewPersonalNumber.textContent = osobneCislo;
+    }
+    if (elements.nameTagPreviewFullName) {
+        elements.nameTagPreviewFullName.textContent = `${meno} ${priezvisko}`;
+    }
+    if (elements.nameTagPreviewDepartment) {
+        elements.nameTagPreviewDepartment.textContent = oddelenie;
+    }
+
+    // Generovanie čiarového kódu z osobného čísla
+    if (elements.nameTagPreviewBarcode) {
+        try {
+            JsBarcode("#nameTagPreviewBarcode", osobneCislo, {
+                format: "CODE128",
+                displayValue: false,
+                height: 20,
+                width: 1,
+                margin: 0
+            });
+        } catch (e) {
+            console.error("Chyba pri generovaní náhľadu čiarového kódu menovky:", e);
+            elements.nameTagPreviewBarcode.innerHTML = '<text x="0" y="20" font-size="8" fill="red">Neplatné osobné číslo</text>';
+        }
+    }
+}
+
+/**
+ * Aktualizuje náhľad štítka police na základe vstupov.
+ */
+function updateShelfPreview() {
+    const fach = elements.shelfFach ? elements.shelfFach.value || '0501' : '0501';
+    const polica = elements.shelfPolica ? elements.shelfPolica.value || '00-00-00' : '00-00-00';
+
+    if (elements.shelfPreviewFach) {
+        elements.shelfPreviewFach.textContent = fach;
+    }
+    if (elements.shelfPreviewShelfDesc) {
+        elements.shelfPreviewShelfDesc.textContent = 'Polica štítok';
+    }
+    if (elements.shelfPreviewShelfLocation) {
+        elements.shelfPreviewShelfLocation.textContent = `${fach}\t${polica}`;
+    }
+
+    // Generovanie čiarového kódu vo formáte "FACH[TAB]POLICA"
+    if (elements.shelfPreviewBarcode) {
+        try {
+            const barcodeData = `${fach}\t${polica}`;
+            JsBarcode("#shelfPreviewBarcode", barcodeData, {
+                format: "CODE128",
+                displayValue: false,
+                height: 20,
+                width: 1,
+                margin: 0
+            });
+        } catch (e) {
+            console.error("Chyba pri generovaní náhľadu čiarového kódu police:", e);
+            elements.shelfPreviewBarcode.innerHTML = '<text x="0" y="20" font-size="8" fill="red">Neplatné údaje</text>';
+        }
+    }
+}
+
+/**
+ * Aktualizuje stav tlačidiel pre menovky.
+ */
+function updateNameTagButtons() {
+    const meno = elements.nameTagMeno ? elements.nameTagMeno.value.trim() : '';
+    const priezvisko = elements.nameTagPriezvisko ? elements.nameTagPriezvisko.value.trim() : '';
+    const osobneCislo = elements.nameTagOsobneCislo ? elements.nameTagOsobneCislo.value.trim() : '';
+
+    const isValid = meno && priezvisko && osobneCislo && validatePersonalNumber(osobneCislo);
+    if (elements.addNameTagBtn) {
+        elements.addNameTagBtn.disabled = !isValid;
+    }
+}
+
+/**
+ * Aktualizuje stav tlačidiel pre police.
+ */
+function updateShelfButtons() {
+    const fach = elements.shelfFach ? elements.shelfFach.value.trim() : '';
+    const polica = elements.shelfPolica ? elements.shelfPolica.value.trim() : '';
+
+    const isValid = fach && polica;
+    if (elements.addShelfLabelBtn) {
+        elements.addShelfLabelBtn.disabled = !isValid;
+    }
+}
+
+/**
+ * Zobrazí modal s náhľadom tlače.
+ */
+function showPrintPreviewModal() {
+    if (labels.length === 0) {
+        showToast(translations[currentLanguage]['toast-warning-no-labels'], 'warning');
+        return;
+    }
+
+    elements.printPreviewContainer.innerHTML = ''; // Vyčistiť predchádzajúci náhľad
+
+    labels.forEach(label => {
+        for (let i = 0; i < label.quantity; i++) {
+            const printLabelDiv = document.createElement('div');
+            
+            // Determine template class based on label type
+            let templateClass = `template-${currentTemplate}`;
+            if (label.type === 'nametag') {
+                templateClass = 'template-nametag';
+            } else if (label.type === 'shelf') {
+                templateClass = 'template-shelf';
+            }
+            
+            printLabelDiv.className = `preview-label-item ${templateClass}`;
+            
+            // Generate different content based on label type
+            if (label.type === 'nametag') {
+                printLabelDiv.innerHTML = `
+                    <div class="preview-content">
+                        <!-- Prvý riadok: Čiarový kód -->
+                        <div class="preview-barcode-row">
+                            <svg id="barcode-${label.id}-${i}"></svg>
+                        </div>
+                        <!-- Druhý riadok: Osobné číslo -->
+                        <div class="preview-personal-number">${label.osobneCislo}</div>
+                        <!-- Tretí riadok: Celé meno -->
+                        <div class="preview-full-name">${label.meno} ${label.priezvisko}</div>
+                        <!-- Štvrtý riadok: Horizontálna čiara -->
+                        <div class="preview-line"></div>
+                        <!-- Piaty riadok: Oddelenie -->
+                        <div class="preview-department">${label.oddelenie || ''}</div>
+                    </div>
+                `;
+            } else if (label.type === 'shelf') {
+                printLabelDiv.innerHTML = `
+                    <div class="preview-content">
+                        <!-- Prvý riadok: Čiarový kód -->
+                        <div class="preview-barcode-row">
+                            <svg id="barcode-${label.id}-${i}"></svg>
+                        </div>
+                        <!-- Druhý riadok: Fach -->
+                        <div class="preview-fach">${label.fach}</div>
+                        <!-- Tretí riadok: Popis -->
+                        <div class="preview-shelf-desc">Polica štítok</div>
+                        <!-- Štvrtý riadok: Horizontálna čiara -->
+                        <div class="preview-line"></div>
+                        <!-- Piaty riadok: Umiestnenie -->
+                        <div class="preview-shelf-location">${label.fach}	${label.policaLocation}</div>
+                    </div>
+                `;
+            } else {
+                // Regular label (default behavior)
+                printLabelDiv.innerHTML = `
+                    <div class="preview-content">
+                        <!-- Prvý riadok: Čiarový kód -->
+                        <div class="preview-barcode-row">
+                            <svg id="barcode-${label.id}-${i}"></svg>
+                        </div>
+                        <!-- Druhý riadok: Artikel -->
+                        <div class="preview-artikel">${formatArtikel(label.artikel)}</div>
+                        <!-- Tretí riadok: Názov produktu -->
+                        <div class="preview-nazov">${label.nazov}</div>
+                        <!-- Štvrtý riadok: Horizontálna čiara -->
+                        <div class="preview-line"></div>
+                        <!-- Piaty riadok: Polica -->
+                        <div class="preview-polica">${label.polica}</div>
+                    </div>
+                `;
+            }
+            
+            elements.printPreviewContainer.appendChild(printLabelDiv);
+
+            // Generovanie čiarového kódu pre každý štítok v náhľade modalu
+            try {
+                let barcodeData;
+                if (label.type === 'nametag') {
+                    barcodeData = label.osobneCislo;
+                } else if (label.type === 'shelf') {
+                    barcodeData = `${label.fach}\t${label.policaLocation}`;
+                } else {
+                    barcodeData = formatArtikelForBarcode(label.artikel);
+                }
+                
+                JsBarcode(`#barcode-${label.id}-${i}`, barcodeData, {
+                    format: "CODE128",
+                    displayValue: false,
+                    height: 24, // Presná výška podľa špecifikácie
+                    width: 1,
+                    margin: 0
+                });
+            } catch (e) {
+                console.error("Chyba pri generovaní čiarového kódu v modale:", e);
+                document.getElementById(`barcode-${label.id}-${i}`).innerHTML = '<text x="0" y="20" font-size="8" fill="red">Neplatný kód</text>';
+            }
+        }
+    });
+
+    elements.printPreviewModal.style.display = 'block';
+}
+
+/**
+ * Exportuje štítky ako vektorový PDF súbor pomocou jsPDF a svg2pdf.js.
+ * Funkcia vytvorí SVG elementy pre každý štítok a konvertuje ich do PDF formátu.
+ * Zabezpečuje vysokú kvalitu tlače vhodnú pre firemné použitie.
+ */
+async function exportLabelSVGtoPDF() {
+    if (labels.length === 0) {
+        showToast(translations[currentLanguage]['toast-warning-no-labels'], 'warning');
+        return;
+    }
+
+    try {
+        // Kontrola dostupnosti jsPDF knižnice
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            showToast('PDF export nie je k dispozícii kvôli chýbajúcim knižniciam. Použite tlačidlo "Tlačiť" pre tlač štítkov.', 'warning');
+            return;
+        }
+
+        // Inicializácia jsPDF - vytvorenie nového PDF dokumentu
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'in', // palce pre presné rozloženie štítkov
+            format: 'letter' // štandardný formát papiera
+        });
+
+        // Rozmer štítka v palcoch (2" x 1" podľa špecifikácie)
+        const labelWidthInches = 2;
+        const labelHeightInches = 1;
+        
+        // Medzery medzi štítkami pre lepšie usporiadanie
+        const marginX = 0.25;
+        const marginY = 0.25;
+        
+        // Výpočet počtu štítkov na stránku
+        const pageWidth = 8.5; // šírka Letter formátu
+        const pageHeight = 11; // výška Letter formátu
+        const labelsPerRow = Math.floor((pageWidth - marginX) / (labelWidthInches + marginX));
+        const labelsPerColumn = Math.floor((pageHeight - marginY) / (labelHeightInches + marginY));
+        const labelsPerPage = labelsPerRow * labelsPerColumn;
+
+        let currentLabelCount = 0;
+        let currentPageLabelCount = 0;
+
+        // Zobrazenie progress notifikácie
+        showToast(`Generujem PDF... ${labels.length} štítkov`, 'info');
+
+        // Iterácia cez všetky štítky v zozname
+        for (const label of labels) {
+            // Pre každé množstvo daného štítka
+            for (let i = 0; i < label.quantity; i++) {
+                // Ak je potrebná nová stránka
+                if (currentPageLabelCount >= labelsPerPage) {
+                    pdf.addPage();
+                    currentPageLabelCount = 0;
+                }
+
+                // Výpočet pozície štítka na stránke
+                const row = Math.floor(currentPageLabelCount / labelsPerRow);
+                const col = currentPageLabelCount % labelsPerRow;
+                const x = marginX + col * (labelWidthInches + marginX);
+                const y = marginY + row * (labelHeightInches + marginY);
+
+                // Vytvorenie SVG elementa pre štítok
+                const svgElement = await createLabelSVG(label, labelWidthInches, labelHeightInches);
+                
+                // Konverzia SVG do PDF pomocou svg2pdf.js
+                if (pdf.svg && typeof pdf.svg === 'function') {
+                    await pdf.svg(svgElement, {
+                        x: x,
+                        y: y,
+                        width: labelWidthInches,
+                        height: labelHeightInches
+                    });
+                } else {
+                    // Fallback ak svg2pdf nie je dostupné - použije sa text
+                    const formattedArtikel = formatArtikel(label.artikel);
+                    pdf.setFontSize(14);
+                    pdf.text(formattedArtikel, x + labelWidthInches/2, y + 0.3, { align: 'center' });
+                    pdf.setFontSize(8);
+                    pdf.text(label.nazov.substring(0, 30), x + labelWidthInches/2, y + 0.5, { align: 'center' });
+                    pdf.setFontSize(8);
+                    pdf.text(label.polica, x + labelWidthInches/2, y + 0.8, { align: 'center' });
+                    
+                    // Pridanie ohraničenia štítka
+                    pdf.rect(x, y, labelWidthInches, labelHeightInches);
+                }
+
+                currentLabelCount++;
+                currentPageLabelCount++;
+            }
+        }
+
+        // Generovanie názvu súboru s aktuálnym dátumom
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const filename = `schaeffler_labels_${currentDate}.pdf`;
+        
+        // Uloženie PDF súboru
+        pdf.save(filename);
+        
+        // Zobrazenie úspešnej notifikácie
+        showToast(`PDF exportované úspešne: ${currentLabelCount} štítkov v súbore ${filename}`, 'success');
+
+    } catch (error) {
+        console.error('Chyba pri exporte PDF:', error);
+        showToast('Nastala chyba pri exporte PDF. Použite tlačidlo "Tlačiť" pre tlač štítkov.', 'error');
+    }
+}
+
+/**
+ * Vytvorí SVG element pre jednotlivý štítok s presnou špecifikáciou rozloženia.
+ * @param {Object} label - Objekt štítka obsahujúci artikel, názov a policu
+ * @param {number} width - Šírka štítka v palcoch
+ * @param {number} height - Výška štítka v palcoch
+ * @returns {SVGElement} SVG element reprezentujúci štítok
+ */
+async function createLabelSVG(label, width, height) {
+    // Konverzia palcov na pixely (96 DPI štandard)
+    const widthPx = width * 96;
+    const heightPx = height * 96;
+    
+    // Získanie hodnôt CSS premenných pre veľkosti písma
+    const rootStyles = getComputedStyle(document.documentElement);
+    const artikelFontSize = parseInt(rootStyles.getPropertyValue('--label-artikel-font-size'));
+    const nazovFontSize = parseInt(rootStyles.getPropertyValue('--label-nazov-font-size'));
+    const policaFontSize = parseInt(rootStyles.getPropertyValue('--label-polica-font-size'));
+    const barcodeHeight = parseInt(rootStyles.getPropertyValue('--label-barcode-height'));
+    
+    // Vytvorenie SVG kontajnera
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', widthPx);
+    svg.setAttribute('height', heightPx);
+    svg.setAttribute('viewBox', `0 0 ${widthPx} ${heightPx}`);
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    
+    // Pridanie bieleho pozadia s čiernym okrajom
+    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    background.setAttribute('x', '0');
+    background.setAttribute('y', '0');
+    background.setAttribute('width', widthPx);
+    background.setAttribute('height', heightPx);
+    background.setAttribute('fill', 'white');
+    background.setAttribute('stroke', 'black');
+    background.setAttribute('stroke-width', '1');
+    svg.appendChild(background);
+
+    // Logo firmy je odstránené podľa požiadavky
+
+    // Rozloženie obsahu štítka - 5 riadkov podľa špecifikácie
+    let currentY = 8; // Počiatočná pozícia Y
+    
+    // 1. RIADOK: Čiarový kód (výška z CSS premennej)
+    const barcodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    
+    try {
+        // Vytvorenie dočasného Canvas elementu pre generovanie čiarového kódu
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = widthPx - 16; // Šírka s padding
+        tempCanvas.height = barcodeHeight;
+        
+        // Generovanie čiarového kódu pomocou JsBarcode
+        JsBarcode(tempCanvas, formatArtikelForBarcode(label.artikel), {
+            format: "CODE128",
+            displayValue: false,
+            height: barcodeHeight,
+            width: 1,
+            margin: 0,
+            background: 'transparent'
+        });
+        
+        // Konverzia Canvas na Data URL a vloženie do SVG
+        const dataURL = tempCanvas.toDataURL('image/png');
+        const barcodeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        barcodeImage.setAttribute('x', '8');
+        barcodeImage.setAttribute('y', currentY);
+        barcodeImage.setAttribute('width', widthPx - 16);
+        barcodeImage.setAttribute('height', barcodeHeight);
+        barcodeImage.setAttribute('href', dataURL);
+        barcodeGroup.appendChild(barcodeImage);
+        
+    } catch (error) {
+        console.warn('Chyba pri generovaní čiarového kódu, použije sa záložný text:', error);
+        // Záložný text ak zlyhá generovanie čiarového kódu
+        const fallbackText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        fallbackText.setAttribute('x', widthPx / 2);
+        fallbackText.setAttribute('y', currentY + barcodeHeight / 2);
+        fallbackText.setAttribute('text-anchor', 'middle');
+        fallbackText.setAttribute('fill', 'black');
+        fallbackText.setAttribute('font-family', 'Arial, sans-serif');
+        fallbackText.setAttribute('font-size', '8');
+        fallbackText.textContent = formatArtikelForBarcode(label.artikel);
+        barcodeGroup.appendChild(fallbackText);
+    }
+    
+    svg.appendChild(barcodeGroup);
+    currentY += barcodeHeight + 2;
+
+    // 2. RIADOK: Artikel vo formáte xxx-xxx-xxx (veľkosť z CSS premennej)
+    const artikelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    artikelText.setAttribute('x', widthPx / 2);
+    artikelText.setAttribute('y', currentY);
+    artikelText.setAttribute('text-anchor', 'middle');
+    artikelText.setAttribute('fill', 'black');
+    artikelText.setAttribute('font-family', 'Arial, sans-serif');
+    artikelText.setAttribute('font-size', artikelFontSize); // Ľahko upraviteľná veľkosť cez CSS/SVG
+    artikelText.textContent = formatArtikel(label.artikel);
+    svg.appendChild(artikelText);
+    currentY += 16;
+
+    // 3. RIADOK: Názov produktu (veľkosť z CSS premennej)
+    const nazovText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    nazovText.setAttribute('x', widthPx / 2);
+    nazovText.setAttribute('y', currentY);
+    nazovText.setAttribute('text-anchor', 'middle');
+    nazovText.setAttribute('fill', 'black');
+    nazovText.setAttribute('font-family', 'Arial, sans-serif');
+    nazovText.setAttribute('font-size', nazovFontSize); // Ľahko upraviteľná veľkosť cez CSS/SVG
+    
+    // Skrátenie textu ak je príliš dlhý
+    let nazovTextContent = label.nazov;
+    if (nazovTextContent.length > 50) {
+        nazovTextContent = nazovTextContent.substring(0, 47) + '...';
+    }
+    nazovText.textContent = nazovTextContent;
+    svg.appendChild(nazovText);
+    currentY += 12;
+
+    // 4. RIADOK: Horizontálna čiara
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', '8');
+    line.setAttribute('y1', currentY);
+    line.setAttribute('x2', widthPx - 8);
+    line.setAttribute('y2', currentY);
+    line.setAttribute('stroke', 'black');
+    line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+    currentY += 4;
+
+    // 5. RIADOK: Polica - tučné, kurzíva (veľkosť z CSS premennej)
+    const policaText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    policaText.setAttribute('x', widthPx / 2);
+    policaText.setAttribute('y', currentY);
+    policaText.setAttribute('text-anchor', 'middle');
+    policaText.setAttribute('fill', 'black');
+    policaText.setAttribute('font-family', 'Arial, sans-serif');
+    policaText.setAttribute('font-size', policaFontSize); // Ľahko upraviteľná veľkosť cez CSS/SVG
+    policaText.setAttribute('font-weight', 'bold'); // Tučné
+    policaText.setAttribute('font-style', 'italic'); // Kurzíva
+    policaText.textContent = label.polica;
+    svg.appendChild(policaText);
+
+    return svg;
+}
+
+
+/**
+ * Aktualizuje počet označených štítkov a stav hromadných akcií.
+ */
+function updateBulkSelection() {
+    if (!elements.selectedCount || !elements.bulkDeleteBtn || !elements.bulkQuantityBtn) return;
+    
+    const checkboxes = document.querySelectorAll('.label-checkbox-input');
+    const selectedCheckboxes = document.querySelectorAll('.label-checkbox-input:checked');
+    const selectedCount = selectedCheckboxes.length;
+    
+    // Aktualizovať počet označených
+    elements.selectedCount.textContent = `${selectedCount} ${translations[currentLanguage]['bulk-selected-count']}`;
+    
+    // Aktivovať/deaktivovať tlačidlá
+    const hasSelection = selectedCount > 0;
+    elements.bulkDeleteBtn.disabled = !hasSelection;
+    elements.bulkQuantityBtn.disabled = !hasSelection;
+    
+    // Aktualizovať stav "označiť všetky"
+    if (elements.selectAllLabels) {
+        elements.selectAllLabels.checked = selectedCount === checkboxes.length && selectedCount > 0;
+        elements.selectAllLabels.indeterminate = selectedCount > 0 && selectedCount < checkboxes.length;
+    }
+}
+
+/**
+ * Označí/odznačí všetky štítky.
+ * @param {boolean} checked - Či majú byť štítky označené.
+ */
+function selectAllLabels(checked) {
+    const checkboxes = document.querySelectorAll('.label-checkbox-input');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = checked;
+    });
+    updateBulkSelection();
+}
+
+/**
+ * Zmaže označené štítky.
+ */
+function deleteBulkLabels() {
+    const selectedCheckboxes = document.querySelectorAll('.label-checkbox-input:checked');
+    if (selectedCheckboxes.length === 0) {
+        showToast(translations[currentLanguage]['toast-error-no-selection'], 'error');
+        return;
+    }
+    
+    if (confirm(translations[currentLanguage]['confirm-bulk-delete'])) {
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.labelId);
+        labels = labels.filter(label => !selectedIds.includes(label.id));
+        
+        renderLabelsToPrint();
+        saveDataToLocalStorage();
+        showToast(translations[currentLanguage]['toast-success-bulk-delete'], 'success');
+    }
+}
+
+/**
+ * Zmení množstvo označených štítkov.
+ */
+function changeBulkQuantity() {
+    const selectedCheckboxes = document.querySelectorAll('.label-checkbox-input:checked');
+    if (selectedCheckboxes.length === 0) {
+        showToast(translations[currentLanguage]['toast-error-no-selection'], 'error');
+        return;
+    }
+    
+    const newQuantity = prompt(translations[currentLanguage]['bulk-change-quantity'], '1');
+    if (newQuantity === null) return; // Zrušené užívateľom
+    
+    const quantity = parseInt(newQuantity, 10);
+    if (isNaN(quantity) || quantity < 1) {
+        showToast(translations[currentLanguage]['toast-error-invalid-quantity'], 'error');
+        return;
+    }
+    
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.labelId);
+    labels.forEach(label => {
+        if (selectedIds.includes(label.id)) {
+            label.quantity = quantity;
+        }
+    });
+    
+    renderLabelsToPrint();
+    saveDataToLocalStorage();
+    showToast(translations[currentLanguage]['toast-success-bulk-quantity'], 'success');
+}
+
+/**
+ * Uloží aktuálny zoznam štítkov ako tlačovú sadu.
+ * @param {string} setName - Názov tlačovej sady.
+ */
+function savePrintSet(setName) {
+    if (!setName || !setName.trim()) {
+        showToast(translations[currentLanguage]['toast-error-set-name'], 'error');
+        return;
+    }
+    
+    if (labels.length === 0) {
+        showToast(translations[currentLanguage]['toast-error-no-labels-save'], 'error');
+        return;
+    }
+    
+    const trimmedName = setName.trim();
+    printSets[trimmedName] = [...labels]; // Kópia aktuálnych štítkov
+    
+    saveDataToLocalStorage();
+    updatePrintSetsSelect();
+    showToast(translations[currentLanguage]['toast-success-save-set'], 'success');
+    
+    // Vyčistiť input
+    if (elements.printSetName) {
+        elements.printSetName.value = '';
+    }
+}
+
+/**
+ * Načíta tlačovú sadu a nahradí aktuálny zoznam štítkov.
+ * @param {string} setName - Názov tlačovej sady.
+ */
+function loadPrintSet(setName) {
+    if (!setName || !printSets[setName]) {
+        showToast(translations[currentLanguage]['toast-error-no-set-selected'], 'error');
+        return;
+    }
+    
+    labels = [...printSets[setName]]; // Kópia uloženej sady
+    renderLabelsToPrint();
+    saveDataToLocalStorage();
+    showToast(translations[currentLanguage]['toast-success-load-set'], 'success');
+}
+
+/**
+ * Zmaže tlačovú sadu.
+ * @param {string} setName - Názov tlačovej sady.
+ */
+function deletePrintSet(setName) {
+    if (!setName || !printSets[setName]) {
+        showToast(translations[currentLanguage]['toast-error-no-set-selected'], 'error');
+        return;
+    }
+    
+    if (confirm(translations[currentLanguage]['confirm-delete-set'])) {
+        delete printSets[setName];
+        saveDataToLocalStorage();
+        updatePrintSetsSelect();
+        showToast(translations[currentLanguage]['toast-success-delete-set'], 'success');
+    }
+}
+
+/**
+ * Aktualizuje výber tlačových sád v dropdown menu.
+ */
+function updatePrintSetsSelect() {
+    if (!elements.printSetsSelect) return;
+    
+    elements.printSetsSelect.innerHTML = `<option value="">${translations[currentLanguage]['select-print-set']}</option>`;
+    
+    Object.keys(printSets).sort().forEach(setName => {
+        const option = document.createElement('option');
+        option.value = setName;
+        option.textContent = `${setName} (${printSets[setName].length} štítkov)`;
+        elements.printSetsSelect.appendChild(option);
+    });
+}
+
+/**
+ * Pridá záznam do histórie tlače.
+ * @param {Array} labelsData - Pole štítkov, ktoré sa tlačili.
+ */
+function addToPrintHistory(labelsData) {
+    const historyEntry = {
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        labels: labelsData.map(label => ({
+            artikel: label.artikel,
+            nazov: label.nazov,
+            polica: label.polica,
+            quantity: label.quantity
+        })),
+        totalLabels: labelsData.reduce((sum, label) => sum + label.quantity, 0)
+    };
+    
+    printHistory.unshift(historyEntry); // Pridať na začiatok (najnovšie prvé)
+    
+    // Obmedziť históriu na posledných 1000 záznamov
+    if (printHistory.length > 1000) {
+        printHistory = printHistory.slice(0, 1000);
+    }
+    
+    saveDataToLocalStorage();
+    updatePrintHistoryDisplay();
+}
+
+/**
+ * Vykreslí zoznam histórie tlače.
+ */
+function updatePrintHistoryDisplay() {
+    if (!elements.printHistoryList) return;
+    
+    const query = elements.historySearchInput ? elements.historySearchInput.value.toLowerCase().trim() : '';
+    let filteredHistory = printHistory;
+    
+    if (query) {
+        filteredHistory = printHistory.filter(entry => 
+            entry.labels.some(label => 
+                label.artikel.toLowerCase().includes(query) ||
+                label.nazov.toLowerCase().includes(query) ||
+                label.polica.toLowerCase().includes(query)
+            )
+        );
+    }
+    
+    elements.printHistoryList.innerHTML = '';
+    
+    if (filteredHistory.length === 0) {
+        elements.printHistoryList.innerHTML = `<div class="no-results">${translations[currentLanguage]['no-history']}</div>`;
+        return;
+    }
+    
+    filteredHistory.forEach(entry => {
+        const date = new Date(entry.timestamp);
+        const formattedDate = date.toLocaleDateString('sk-SK') + ' ' + date.toLocaleTimeString('sk-SK');
+        
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+            <div class="history-header">
+                <strong>${translations[currentLanguage]['history-printed-at']}: ${formattedDate}</strong>
+                <span class="history-total">${entry.totalLabels} ${translations[currentLanguage]['history-labels-count']}</span>
+            </div>
+            <div class="history-labels">
+                ${entry.labels.map(label => `
+                    <div class="history-label-item">
+                        <span class="history-artikel">${label.artikel}</span>
+                        <span class="history-nazov">${label.nazov}</span>
+                        <span class="history-polica database-polica">${label.polica}</span>
+                        <span class="history-quantity">×${label.quantity}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        elements.printHistoryList.appendChild(div);
+    });
+    
+    // Aktualizovať štatistiky
+    updatePrintHistoryStats();
+}
+
+/**
+ * Aktualizuje štatistiky histórie tlače.
+ */
+function updatePrintHistoryStats() {
+    if (!elements.totalPrintedLabels || !elements.totalPrintSessions) return;
+    
+    const totalLabels = printHistory.reduce((sum, entry) => sum + entry.totalLabels, 0);
+    const totalSessions = printHistory.length;
+    
+    elements.totalPrintedLabels.textContent = totalLabels;
+    elements.totalPrintSessions.textContent = totalSessions;
+}
+
+/**
+ * Vymaže celú históriu tlače.
+ */
+function clearPrintHistory() {
+    if (confirm(translations[currentLanguage]['confirm-clear-history'])) {
+        printHistory = [];
+        saveDataToLocalStorage();
+        updatePrintHistoryDisplay();
+        showToast('História tlače bola vymazaná.', 'success');
+    }
+}
+
+/**
+ * Exportuje históriu tlače do CSV.
+ */
+function exportPrintHistory() {
+    if (printHistory.length === 0) {
+        showToast('Žiadna história na export!', 'warning');
+        return;
+    }
+    
+    const csvData = [];
+    csvData.push(['Dátum', 'Čas', 'Artikel', 'Názov', 'Polica', 'Množstvo']);
+    
+    printHistory.forEach(entry => {
+        const date = new Date(entry.timestamp);
+        const dateStr = date.toLocaleDateString('sk-SK');
+        const timeStr = date.toLocaleTimeString('sk-SK');
+        
+        entry.labels.forEach(label => {
+            csvData.push([
+                dateStr,
+                timeStr,
+                label.artikel,
+                label.nazov,
+                label.polica,
+                label.quantity
+            ]);
+        });
+    });
+    
+    const csv = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const filename = `historia_tlace_${new Date().toISOString().slice(0, 10)}.csv`;
+    downloadBlob(blob, filename);
+    
+    showToast('História tlače bola exportovaná.', 'success');
+}
+
+/**
+ * Pripraví oblasť tlače a spustí tlač.
+ */
+function printLabels() {
+    if (labels.length === 0) {
+        showToast(translations[currentLanguage]['toast-warning-no-labels'], 'warning');
+        return;
+    }
+
+    // Pridať do histórie pred tlačou
+    addToPrintHistory([...labels]);
+
+    elements.printArea.innerHTML = ''; // Vyčistiť predchádzajúci obsah
+    elements.printArea.classList.remove('hidden');
+
+    labels.forEach(label => {
+        for (let i = 0; i < label.quantity; i++) {
+            const printLabelDiv = document.createElement('div');
+            
+            // Determine template class based on label type
+            let templateClass = `template-${currentTemplate}`;
+            if (label.type === 'nametag') {
+                templateClass = 'template-nametag';
+            } else if (label.type === 'shelf') {
+                templateClass = 'template-shelf';
+            }
+            
+            printLabelDiv.className = `print-label ${templateClass}`;
+            
+            // Generate different content based on label type
+            if (label.type === 'nametag') {
+                printLabelDiv.innerHTML = `
+                    <div class="print-content">
+                        <!-- Prvý riadok: Čiarový kód -->
+                        <div class="print-barcode-row">
+                            <svg id="printBarcode-${label.id}-${i}"></svg>
+                        </div>
+                        <!-- Druhý riadok: Osobné číslo -->
+                        <div class="print-personal-number">${label.osobneCislo}</div>
+                        <!-- Tretí riadok: Celé meno -->
+                        <div class="print-full-name">${label.meno} ${label.priezvisko}</div>
+                        <!-- Štvrtý riadok: Horizontálna čiara -->
+                        <div class="print-line"></div>
+                        <!-- Piaty riadok: Oddelenie -->
+                        <div class="print-department">${label.oddelenie || ''}</div>
+                    </div>
+                `;
+            } else if (label.type === 'shelf') {
+                printLabelDiv.innerHTML = `
+                    <div class="print-content">
+                        <!-- Prvý riadok: Čiarový kód -->
+                        <div class="print-barcode-row">
+                            <svg id="printBarcode-${label.id}-${i}"></svg>
+                        </div>
+                        <!-- Druhý riadok: Fach -->
+                        <div class="print-fach">${label.fach}</div>
+                        <!-- Tretí riadok: Popis -->
+                        <div class="print-shelf-desc">Polica štítok</div>
+                        <!-- Štvrtý riadok: Horizontálna čiara -->
+                        <div class="print-line"></div>
+                        <!-- Piaty riadok: Umiestnenie -->
+                        <div class="print-shelf-location">${label.fach}	${label.policaLocation}</div>
+                    </div>
+                `;
+            } else {
+                // Regular label (default behavior)
+                printLabelDiv.innerHTML = `
+                    <div class="print-content">
+                        <!-- Prvý riadok: Čiarový kód -->
+                        <div class="print-barcode-row">
+                            <svg id="printBarcode-${label.id}-${i}"></svg>
+                        </div>
+                        <!-- Druhý riadok: Artikel -->
+                        <div class="print-artikel">${formatArtikel(label.artikel)}</div>
+                        <!-- Tretí riadok: Názov produktu -->
+                        <div class="print-nazov">${label.nazov}</div>
+                        <!-- Štvrtý riadok: Horizontálna čiara -->
+                        <div class="print-line"></div>
+                        <!-- Piaty riadok: Polica -->
+                        <div class="print-polica">${label.polica}</div>
+                    </div>
+                `;
+            }
+            
+            elements.printArea.appendChild(printLabelDiv);
+
+            // Generovanie čiarového kódu pre každý štítok
+            try {
+                let barcodeData;
+                if (label.type === 'nametag') {
+                    barcodeData = label.osobneCislo;
+                } else if (label.type === 'shelf') {
+                    barcodeData = `${label.fach}\t${label.policaLocation}`;
+                } else {
+                    barcodeData = formatArtikelForBarcode(label.artikel);
+                }
+                
+                JsBarcode(`#printBarcode-${label.id}-${i}`, barcodeData, {
+                    format: "CODE128",
+                    displayValue: false,
+                    height: 36, // Presná výška podľa špecifikácie
+                    width: 1,
+                    margin: 0
+                });
+            } catch (e) {
+                console.error("Chyba pri generovaní čiarového kódu pre tlač:", e);
+                document.getElementById(`printBarcode-${label.id}-${i}`).innerHTML = '<text x="0" y="20" font-size="8" fill="red">Neplatný kód</text>';
+            }
+        }
+    });
+
+    // Skryť modal pred tlačou
+    elements.printPreviewModal.style.display = 'none';
+
+    // Spustiť tlač
+    window.print();
+
+    // Po tlači skryť oblasť tlače
+    setTimeout(() => {
+        elements.printArea.classList.add('hidden');
+        elements.printArea.innerHTML = ''; // Vyčistiť oblasť tlače
+    }, 500); // Krátke oneskorenie pre dokončenie tlače
+}
+
+/**
+ * Aktualizuje štatistiky databázy.
+ */
+function updateStats() {
+    elements.totalCount.textContent = database.length;
+}
+
+// --- Databázové operácie (localStorage only) ---
+
+/**
+ * Pridá alebo aktualizuje položku v databáze (len v localStorage, dočasne).
+ * @param {object} item - Objekt položky (artikel, nazov, polica, addedDate).
+ */
+async function addOrUpdateItem(item) {
+    const existingIndex = database.findIndex(dbItem => dbItem.artikel === item.artikel);
+    if (existingIndex === -1) {
+        database.push({ ...item, id: uuidv4() });
+        showToast(translations[currentLanguage]['toast-success-db-add'] + " (dočasne uložené)", 'success');
+    } else {
+        database[existingIndex] = { ...database[existingIndex], ...item };
+        showToast(translations[currentLanguage]['toast-success-db-update'] + " (dočasne uložené)", 'success');
+    }
+    saveDataToLocalStorage();
+    renderDatabaseList();
+    updateStats();
+}
+
+/**
+ * Odstráni položku z databázy (len z localStorage, dočasne).
+ * @param {string} id - ID dokumentu na odstránenie.
+ */
+async function deleteItem(id) {
+    if (!window.confirm(translations[currentLanguage]['confirm-delete-item'])) return;
+
+    database = database.filter(item => item.id !== id);
+    saveDataToLocalStorage();
+    renderDatabaseList();
+    updateStats();
+    showToast(translations[currentLanguage]['toast-success-db-delete'] + " (dočasne odstránené)", 'success');
+}
+
+/**
+ * Vymaže celú databázu (len z localStorage, dočasne).
+ */
+async function clearAllDatabase() {
+    if (!window.confirm(translations[currentLanguage]['confirm-clear-db'])) return;
+
+    database = [];
+    labels = [];
+    saveDataToLocalStorage();
+    renderDatabaseList();
+    renderLabelsToPrint();
+    updateStats();
+    showToast(translations[currentLanguage]['toast-success-clear-db'] + " (dočasne vymazané)", 'success');
+}
+
+/**
+ * Spracuje import súborov a hromadne ich uloží do databázy.
+ * @param {Array} itemsToProcess - Pole objektov na import.
+ */
+async function processAndSaveItems(itemsToProcess) {
+    if (itemsToProcess.length === 0) return;
+
+    let updatedCount = 0;
+    itemsToProcess.forEach(newItem => {
+        const existingIndex = database.findIndex(item => item.artikel === newItem.artikel);
+        if (existingIndex > -1) {
+            database[existingIndex] = { ...database[existingIndex], ...newItem };
+        } else {
+            database.push({ ...newItem, id: uuidv4() });
+        }
+        updatedCount++;
+    });
+    
+    if (updatedCount > 0) {
+        saveDataToLocalStorage();
+        renderDatabaseList();
+        updateStats();
+    }
+    showToast(translations[currentLanguage]['large-import-success'].replace('{count}', updatedCount) + " (dočasne uložené)", 'success');
+}
+
+
+/**
+ * Spracuje import súborov (CSV, Excel, JSON). Špecificky data.xlsm pre databázu.
+ * @param {FileList} files - Zoznam súborov na import.
+ */
+async function handleFileImport(files) {
+    if (files.length === 0) return;
+    showLoading(elements.databaseList, true);
+
+    const today = new Date().toISOString().slice(0, 10);
+    let errorsEncountered = false;
+    let skippedRowCount = 0;
+    
+    let itemsToProcess = [];
+    let isDataXlsmFile = false;
+
+    for (const file of files) {
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const fileName = file.name.toLowerCase();
+        
+        // Skontrolovať, či je to data.xlsm súbor
+        if (fileName === 'data.xlsm') {
+            isDataXlsmFile = true;
+            await loadDatabaseFromUserFile(file);
+            showLoading(elements.databaseList, false);
+            renderDatabaseList();
+            elements.fileImport.value = '';
+            elements.importFileBtn.disabled = true;
+            return;
+        }
+        
+        try {
+            let rawData = [];
+            if (fileExtension === 'csv') {
+                const text = await file.text();
+                const result = PapaParse.parse(text, { header: true, skipEmptyLines: true });
+                rawData = result.data;
+            } else if (fileExtension === 'xls' || fileExtension === 'xlsx' || fileExtension === 'xlsm') {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                rawData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            } else if (fileExtension === 'json') {
+                const text = await file.text();
+                rawData = JSON.parse(text);
+            } else {
+                showToast(`${translations[currentLanguage]['toast-error-import']} (${file.name} - ${translations[currentLanguage]['unsupported-format']})`, 'error');
+                errorsEncountered = true;
+                continue;
+            }
+
+            for (const row of rawData) {
+                const artikel = (row.Artikel || row.artikel || row.ARTIKEL || '').toString().trim();
+                const nazov = (row.Nazov || row.nazov || row.NAZOV || '').toString().trim();
+                const polica = (row.Polica || row.polica || row.POLICA || '').toString().trim();
+
+                if (artikel && nazov && polica) {
+                    itemsToProcess.push({ artikel, nazov, polica, addedDate: today });
+                } else {
+                    skippedRowCount++;
+                }
+            }
+
+        } catch (e) {
+            console.error(`Chyba pri spracovaní súboru ${file.name}:`, e);
+            showToast(`${translations[currentLanguage]['toast-error-import']} (${file.name})`, 'error');
+            errorsEncountered = true;
+        }
+    }
+
+    await processAndSaveItems(itemsToProcess);
+
+    showLoading(elements.databaseList, false);
+    renderDatabaseList();
+
+    if (itemsToProcess.length > 0) {
+        let toastMessage = translations[currentLanguage]['large-import-success'].replace('{count}', itemsToProcess.length);
+        if (skippedRowCount > 0) {
+            toastMessage += ` ${translations[currentLanguage]['import-skipped-rows'].replace('{count}', skippedRowCount)}`;
+        }
+        showToast(toastMessage, skippedRowCount > 0 || errorsEncountered ? 'warning' : 'success');
+    } else if (skippedRowCount > 0) {
+         showToast(translations[currentLanguage]['import-all-skipped'].replace('{count}', skippedRowCount), 'error');
+    }
+
+    elements.fileImport.value = '';
+    elements.importFileBtn.disabled = true;
+}
+
+
+
+/**
+ * Pridá jednu položku do databázy alebo ju aktualizuje.
+ */
+async function addSingleToDatabase() {
+    const artikel = elements.newArtikel.value.trim();
+    const nazov = elements.newNazov.value.trim();
+    const polica = elements.newPolica.value.trim();
+
+    if (!artikel || !nazov || !polica) {
+        showToast(translations[currentLanguage]['toast-error-db-add'], 'warning');
+        return;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const newItem = { artikel, nazov, polica, addedDate: today };
+
+    const editingId = elements.addDatabaseBtn.dataset.editingId;
+    if (editingId) { // Editácia
+        const index = database.findIndex(item => item.id === editingId);
+        if (index > -1) {
+            database[index].nazov = newItem.nazov;
+            database[index].polica = newItem.polica;
+            saveDataToLocalStorage();
+            renderDatabaseList();
+            showToast(translations[currentLanguage]['toast-success-db-update'] + " (dočasne uložené)", 'success');
+        }
+    } else { // Pridanie novej položky
+        await addOrUpdateItem(newItem);
+    }
+
+    // Reset formulára
+    delete elements.addDatabaseBtn.dataset.editingId;
+    elements.addDatabaseBtn.innerHTML = `➕ <span data-lang="btn-add-db">${translations[currentLanguage]['btn-add-db']}</span>`;
+    elements.newArtikel.value = '';
+    elements.newNazov.value = '';
+    elements.newPolica.value = '';
+    elements.newArtikel.disabled = false;
+}
+
+/**
+ * Vykreslí zoznam položiek v databáze.
+ */
+function renderDatabaseList() {
+    const query = elements.dbSearchInput.value.toLowerCase().trim();
+    elements.databaseList.innerHTML = '';
+
+    const filteredDb = database.filter(item => {
+        return item.artikel.toLowerCase().includes(query) ||
+               item.nazov.toLowerCase().includes(query) ||
+               item.polica.toLowerCase().includes(query);
+    });
+
+    if (database.length === 0) {
+        elements.databaseList.innerHTML = `<div class="no-results">📁 ${translations[currentLanguage]['database-not-loaded']}</div>`;
+        return;
+    }
+
+    if (filteredDb.length === 0) {
+        elements.databaseList.innerHTML = `<div class="no-results">${translations[currentLanguage]['no-results']}</div>`;
+        return;
+    }
+
+    filteredDb.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'database-item';
+        div.innerHTML = `
+            <div class="database-info">
+                <div class="database-artikel">${item.artikel}</div>
+                <div class="database-nazov">${item.nazov}</div>
+                <div class="database-poznamka">
+                    <span class="database-polica">${item.polica}</span>
+                </div>
+            </div>
+            <div class="database-actions">
+                <button class="btn btn-secondary btn-small edit-db-item" data-id="${item.id}">
+                    ✏️
+                </button>
+                <button class="btn btn-danger btn-small delete-db-item" data-id="${item.id}">
+                    🗑️
+                </button>
+            </div>
+        `;
+        div.querySelector('.edit-db-item').addEventListener('click', (e) => {
+            editDatabaseItem(e.currentTarget.dataset.id);
+        });
+        div.querySelector('.delete-db-item').addEventListener('click', (e) => {
+            deleteItem(e.currentTarget.dataset.id);
+        });
+        elements.databaseList.appendChild(div);
+    });
+}
+
+/**
+ * Edituje položku v databáze.
+ * @param {string} id - ID položky na editáciu.
+ */
+function editDatabaseItem(id) {
+    const item = database.find(item => item.id === id);
+    if (!item) return;
+
+    elements.newArtikel.value = item.artikel;
+    elements.newNazov.value = item.nazov;
+    elements.newPolica.value = item.polica;
+
+    elements.newArtikel.disabled = true; // Zakázať zmenu artiklu
+    elements.addDatabaseBtn.innerHTML = `💾 <span data-lang="btn-save-db">${translations[currentLanguage]['btn-save-db']}</span>`;
+    elements.addDatabaseBtn.dataset.editingId = item.id;
+}
+
+// --- Funkcie pre tab "Nastavenia" ---
+
+/**
+ * Uloží nastavenia z formulára.
+ */
+function saveSettings() {
+    currentTheme = elements.themeSelect.value;
+    currentLanguage = elements.languageSettingSelect.value;
+    showLogo = elements.logoSelect.value === 'show';
+    currentTemplate = elements.defaultTemplateSelect.value;
+
+    applyTheme(currentTheme);
+    applyLanguage(currentLanguage);
+    updatePreview();
+    saveDataToLocalStorage(); // Uložiť nastavenia do lokálneho úložiska
+    showToast(translations[currentLanguage]['toast-success-settings'], 'success');
+}
+
+// --- Inicializácia a Event Listenery ---
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Načítať nastavenia z lokálneho úložiska (sú to používateľské preferencie)
+    loadDataFromLocalStorage(); 
+
+    // Aplikovať načítané nastavenia
+    applyTheme(currentTheme);
+    applyLanguage(currentLanguage);
+    elements.themeSelect.value = currentTheme;
+    elements.languageSelect.value = currentLanguage;
+    elements.languageSettingSelect.value = currentLanguage;
+    elements.logoSelect.value = showLogo ? 'show' : 'hide';
+    elements.defaultTemplateSelect.value = currentTemplate;
+    elements.templateSelect.value = currentTemplate;
+
+    // Automatické načítanie databázy zo servera, ak je databáza prázdna
+    if (database.length === 0) {
+        await loadDatabaseFromServer();
+    }
+
+    // Počiatočné vykreslenie UI 
+    switchTab('labels');
+    renderLabelsToPrint(); 
+    updatePreview();
+    updateStats();
+    renderDatabaseList();
+    updatePrintHistoryDisplay(); // Pridaná aktualizácia histórie tlače
+    updatePrintSetsSelect(); // Pridaná aktualizácia tlačových sád
+    updateBulkSelection(); // Pridaná aktualizácia hromadných akcií
+    
+    // Event Listenery pre taby
+    elements.tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            switchTab(button.dataset.tab);
+        });
+    });
+
+    // Event Listener pre prepínanie témy
+    elements.themeToggle.addEventListener('click', () => {
+        const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        applyTheme(newTheme);
+        saveDataToLocalStorage();
+    });
+
+    // Event Listener pre výber jazyka v hlavičke
+    elements.languageSelect.addEventListener('change', (e) => {
+        applyLanguage(e.target.value);
+        elements.languageSettingSelect.value = e.target.value; // Synchronizovať nastavenie
+        saveDataToLocalStorage();
+    });
+
+    // --- Štítky (Labels) tab Event Listenery ---
+
+    // Vyhľadávanie
+    elements.searchInput.addEventListener('input', debounce(renderSearchResults, 300));
+    elements.filterButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            elements.filterButtons.forEach(btn => btn.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            renderSearchResults();
+        });
+    });
+
+    // Rýchly štítok
+    [elements.quickArtikel, elements.quickNazov, elements.quickPolica].forEach(input => {
+        input.addEventListener('input', updateQuickLabelButtons);
+        input.addEventListener('input', updatePreview);
+    });
+
+    // Klik na "Artikel" v náhľade štítka sa fokusuje input "Artikel" v rýchlom formulári
+    elements.previewArtikel.addEventListener('click', () => {
+        elements.quickArtikel.focus();
+        elements.quickArtikel.select(); // Označí obsah pre ľahkú editáciu
+    });
+
+    // Pridať cursor: pointer pre artikel v náhľade
+    elements.previewArtikel.style.cursor = 'pointer';
+    elements.previewArtikel.title = 'Kliknite pre editáciu artikla';
+
+    elements.addQuickBtn.addEventListener('click', () => {
+        const artikel = elements.quickArtikel.value.trim();
+        const nazov = elements.quickNazov.value.trim();
+        const polica = elements.quickPolica.value.trim() || ''; // Prázdna polica je povolená
+        
+        // Validácia artikla
+        if (!validateArtikel(artikel)) {
+            showToast(translations[currentLanguage]['toast-error-invalid-artikel'], 'error');
+            elements.quickArtikel.focus();
+            return;
+        }
+        
+        const newItem = {
+            artikel: artikel,
+            nazov: nazov,
+            polica: polica,
+            quantity: 1
+        };
+        addLabelToPrintList(newItem, elements.addQuickBtn);
+        showToast(translations[currentLanguage]['toast-success-add-label'], 'success');
+    });
+
+    // Náhľad štítka
+    elements.templateSelect.addEventListener('change', (e) => {
+        currentTemplate = e.target.value;
+        updatePreview();
+    });
+
+    // Tlač štítkov
+    elements.previewBtn.addEventListener('click', showPrintPreviewModal);
+    elements.printBtn.addEventListener('click', printLabels);
+
+    // Tlačové sady (Print Sets)
+    if (elements.savePrintSetBtn) {
+        elements.savePrintSetBtn.addEventListener('click', () => {
+            const setName = elements.printSetName.value.trim();
+            savePrintSet(setName);
+        });
+    }
+    if (elements.loadPrintSetBtn) {
+        elements.loadPrintSetBtn.addEventListener('click', () => {
+            const setName = elements.printSetsSelect.value;
+            loadPrintSet(setName);
+        });
+    }
+    if (elements.deletePrintSetBtn) {
+        elements.deletePrintSetBtn.addEventListener('click', () => {
+            const setName = elements.printSetsSelect.value;
+            deletePrintSet(setName);
+        });
+    }
+
+    // Hromadné akcie (Bulk Actions)
+    if (elements.selectAllLabels) {
+        elements.selectAllLabels.addEventListener('change', (e) => {
+            selectAllLabels(e.target.checked);
+        });
+    }
+    if (elements.bulkDeleteBtn) {
+        elements.bulkDeleteBtn.addEventListener('click', deleteBulkLabels);
+    }
+    if (elements.bulkQuantityBtn) {
+        elements.bulkQuantityBtn.addEventListener('click', changeBulkQuantity);
+    }
+    // Odstránené: elements.exportPdfBtn.addEventListener('click', exportLabelSVGtoPDF);
+    elements.closePrintPreview.addEventListener('click', () => {
+        elements.printPreviewModal.style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+        if (event.target === elements.printPreviewModal) {
+            elements.printPreviewModal.style.display = 'none';
+        }
+    });
+
+    // --- Databáza (Database) tab Event Listenery ---
+
+    // Rýchle akcie
+    elements.clearDbBtn.addEventListener('click', clearAllDatabase);
+    elements.exportCsvBtn.addEventListener('click', () => exportDatabase('csv'));
+    elements.exportExcelBtn.addEventListener('click', () => exportDatabase('excel'));
+    elements.exportJsonBtn.addEventListener('click', () => exportDatabase('json'));
+
+    // Import súborov (Drag & Drop)
+    elements.dropZone.addEventListener('click', () => elements.fileImport.click());
+    elements.dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        elements.dropZone.classList.add('drag-over');
+    });
+    elements.dropZone.addEventListener('dragleave', () => {
+        elements.dropZone.classList.remove('drag-over');
+    });
+    elements.dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        elements.dropZone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length > 0) {
+            handleFileImport(e.dataTransfer.files);
+        }
+    });
+    elements.fileImport.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFileImport(e.target.files);
+        }
+    });
+    elements.importFileBtn.addEventListener('click', () => {
+        elements.fileImport.click();
+    });
+
+
+    // Pridať jednotlivo
+    elements.addDatabaseBtn.addEventListener('click', addSingleToDatabase);
+
+    // Filtrovanie databázy
+    elements.dbSearchInput.addEventListener('input', debounce(renderDatabaseList, 300));
+
+    // --- História tlače (Print History) tab Event Listenery ---
+    if (elements.historySearchInput) {
+        elements.historySearchInput.addEventListener('input', debounce(updatePrintHistoryDisplay, 300));
+    }
+    if (elements.clearHistoryBtn) {
+        elements.clearHistoryBtn.addEventListener('click', clearPrintHistory);
+    }
+    if (elements.exportHistoryBtn) {
+        elements.exportHistoryBtn.addEventListener('click', exportPrintHistory);
+    }
+
+    // --- Name Tag tab Event Listenery ---
+    if (elements.nameTagMeno) {
+        elements.nameTagMeno.addEventListener('input', updateNameTagButtons);
+        elements.nameTagMeno.addEventListener('input', updateNameTagPreview);
+    }
+    if (elements.nameTagPriezvisko) {
+        elements.nameTagPriezvisko.addEventListener('input', updateNameTagButtons);
+        elements.nameTagPriezvisko.addEventListener('input', updateNameTagPreview);
+    }
+    if (elements.nameTagOsobneCislo) {
+        elements.nameTagOsobneCislo.addEventListener('input', updateNameTagButtons);
+        elements.nameTagOsobneCislo.addEventListener('input', updateNameTagPreview);
+    }
+    if (elements.nameTagOddelenie) {
+        elements.nameTagOddelenie.addEventListener('input', updateNameTagPreview);
+    }
+    if (elements.addNameTagBtn) {
+        elements.addNameTagBtn.addEventListener('click', () => {
+            const meno = elements.nameTagMeno.value.trim();
+            const priezvisko = elements.nameTagPriezvisko.value.trim();
+            const osobneCislo = elements.nameTagOsobneCislo.value.trim();
+            const oddelenie = elements.nameTagOddelenie.value.trim() || '';
+            
+            if (!validatePersonalNumber(osobneCislo)) {
+                showToast('Neplatné osobné číslo! Musí obsahovať 6-15 číslic.', 'error');
+                elements.nameTagOsobneCislo.focus();
+                return;
+            }
+            
+            const nameTagItem = {
+                artikel: osobneCislo, // Use personal number as artikel for internal processing
+                nazov: `${meno} ${priezvisko}`,
+                polica: oddelenie,
+                quantity: 1,
+                type: 'nametag', // Mark as name tag type
+                meno: meno,
+                priezvisko: priezvisko,
+                osobneCislo: osobneCislo,
+                oddelenie: oddelenie
+            };
+            addLabelToPrintList(nameTagItem, elements.addNameTagBtn);
+            showToast('Menovka bola úspešne pridaná na tlač!', 'success');
+        });
+    }
+
+    // --- Shelf Label tab Event Listenery ---
+    if (elements.shelfFach) {
+        elements.shelfFach.addEventListener('input', updateShelfButtons);
+        elements.shelfFach.addEventListener('input', updateShelfPreview);
+    }
+    if (elements.shelfPolica) {
+        elements.shelfPolica.addEventListener('input', updateShelfButtons);
+        elements.shelfPolica.addEventListener('input', updateShelfPreview);
+    }
+    if (elements.addShelfLabelBtn) {
+        elements.addShelfLabelBtn.addEventListener('click', () => {
+            const fach = elements.shelfFach.value.trim();
+            const polica = elements.shelfPolica.value.trim();
+            
+            const shelfItem = {
+                artikel: fach, // Use fach as artikel for internal processing
+                nazov: 'Polica štítok',
+                polica: `${fach}\t${polica}`, // Store combined data
+                quantity: 1,
+                type: 'shelf', // Mark as shelf type
+                fach: fach,
+                policaLocation: polica
+            };
+            addLabelToPrintList(shelfItem, elements.addShelfLabelBtn);
+            showToast('Štítok police bol úspešne pridaný na tlač!', 'success');
+        });
+    }
+
+    // Initialize name tag and shelf previews
+    updateNameTagPreview();
+    updateShelfPreview();
+    updateNameTagButtons();
+    updateShelfButtons();
+
+    // --- Nastavenia (Settings) tab Event Listenery ---
+    elements.saveSettingsBtn.addEventListener('click', saveSettings);
+});
+
+// Nastaviť predvolený text pre placeholder prekladu, ak nie je definovaný
+if (!translations.sk['preview-nazov-placeholder']) {
+    translations.sk['preview-nazov-placeholder'] = 'Ukážkový produkt s dlhším názvom';
+}
+if (!translations.en['preview-nazov-placeholder']) {
+    translations.en['preview-nazov-placeholder'] = 'Sample product with a longer name';
+}
+if (!translations.de['preview-nazov-placeholder']) {
+    translations.de['preview-nazov-placeholder'] = 'Beispielprodukt mit längerem Namen';
+}
+
+/**
+ * Exportuje databázu do zvoleného formátu (CSV, Excel, JSON).
+ * @param {string} format - Formát exportu ('csv', 'excel', 'json').
+ */
+function exportDatabase(format) {
+    if (database.length === 0) {
+        showToast(translations[currentLanguage]['toast-warning-no-data'], 'warning');
+        return;
+    }
+
+    const dataToExport = database.map(item => ({
+        Artikel: item.artikel,
+        Nazov: item.nazov,
+        Polica: item.polica,
+        DatumPridania: item.addedDate || ''
+    }));
+
+    const filename = `schaffle_database_${new Date().toISOString().slice(0, 10)}`;
+
+    try {
+        if (format === 'csv') {
+            const csv = PapaParse.unparse(dataToExport);
+            const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' }); // Add BOM for Excel
+            downloadBlob(blob, `${filename}.csv`);
+        } else if (format === 'excel') {
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Databáza");
+            XLSX.writeFile(wb, `${filename}.xlsx`);
+        } else if (format === 'json') {
+            const json = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+            downloadBlob(blob, `${filename}.json`);
+        }
+        showToast(translations[currentLanguage]['toast-success-export'], 'success');
+    } catch (e) {
+        console.error("Chyba pri exporte:", e);
+        showToast("Nastala chyba pri exporte dát.", 'error');
+    }
+}
+
+/**
+ * Pomocná funkcia na stiahnutie súboru (Blob).
+ * @param {Blob} blob - Blob, ktorý sa má stiahnuť.
+ * @param {string} filename - Názov súboru.
+ */
+function downloadBlob(blob, filename) {
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+}

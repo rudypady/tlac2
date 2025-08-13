@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schäffler sklad ND - Systém tlačenia štítkov PRO</title>
+    
+    <!-- Knižnice -->
+    <!-- SheetJS library for Excel file processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- JsBarcode library for CODE128 barcode generation -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- jsPDF library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- svg2pdf.js library for SVG to PDF conversion -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg2pdf.js/2.2.1/svg2pdf.umd.min.js"></script>
+    
+    <script>
+        // Fallback pre jsPDF knižnicu ak CDN zlyhá
+        if (typeof window.jspdf === 'undefined') {
+            console.warn('jsPDF library not available, vytvorím základnú implementáciu');
+            window.jspdf = {
+                jsPDF: function(options) {
+                    console.log('jsPDF fallback inicializovaný s možnosťami:', options);
+                    return {
+                        addPage: function() { console.log('Pridávam novú stránku'); },
+                        svg: async function(svgElement, options) { 
+                            console.log('Konvertujem SVG do PDF:', svgElement, options); 
+                        },
+                        save: function(filename) { 
+                            console.log('Ukladám PDF ako:', filename);
+                            // Vytvorenie jednoduchého fallback PDF pomocou window.print
+                            alert('PDF export nie je k dispozícii kvôli chýbajúcim knižniciam. Použite tlačidlo "Tlačiť" pre tlač štítkov.');
+                        }
+                    };
+                }
+            };
+        }
+        
+        // Fallback pre svg2pdf knižnicu
+        if (typeof window.svg2pdf === 'undefined') {
+            console.warn('svg2pdf library not available');
+            window.svg2pdf = function() {
+                console.log('svg2pdf fallback');
+            };
+        }
+    </script>
+    
+    <script>
+        // Fallback XLSX implementation if CDN fails
+        if (typeof XLSX === 'undefined') {
+            window.XLSX = {
+                read: function(data, options) {
+                    console.warn('XLSX library not available, using mock data');
+                    return {
+                        SheetNames: ['Sheet1'],
+                        Sheets: {
+                            'Sheet1': {}
+                        }
+                    };
+                },
+                utils: {
+                    sheet_to_json: function(sheet, options) {
+                        // Return mock data for testing
+                        return [
+                            ['Artikel', 'Nazov', 'Polica'],
+                            ['123456789', 'Testovací produkt 1', 'A1-B2-C3'],
+                            ['987654321', 'Testovací produkt 2', 'B2-C3-D4'],
+                            ['555666777', 'Náhradný diel motor', 'C3-D4-E5']
+                        ];
+                    }
+                }
+            };
+        }
+        
+        // Fallback JsBarcode implementation if CDN fails
+        if (typeof JsBarcode === 'undefined') {
+            console.warn('JsBarcode library not available, using fallback');
+            window.JsBarcode = function(element, text, options) {
+                const el = typeof element === 'string' ? document.querySelector(element) : element;
+                if (el) {
+                    // Create a simple fallback SVG with text when real library is not available
+                    el.innerHTML = `<svg width="120" height="40" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="120" height="40" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="60" y="25" text-anchor="middle" font-size="8" fill="black">${text}</text>
+                    </svg>`;
+                }
+            };
+        }
+        
+        // Minimal PapaParse implementation
+        window.PapaParse = {
+            parse: function(text, options) {
+                const lines = text.split('\n');
+                const data = lines.map(line => {
+                    const values = line.split(',');
+                    if (options.header && lines.indexOf(line) === 0) {
+                        return values;
+                    }
+                    const obj = {};
+                    if (options.header) {
+                        const headers = lines[0].split(',');
+                        values.forEach((value, index) => {
+                            obj[headers[index]] = value;
+                        });
+                        return obj;
+                    }
+                    return values;
+                });
+                return { data: options.header ? data.slice(1) : data };
+            },
+            unparse: function(data) {
+                return data.map(row => Object.values(row).join(',')).join('\n');
+            }
+        };
+        
+        // Mock Chart.js
+        window.Chart = function() {};
+        
+        // Mock Sortable
+        window.Sortable = function(element, options) {
+            return {
+                destroy: function() {}
+            };
+        };
+    </script>
+    
+
+    
+    <link rel="stylesheet" href="styles.css">
+    <!-- Modular CSS files for label templates -->
+    <link rel="stylesheet" href="css/label-standard.css">
+    <link rel="stylesheet" href="css/label-compact.css">
+    <link rel="stylesheet" href="css/label-detailed.css">
+    <link rel="stylesheet" href="css/label-nametag-shelf.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div>
+                    <h1><svg class="header-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><circle cx="12" cy="12" r="3"></circle><path d="m9 12 2 2 4-4"></path></svg> <span data-lang="title">Tlačenie štítkov</span></h1>
+                    <p data-lang="subtitle">Profesionálny systém pre Schäffler sklad ND</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <select class="language-select" id="languageSelect">
+                    <option value="sk">🇸🇰 Slovenčina</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                </select>
+                <!-- Vizuálny oddeľovač medzi jazykovým výberom a prepínačom témy -->
+                <div class="header-separator">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Hlavné taby -->
+        <div class="tabs">
+            <button class="tab active" data-tab="labels" data-lang="tab-labels">Štítky</button>
+            <button class="tab" data-tab="bulk-print" data-lang="tab-bulk-print">Hromadná tlač</button>
+            <button class="tab" data-tab="shelf-print" data-lang="tab-shelf-print">Tlač police</button>
+            <button class="tab" data-tab="name-tag" data-lang="tab-name-tag">Tlač menovky</button>
+            <button class="tab" data-tab="history" data-lang="tab-history">História tlače</button>
+            <button class="tab" data-tab="settings" data-lang="tab-settings">Nastavenia</button>
+        </div>
+
+        <!-- Tab: Štítky -->
+        <div class="tab-content active" id="labels-tab">
+            <div class="main-grid">
+                <!-- ĽAVÝ STĹPEC -->
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg> <span data-lang="search-title">Vyhľadať v databáze</span></h2>
+                        
+                        <div class="filter-controls">
+                            <button class="filter-btn active" data-filter="all" data-lang="filter-all">Všetko</button>
+                            <button class="filter-btn" data-filter="location" data-lang="filter-location">Umiestnenie</button>
+                        </div>
+                        
+                        <div class="search-box">
+                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <input 
+                                type="text" 
+                                id="searchInput"
+                                class="search-input" 
+                                placeholder="Zadajte artikel, názov alebo policu..."
+                                data-lang-placeholder="search-placeholder"
+                            />
+                        </div>
+                        
+                        <div id="searchResults" class="hidden">
+                            <div class="results-list" id="resultsList">
+                                <div class="no-results" data-lang="no-results">Začnite písať pre vyhľadávanie...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span data-lang="quick-label">Rýchly štítok</span></h2>
+                        <div class="form-group">
+                            <label class="form-label" for="quickArtikel" data-lang="label-artikel">Artikel</label>
+                            <input type="text" id="quickArtikel" class="form-input" placeholder="Zadajte artikel">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="quickNazov" data-lang="label-name">Názov</label>
+                                <input type="text" id="quickNazov" class="form-input" placeholder="Zadajte názov">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="quickPolica" data-lang="label-shelf">Polica</label>
+                                <input type="text" id="quickPolica" class="form-input" placeholder="00-00-00">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <button id="addQuickBtn" class="btn btn-primary" disabled>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-add-print">Pridať na tlač</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STREDNÝ STĹPEC -->
+                <div>
+                    <!-- Náhľad štítka -->
+                    <div class="preview-section">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="preview-title">Náhľad štítka (2" x 1")</span></h3>
+                        
+                        <div class="preview-controls">
+                            <select class="template-select" id="templateSelect">
+                                <option value="default" data-lang="template-default">Štandardný</option>
+                                <option value="compact" data-lang="template-compact">Kompaktný</option>
+                                <option value="detailed" data-lang="template-detailed">Detailný</option>
+                            </select>
+                        </div>
+                        
+                        <div class="preview-label">
+                            <div class="preview-content">
+                                <!-- Prvý riadok: Čiarový kód -->
+                                <div class="preview-barcode-row">
+                                    <svg id="previewBarcode"></svg>
+                                </div>
+                                <!-- Druhý riadok: Artikel -->
+                                <div class="preview-artikel" id="previewArtikel">123-456-789</div>
+                                <!-- Tretí riadok: Názov produktu -->
+                                <div class="preview-nazov" id="previewNazov">Ukážkový produkt s dlhším názvom</div>
+                                <!-- Štvrtý riadok: Horizontálna čiara -->
+                                <div class="preview-line"></div>
+                                <!-- Piaty riadok: Polica -->
+                                <div class="preview-polica" id="previewPolica">A1-B2-C3</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Štítky na tlač -->
+                    <div class="card">
+                        <div class="labels-header">
+                            <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><circle cx="12" cy="12" r="3"></circle><path d="m9 12 2 2 4-4"></path></svg> <span data-lang="labels-title">Štítky na tlač</span></h2>
+                            <div class="labels-count" id="labelsCount">0 <span data-lang="labels-count-suffix">štítkov</span></div>
+                        </div>
+
+                        <!-- Tlačové sady -->
+                        <div class="print-sets-section" style="margin-bottom: 15px; display: none;" id="printSetsSection">
+                            <div class="form-row">
+                                <input type="text" id="printSetName" class="form-input" placeholder="Názov tlačovej sady..." style="flex: 1;">
+                                <button id="savePrintSetBtn" class="btn btn-secondary">
+                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17,21 17,13 7,13 7,21"></polyline><polyline points="7,3 7,8 15,8"></polyline></svg> <span data-lang="btn-save-set">Uložiť sadu</span>
+                                </button>
+                            </div>
+                            <div class="form-row">
+                                <select id="printSetsSelect" class="category-select" style="flex: 1;">
+                                    <option value="" data-lang="select-print-set">Vyberte tlačovú sadu...</option>
+                                </select>
+                                <button id="loadPrintSetBtn" class="btn btn-secondary">
+                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14,2 14,8 20,8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10,9 9,9 8,9"></polyline></svg> <span data-lang="btn-load-set">Načítať sadu</span>
+                                </button>
+                                <button id="deletePrintSetBtn" class="btn btn-danger">
+                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> <span data-lang="btn-delete-set">Zmazať sadu</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Hromadné akcie -->
+                        <div class="bulk-actions-section" style="margin-bottom: 15px; display: none;" id="bulkActionsSection">
+                            <div class="bulk-selection">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="selectAllLabels" class="bulk-checkbox">
+                                    <span data-lang="select-all-labels">Označiť všetky</span>
+                                </label>
+                                <span class="selected-count" id="selectedCount">0 označených</span>
+                            </div>
+                            <div class="bulk-buttons">
+                                <button id="bulkDeleteBtn" class="btn btn-danger btn-small" disabled>
+                                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> <span data-lang="btn-bulk-delete">Zmazať označené</span>
+                                </button>
+                                <button id="bulkQuantityBtn" class="btn btn-secondary btn-small" disabled>
+                                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-bulk-quantity">Zmeniť množstvo</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 15px;">
+                            <button id="previewBtn" class="btn btn-secondary hidden">
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="btn-preview">Náhľad tlače</span>
+                            </button>
+                            <button id="printBtn" class="btn btn-success hidden">
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> <span data-lang="btn-print">Tlačiť</span>
+                            </button>
+                        </div>
+
+                        <div id="emptyState" class="empty-state">
+                            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <p><strong data-lang="empty-title">Zatiaľ žiadne štítky na tlač</strong></p>
+                            <p data-lang="empty-desc">Vyhľadajte produkt alebo pridajte rýchly štítok</p>
+                        </div>
+
+                        <div id="labelsList" class="labels-list hidden"></div>
+                    </div>
+                </div>
+
+                <!-- PRAVÝ STĹPEC -->
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> <span data-lang="stats-title">Štatistiky</span></h2>
+                        
+                        <div class="database-stats">
+                            <div class="stat-grid">
+                                <div class="stat-item">
+                                    <div class="stat-number" id="totalCount">0</div>
+                                    <div class="stat-label" data-lang="stat-total">Celkom</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container" style="display: none;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Hromadná tlač -->
+        <div class="tab-content" id="bulk-print-tab">
+            <div class="main-grid">
+                <!-- ĽAVÝ STĹPEC -->
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><circle cx="12" cy="12" r="3"></circle><path d="m9 12 2 2 4-4"></path></svg> <span data-lang="bulk-print-title">Hromadná tlač</span></h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="bulkArtikelInput" data-lang="bulk-input-label">Zadajte artikly (každý na nový riadok)</label>
+                            <textarea 
+                                id="bulkArtikelInput" 
+                                class="form-input" 
+                                rows="10" 
+                                placeholder="123456789&#10;987654321&#10;555666777"
+                                data-lang-placeholder="bulk-input-placeholder"
+                            ></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <button id="addBulkLabelsBtn" class="btn btn-primary" disabled>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-bulk-add">Pridať všetky na tlač</span>
+                            </button>
+                        </div>
+                        
+                        <div id="bulkStatus" class="bulk-status" style="margin-top: 15px; display: none;">
+                            <div class="status-summary">
+                                <div class="status-item">
+                                    <span class="status-label" data-lang="bulk-status-processed">Spracované:</span>
+                                    <span class="status-number" id="bulkProcessedCount">0</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label" data-lang="bulk-status-added">Pridané:</span>
+                                    <span class="status-number" id="bulkAddedCount">0</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label" data-lang="bulk-status-errors">Chyby:</span>
+                                    <span class="status-number" id="bulkErrorCount">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STREDNÝ STĹPEC -->
+                <div>
+                    <!-- Náhľad štítka -->
+                    <div class="preview-section">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="bulk-preview-title">Náhľad štítka (štandardný)</span></h3>
+                        
+                        <div class="preview-label">
+                            <div class="preview-content">
+                                <!-- Prvý riadok: Čiarový kód -->
+                                <div class="preview-barcode-row">
+                                    <svg id="bulkPreviewBarcode"></svg>
+                                </div>
+                                <!-- Druhý riadok: Artikel -->
+                                <div class="preview-artikel" id="bulkPreviewArtikel">123-456-789</div>
+                                <!-- Tretí riadok: Názov produktu -->
+                                <div class="preview-nazov" id="bulkPreviewNazov">Produkt z databáze</div>
+                                <!-- Štvrtý riadok: Horizontálna čiara -->
+                                <div class="preview-line"></div>
+                                <!-- Piaty riadok: Polica -->
+                                <div class="preview-polica" id="bulkPreviewPolica">XX-XX-XX</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRAVÝ STĹPEC -->
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h4"></path><path d="M15 11h4a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-4"></path><path d="M12 2l3 7H9l3-7z"></path></svg> <span data-lang="bulk-help-title">Nápoveda</span></h2>
+                        
+                        <div class="help-content">
+                            <p data-lang="bulk-help-desc">Zadajte jeden artikel na každý riadok. Systém automaticky vyhľadá údaje v databáze.</p>
+                            
+                            <h4 data-lang="bulk-help-examples">Príklady formátov:</h4>
+                            <ul>
+                                <li><code>123456789</code></li>
+                                <li><code>123-456-789</code></li>
+                                <li><code>1234567890000</code></li>
+                            </ul>
+                            
+                            <div class="help-note">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                                <span data-lang="bulk-help-note">Ak artikel nie je v databáze, vytvorí sa štítok s číslom artiklu ako názvom.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Tlač police -->
+        <div class="tab-content" id="shelf-print-tab">
+            <div class="main-grid">
+                <!-- ĽAVÝ STĹPEC -->
+                <div>
+                    <div class="card shelf-form">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14,2 14,8 20,8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10,9 9,9 8,9"></polyline></svg> <span data-lang="shelf-print-title">Tlač police</span></h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="shelfFach" data-lang="shelf-fach-label">Fach</label>
+                            <input type="text" id="shelfFach" class="form-input" placeholder="0501" data-lang-placeholder="shelf-fach-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="shelfPolica" data-lang="shelf-polica-label">Polica</label>
+                            <input type="text" id="shelfPolica" class="form-input" placeholder="00-00-00" data-lang-placeholder="shelf-polica-placeholder">
+                        </div>
+                        
+                        <div class="form-row">
+                            <button id="addShelfLabelBtn" class="btn btn-primary" disabled>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-add-shelf-label">Pridať štítok police na tlač</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STREDNÝ STĹPEC -->
+                <div>
+                    <!-- Náhľad štítka -->
+                    <div class="preview-section shelf-preview">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="shelf-preview-title">Náhľad štítka police</span></h3>
+                        
+                        <div class="preview-label template-shelf">
+                            <div class="preview-content">
+                                <!-- Prvý riadok: Čiarový kód -->
+                                <div class="preview-barcode-row">
+                                    <svg id="shelfPreviewBarcode"></svg>
+                                </div>
+                                <!-- Druhý riadok: Fach -->
+                                <div class="preview-fach" id="shelfPreviewFach">0501</div>
+                                <!-- Tretí riadok: Popis police -->
+                                <div class="preview-shelf-desc" id="shelfPreviewShelfDesc">Polica štítok</div>
+                                <!-- Štvrtý riadok: Horizontálna čiara -->
+                                <div class="preview-line"></div>
+                                <!-- Piaty riadok: Umiestnenie police -->
+                                <div class="preview-shelf-location" id="shelfPreviewShelfLocation">0501	00-00-00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRAVÝ STĹPEC -->
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h4"></path><path d="M15 11h4a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-4"></path><path d="M12 2l3 7H9l3-7z"></path></svg> <span data-lang="shelf-help-title">Nápoveda</span></h2>
+                        
+                        <div class="help-content">
+                            <p data-lang="shelf-help-desc">Manuálne zadajte hodnoty pre Fach a Policu. Čiarový kód sa vygeneruje vo formáte "FACH[TAB]POLICA".</p>
+                            
+                            <h4 data-lang="shelf-help-example">Príklad:</h4>
+                            <ul>
+                                <li><strong data-lang="shelf-example-fach">Fach:</strong> 0501</li>
+                                <li><strong data-lang="shelf-example-polica">Polica:</strong> 00-00-00</li>
+                                <li><strong data-lang="shelf-example-barcode">Čiarový kód:</strong> 0501[TAB]00-00-00</li>
+                            </ul>
+                            
+                            <div class="help-note">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                                <span data-lang="shelf-help-note">Údaje sa berú z manuálneho zadania, nie z databázy.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Tlač menovky -->
+        <div class="tab-content" id="name-tag-tab">
+            <div class="main-grid">
+                <!-- ĽAVÝ STĹPEC -->
+                <div>
+                    <div class="card name-tag-form">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <span data-lang="name-tag-title">Tlač menovky</span></h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="nameTagMeno" data-lang="name-tag-name-label">Meno</label>
+                            <input type="text" id="nameTagMeno" class="form-input" placeholder="Ján" data-lang-placeholder="name-tag-name-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="nameTagPriezvisko" data-lang="name-tag-surname-label">Priezvisko</label>
+                            <input type="text" id="nameTagPriezvisko" class="form-input" placeholder="Novák" data-lang-placeholder="name-tag-surname-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="nameTagOsobneCislo" data-lang="name-tag-personal-number-label">Osobné číslo</label>
+                            <input type="text" id="nameTagOsobneCislo" class="form-input personal-number-input" placeholder="1234567890" data-lang-placeholder="name-tag-personal-number-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="nameTagOddelenie" data-lang="name-tag-department-label">Oddelenie (voliteľné)</label>
+                            <input type="text" id="nameTagOddelenie" class="form-input" placeholder="IT Podpora" data-lang-placeholder="name-tag-department-placeholder">
+                        </div>
+                        
+                        <div class="form-row">
+                            <button id="addNameTagBtn" class="btn btn-primary" disabled>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-name-tag-add">Pridať menovku na tlač</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STREDNÝ STĹPEC -->
+                <div>
+                    <!-- Náhľad štítka -->
+                    <div class="preview-section name-tag-preview">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="name-tag-preview-title">Náhľad menovky</span></h3>
+                        
+                        <div class="preview-label template-nametag">
+                            <div class="preview-content">
+                                <!-- Prvý riadok: Čiarový kód -->
+                                <div class="preview-barcode-row">
+                                    <svg id="nameTagPreviewBarcode"></svg>
+                                </div>
+                                <!-- Druhý riadok: Osobné číslo -->
+                                <div class="preview-personal-number" id="nameTagPreviewPersonalNumber">1234567890</div>
+                                <!-- Tretí riadok: Celé meno -->
+                                <div class="preview-full-name" id="nameTagPreviewFullName">Ján Novák</div>
+                                <!-- Štvrtý riadok: Horizontálna čiara -->
+                                <div class="preview-line"></div>
+                                <!-- Piaty riadok: Oddelenie -->
+                                <div class="preview-department" id="nameTagPreviewDepartment">IT Podpora</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRAVÝ STĹPEC -->
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h4"></path><path d="M15 11h4a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-4"></path><path d="M12 2l3 7H9l3-7z"></path></svg> <span data-lang="name-tag-help-title">Nápoveda</span></h2>
+                        
+                        <div class="help-content">
+                            <p data-lang="name-tag-help-desc">Zadajte meno, priezvisko a osobné číslo zamestnanca. Čiarový kód sa vygeneruje z osobného čísla.</p>
+                            
+                            <h4 data-lang="name-tag-help-example">Príklad:</h4>
+                            <ul>
+                                <li><strong data-lang="name-tag-example-name">Meno:</strong> Ján</li>
+                                <li><strong data-lang="name-tag-example-surname">Priezvisko:</strong> Novák</li>
+                                <li><strong data-lang="name-tag-example-personal-number">Osobné číslo:</strong> 1234567890</li>
+                                <li><strong data-lang="name-tag-example-department">Oddelenie:</strong> IT Podpora</li>
+                                <li><strong data-lang="name-tag-example-barcode">Čiarový kód:</strong> 1234567890</li>
+                            </ul>
+                            
+                            <div class="help-note">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                                <span data-lang="name-tag-help-note">Osobné číslo slúži ako identifikátor a generuje sa do čiarového kódu. Oddelenie je voliteľné.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Databáza -->
+        <div class="tab-content" id="database-tab">
+            <div class="main-grid">
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg> <span data-lang="db-management">Správa databázy</span></h2>
+                        
+                        <div class="quick-actions" style="background: var(--bg-primary); border-color: var(--border-color); padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; border: 1px solid var(--border-color);">
+                            <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> <span data-lang="quick-actions">Rýchle akcie</span></h3>
+                            <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                                <button id="clearDbBtn" class="btn btn-danger btn-small">
+                                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> <span data-lang="btn-clear">Vymazať DB</span>
+                                </button>
+                                <button id="exportCsvBtn" class="btn btn-secondary btn-small">
+                                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> CSV
+                                </button>
+                                <button id="exportExcelBtn" class="btn btn-secondary btn-small">
+                                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Excel
+                                </button>
+                                <button id="exportJsonBtn" class="btn btn-secondary btn-small">
+                                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> JSON
+                                </button>
+                            </div>
+                        </div>
+
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14,2 14,8 20,8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10,9 9,9 8,9"></polyline></svg> <span data-lang="import-files">Import súborov</span></h3>
+                        
+                        <div class="drop-zone" id="dropZone">
+                            <p data-lang="drop-text">Pretiahnite súbory sem alebo kliknite pre výber</p>
+                            <p style="font-size: 12px; color: var(--text-secondary);">CSV, Excel (XLS, XLSX, XLSM), JSON</p>
+                        </div>
+                        
+                        <input 
+                            type="file" 
+                            id="fileImport" 
+                            accept=".csv,.xls,.xlsx,.xlsm,.json" 
+                            class="form-input hidden"
+                            multiple
+                        />
+                        
+                        <button id="importFileBtn" class="btn btn-primary btn-full" disabled>
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14,2 14,8 20,8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10,9 9,9 8,9"></polyline></svg> <span data-lang="btn-import">Importovať súbory</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="add-single">Pridať jednotlivo</span></h3>
+                        <div class="form-group">
+                            <input type="text" id="newArtikel" class="form-input" placeholder="Artikel">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="newNazov" class="form-input" placeholder="Názov produktu">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="newPolica" class="form-input" placeholder="Polica">
+                        </div>
+                        <button id="addDatabaseBtn" class="btn btn-primary btn-full">
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-add-db">Pridať do databázy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> <span data-lang="db-preview">Databáza (náhľad)</span></h3>
+                        
+                        <div class="search-box">
+                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <input 
+                                type="text" 
+                                id="dbSearchInput"
+                                class="search-input" 
+                                placeholder="Filtrovať databázu..."
+                                data-lang-placeholder="db-filter-placeholder"
+                            />
+                        </div>
+                        
+                        <div id="databaseList" style="max-height: 500px; overflow-y: auto;">
+                            <div class="no-results" data-lang="loading">Načítavam databázu...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: História tlače -->
+        <div class="tab-content" id="history-tab">
+            <div class="card">
+                <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12,6 12,12 16,14"></polyline></svg> <span data-lang="history-title">História tlače</span></h2>
+                
+                <div class="history-controls">
+                    <div class="form-row">
+                        <button id="clearHistoryBtn" class="btn btn-danger">
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> <span data-lang="btn-clear-history">Vymazať históriu</span>
+                        </button>
+                        <button id="exportHistoryBtn" class="btn btn-secondary">
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> <span data-lang="btn-export-history">Exportovať históriu</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="history-stats">
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalPrintedLabels">0</div>
+                            <div class="stat-label" data-lang="stat-total-printed">Celkom vytlačených štítkov</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalPrintSessions">0</div>
+                            <div class="stat-label" data-lang="stat-print-sessions">Relácií tlače</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-box" style="margin-bottom: 20px;">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="historySearchInput"
+                        class="search-input" 
+                        placeholder="Filtrovať históriu..."
+                        data-lang-placeholder="history-filter-placeholder"
+                    />
+                </div>
+                
+                <div id="printHistoryList" class="history-list">
+                    <div class="no-results" data-lang="no-history">Zatiaľ žiadna história tlače...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Nastavenia -->
+        <div class="tab-content" id="settings-tab">
+            <div class="card">
+                <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> <span data-lang="settings-title">Nastavenia</span></h2>
+                
+                <div class="form-group">
+                    <label class="form-label" data-lang="setting-theme">Téma vzhľadu</label>
+                    <select id="themeSelect" class="category-select">
+                        <option value="light" data-lang="theme-light">Svetlá</option>
+                        <option value="dark" data-lang="theme-dark">Tmavá</option>
+                        <option value="auto" data-lang="theme-auto">Automatická</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" data-lang="setting-lang">Jazyk</label>
+                    <select id="languageSettingSelect" class="category-select">
+                        <option value="sk">🇸🇰 Slovenčina</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" data-lang="setting-logo">Logo na štítkoch</label>
+                    <select id="logoSelect" class="category-select">
+                        <option value="show" data-lang="logo-show">Zobraziť</option>
+                        <option value="hide" data-lang="logo-hide">Skryť</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" data-lang="setting-template">Predvolená šablóna</label>
+                    <select id="defaultTemplateSelect" class="category-select">
+                        <option value="default" data-lang="template-default">Štandardný</option>
+                        <option value="compact" data-lang="template-compact">Kompaktný</option>
+                        <option value="detailed" data-lang="template-detailed">Detailný</option>
+                    </select>
+                </div>
+                
+                <button id="saveSettingsBtn" class="btn btn-success">
+                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17,21 17,13 7,13 7,21"></polyline><polyline points="7,3 7,8 15,8"></polyline></svg> <span data-lang="btn-save-settings">Uložiť nastavenia</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Oblasť pre tlač, ktorá sa zobrazí len pri tlači -->
+        <div id="printArea" class="hidden"></div>
+    </div>
+
+    <!-- Modal pre náhľad tlače -->
+    <div id="printPreviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-lang="preview-modal-title">Náhľad tlače</h3>
+                <span class="close" id="closePrintPreview">&times;</span>
+            </div>
+            <div class="print-preview-container" id="printPreviewContainer">
+                <!-- Náhľad štítkov sa vygeneruje tu -->
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn btn-success" onclick="window.print()">
+                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> <span data-lang="btn-print-now">Tlačiť teraz</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifikácia -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Modular JavaScript files -->
+    <script src="js/utils.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/labels.js"></script>
+    <script src="js/print.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
