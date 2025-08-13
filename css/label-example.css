@@ -1,0 +1,179 @@
+/* 🏷️ PRÍKLAD NOVEJ ŠABLÓNY - Example new label template styles */
+
+/* Barcode error styling */
+.template-example .barcode-error {
+    font-size: 8px;
+    fill: red;
+}
+
+/* Example template layout */
+.template-example .preview-content,
+.template-example .print-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 4px;
+    gap: 2px;
+    background: linear-gradient(45deg, #f0f0f0, #ffffff);
+    border-radius: 8px;
+}
+
+/* Example barcode styling */
+.template-example .preview-barcode-row {
+    width: 90%;
+    height: calc(var(--label-barcode-height) * 1.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3px;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+}
+
+/* Example artikel styling with special formatting */
+.template-example .preview-artikel {
+    font-size: calc(var(--label-artikel-font-size) * 1.2);
+    font-weight: 900;
+    color: #2563eb;
+    line-height: 1.0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 2px;
+    padding: 4px 8px;
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Example nazov styling */
+.template-example .preview-nazov {
+    font-size: calc(var(--label-nazov-font-size) * 1.3);
+    color: #374151;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 2px;
+    font-weight: 600;
+    font-style: italic;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Example line styling */
+.template-example .preview-line {
+    width: 95%;
+    height: 3px;
+    background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6);
+    margin: 2px 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Example polica styling */
+.template-example .preview-polica {
+    font-size: calc(var(--label-polica-font-size) * 1.1);
+    font-weight: bold;
+    color: #dc2626;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-top: 1px;
+    padding: 2px 6px;
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    text-transform: lowercase;
+    font-variant: small-caps;
+}
+
+/* Print styles for example template */
+@media print {
+    .template-example .print-barcode-row {
+        width: 90% !important;
+        height: calc(var(--label-barcode-height) * 1.2) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+    }
+    
+    .template-example .print-barcode-row svg {
+        width: 100% !important;
+        height: calc(var(--label-barcode-height) * 1.2) !important;
+        overflow: visible;
+    }
+    
+    .template-example .print-artikel {
+        font-size: calc(var(--label-artikel-font-size) * 1.2) !important;
+        font-weight: 900 !important;
+        color: #2563eb !important;
+        line-height: 1.0 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+        padding: 4px 8px !important;
+        background: rgba(37, 99, 235, 0.1) !important;
+        border-radius: 6px !important;
+        border: 1px solid rgba(37, 99, 235, 0.2) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+    }
+    
+    .template-example .print-nazov {
+        font-size: calc(var(--label-nazov-font-size) * 1.3) !important;
+        color: #374151 !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+        font-weight: 600 !important;
+        font-style: italic !important;
+    }
+    
+    .template-example .print-line {
+        width: 95% !important;
+        height: 3px !important;
+        background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6) !important;
+        margin: 2px 0 !important;
+        border-radius: 2px !important;
+    }
+    
+    .template-example .print-polica {
+        font-size: calc(var(--label-polica-font-size) * 1.1) !important;
+        font-weight: bold !important;
+        color: #dc2626 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        margin: 1px 0 !important;
+        padding: 2px 6px !important;
+        background: rgba(220, 38, 38, 0.1) !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(220, 38, 38, 0.3) !important;
+        text-transform: lowercase !important;
+        font-variant: small-caps !important;
+    }
+}
