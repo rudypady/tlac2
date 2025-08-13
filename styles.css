@@ -17,9 +17,9 @@
     --transition: all 0.2s ease; /* Štandardný prechod */
 
     /* Premenné pre ľahké upravovanie veľkosti písma na štítkach */
-    --label-artikel-font-size: 4mm; /* Veľkosť písma pre artikel (2. riadok) */
-    --label-nazov-font-size: 2,5mm; /* Veľkosť písma pre názov produktu (3. riadok) */
-    --label-polica-font-size: 2mm; /* Veľkosť písma pre policu (5. riadok) */
+    --label-artikel-font-size: 4.2mm; /* Veľkosť písma pre artikel (2. riadok) */
+    --label-nazov-font-size: 2.3mm; /* Veľkosť písma pre názov produktu (3. riadok) */
+    --label-polica-font-size: 1.8mm; /* Veľkosť písma pre policu (5. riadok) */
     --label-barcode-height: 7mm; /* Výška čiarového kódu */
 }
 
