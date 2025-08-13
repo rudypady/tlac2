@@ -24,6 +24,7 @@
 }
 
 .template-default .preview-artikel {
+    font-family: 'Roboto', Arial, sans-serif;
     font-size: var(--label-artikel-font-size);
     font-weight: bold;
     color: #000;
@@ -46,6 +47,7 @@
 }
 
 .template-default .preview-nazov {
+    font-family: 'Roboto', Arial, sans-serif;
     font-size: var(--label-nazov-font-size);
     color: #000;
     line-height: 1.1;
@@ -65,6 +67,7 @@
 }
 
 .template-default .preview-polica {
+    font-family: 'Roboto', Arial, sans-serif;
     font-size: var(--label-polica-font-size);
     font-weight: bold;
     font-style: italic;
@@ -94,6 +97,7 @@
     }
     
     .template-default .print-artikel {
+        font-family: 'Roboto', Arial, sans-serif;
         font-size: var(--label-artikel-font-size) !important;
         font-weight: bold !important;
         color: #000 !important;
@@ -107,6 +111,7 @@
     }
     
     .template-default .print-nazov {
+        font-family: 'Roboto', Arial, sans-serif;
         font-size: var(--label-nazov-font-size) !important;
         color: #000 !important;
         line-height: 1.1 !important;
@@ -126,6 +131,7 @@
     }
     
     .template-default .print-polica {
+        font-family: 'Roboto', Arial, sans-serif;
         font-size: var(--label-polica-font-size) !important;
         font-weight: bold !important;
         font-style: italic !important;
