@@ -14,7 +14,8 @@
     <!-- jsPDF library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- svg2pdf.js library for SVG to PDF conversion -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg2pdf.js/2.2.1/svg2pdf.umd.min.js"></script>
+    <!-- Local implementation to avoid CDN blocking issues -->
+    <!-- Must be loaded after jsPDF fallback is set up -->
     
     <script>
         // Fallback pre jsPDF knižnicu ak CDN zlyhá
@@ -26,7 +27,7 @@
                     return {
                         addPage: function() { console.log('Pridávam novú stránku'); },
                         svg: async function(svgElement, options) { 
-                            console.log('Konvertujem SVG do PDF:', svgElement, options); 
+                            console.log('Konvertujem SVG do PDF (fallback):', svgElement, options); 
                         },
                         save: function(filename) { 
                             console.log('Ukladám PDF ako:', filename);
@@ -37,13 +38,16 @@
                 }
             };
         }
+    </script>
+    
+    <script src="lib/svg2pdf-local.js"></script>
         
-        // Fallback pre svg2pdf knižnicu
+    <script>
+        // svg2pdf fallback check - should not be needed with local implementation
         if (typeof window.svg2pdf === 'undefined') {
-            console.warn('svg2pdf library not available');
-            window.svg2pdf = function() {
-                console.log('svg2pdf fallback');
-            };
+            console.warn('svg2pdf library still not available after local implementation');
+        } else {
+            console.log('svg2pdf library successfully loaded');
         }
     </script>
     
