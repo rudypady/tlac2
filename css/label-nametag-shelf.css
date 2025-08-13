@@ -1,5 +1,17 @@
 /* 🏷️ MENOVKA A POLICA ŠTÍTKY - Name tag and shelf label specific styles */
 
+/* Barcode error styling for name tags */
+.template-nametag .barcode-error {
+    font-size: 8px;
+    fill: red;
+}
+
+/* Barcode error styling for shelf labels */
+.template-shelf .barcode-error {
+    font-size: 8px;
+    fill: red;
+}
+
 /* ===== NAME TAG SPECIFIC STYLES ===== */
 
 /* Name tag preview and print layout - 5 rows structure */
