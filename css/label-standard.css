@@ -1,5 +1,12 @@
 /* 🏷️ ŠTANDARDNÁ ŠABLÓNA ŠTÍTKA - Default label template styles */
 
+/* Presné rozmery štítka pre tlačiareň - 50,8 mm x 25,4 mm */
+.label-standard {
+    width: 50.8mm;
+    height: 25.4mm;
+    box-sizing: border-box;
+}
+
 /* Štandardné rozmery a rozloženie */
 .template-default .preview-content,
 .template-default .print-content {
