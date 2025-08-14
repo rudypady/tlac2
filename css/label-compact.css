@@ -1,5 +1,57 @@
 /* 🏷️ KOMPAKTNÁ ŠABLÓNA ŠTÍTKA - Compact label template styles */
 
+/* CSS premenné pre kompaktné štítky */
+.template-compact {
+    /* Premenné pre ľahké upravovanie veľkosti písma na štítkoch */
+    --label-artikel-font-size: 18px; /* Veľkosť písma pre artikel (2. riadok) */
+    --label-nazov-font-size: 8px; /* Veľkosť písma pre názov produktu (3. riadok) */
+    --label-polica-font-size: 8px; /* Veľkosť písma pre policu (5. riadok) */
+    --label-barcode-height: 20px; /* Výška čiarového kódu */
+    --transition: all 0.2s ease; /* Štandardný prechod */
+}
+
+/* Základné štýly pre kompaktné print-label kontajner */
+.template-compact.print-label {
+    width: 2in;
+    height: 1in;
+    border: 0px solid #000 !important; /* Okraj štítka */
+    margin: 0;
+    padding: 0;
+    page-break-inside: avoid; /* Zabraňuje rozdeleniu štítka cez strany */
+    page-break-after: always; /* Vždy zalomí stranu po štítku */
+    font-family: Arial, sans-serif !important;
+    background: white !important;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column; /* Vertikálne usporiadanie */
+    align-items: center; /* Centrovanie obsahu */
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 4px; /* Pridať padding pre tlač */
+}
+
+.template-compact.print-label:last-child {
+    page-break-after: auto; /* Posledný štítok nezalomí stranu */
+}
+
+/* Logo štýly pre kompaktné štítky */
+.template-compact .print-logo {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 15px;
+    height: 15px;
+    opacity: 0.6;
+    overflow: hidden;
+}
+
+.template-compact .print-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 /* Kompaktné rozmery s menšími fontami a tight spacing */
 .template-compact .preview-content,
 .template-compact .print-content {
@@ -80,6 +132,31 @@
 
 /* Kompaktné štýly pre tlač */
 @media print {
+    /* Zabezpečí presné farby pri tlači pre kompaktné štítky */
+    .template-compact * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Kompaktné print label kontajner štýly */
+    .template-compact.print-label {
+        width: 2in !important;
+        height: 1in !important;
+        margin: 0 !important;
+        padding: 4px !important;
+        border: 0px solid #000 !important;
+        box-sizing: border-box;
+        page-break-inside: avoid;
+        page-break-after: always;
+        transform: scale(1.5);
+        transform-origin: center center;
+    }
+    
+    .template-compact.print-label:last-child {
+        page-break-after: auto; /* Posledný štítok nezalomí stranu */
+    }
+    
     .template-compact .print-barcode-row {
         width: 100% !important;
         height: calc(var(--label-barcode-height) * 0.8) !important;
