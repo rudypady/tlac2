@@ -1,5 +1,47 @@
 /* 🏷️ ŠTANDARDNÁ ŠABLÓNA ŠTÍTKA - Default label template styles */
 
+/* Base print label styles for standard template */
+.template-default.print-label {
+    width: 2in;
+    height: 1in;
+    border: 0px solid #000 !important;
+    margin: 0;
+    padding: 0;
+    page-break-inside: avoid;
+    page-break-after: always;
+    font-family: Arial, sans-serif !important;
+    background: white !important;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 4px;
+}
+
+.template-default.print-label:last-child {
+    page-break-after: auto;
+}
+
+/* Logo styles for standard template */
+.template-default .print-logo {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 15px;
+    height: 15px;
+    opacity: 0.6;
+    overflow: hidden;
+}
+
+.template-default .print-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 /* Štandardné rozmery a rozloženie */
 .template-default .preview-content,
 .template-default .print-content {
@@ -75,6 +117,24 @@
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
+}
+
+/* Print-specific global styles for standard template */
+@media print {
+    /* Print color adjustments for standard labels */
+    .template-default.print-label * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Print area setup when printing standard labels */
+    .template-default.print-label {
+        transform: scale(1.5);
+        transform-origin: center center;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
 }
 
 /* Štandardné štýly pre tlač */
