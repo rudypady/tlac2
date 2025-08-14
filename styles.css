@@ -998,11 +998,9 @@ body {
 
 .preview-controls {
     display: flex;
-    gap: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 15px;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
 }
 
 .template-select {
@@ -1034,6 +1032,8 @@ body {
 .polica-toggle-container {
     display: flex;
     align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
 }
 
 .polica-toggle-label {
