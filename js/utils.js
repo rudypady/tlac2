@@ -29,18 +29,35 @@ function normalizeArtikel(artikel) {
 }
 
 /**
- * Formátuje artikel pre zobrazenie (po trojiciach číslic s pomlčkami).
+ * Formátuje artikel pre zobrazenie (iba prvých 9 číslic vo formáte 123-456-789).
  * @param {string} artikel - Artikel na formátovanie.
- * @returns {string} Formátovaný artikel vo formáte 123-456-789.
+ * @returns {string} Formátovaný artikel vo formáte 123-456-789 (iba prvých 9 číslic).
  */
 function formatArtikel(artikel) {
     if (!artikel) return '';
     
     const cleanArtikel = normalizeArtikel(artikel);
     
-    // Formátuje po trojiciach číslic s pomlčkami (123-456-789)
-    const formatted = cleanArtikel.replace(/(\d{3})(?=\d)/g, '$1-');
-    return formatted;
+    // Extrakcia iba prvých 9 číslic
+    const firstNineDigits = cleanArtikel.substring(0, 9);
+    
+    // Formátovanie vo formáte 123-456-789 (3 skupiny po 3 číslice)
+    if (firstNineDigits.length >= 9) {
+        return firstNineDigits.substring(0, 3) + '-' + 
+               firstNineDigits.substring(3, 6) + '-' + 
+               firstNineDigits.substring(6, 9);
+    } else if (firstNineDigits.length >= 6) {
+        const remaining = firstNineDigits.substring(6);
+        return firstNineDigits.substring(0, 3) + '-' + 
+               firstNineDigits.substring(3, 6) + 
+               (remaining ? '-' + remaining : '');
+    } else if (firstNineDigits.length >= 3) {
+        const remaining = firstNineDigits.substring(3);
+        return firstNineDigits.substring(0, 3) + 
+               (remaining ? '-' + remaining : '');
+    } else {
+        return firstNineDigits;
+    }
 }
 
 /**
