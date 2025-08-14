@@ -161,6 +161,13 @@
                         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                     </svg>
                 </div>
+                <button class="help-toggle" id="helpToggle" title="Nápoveda">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
                 <button class="theme-toggle" id="themeToggle">
                     <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 </button>
@@ -308,24 +315,7 @@
 
                 <!-- PRAVÝ STĹPEC -->
                 <div>
-                    <div class="card">
-                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> <span data-lang="stats-title">Štatistiky</span></h2>
-                        
-                        <div class="database-stats">
-                            <div class="stat-grid">
-                                <div class="stat-item">
-                                    <div class="stat-number" id="totalCount">0</div>
-                                    <div class="stat-label" data-lang="stat-total">Celkom</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="chart-container" style="display: none;">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Náhľad štítka -->
+                    <!-- Náhľad štítka - presunutý nad štatistiky pre vizuálnu dominanciu -->
                     <div class="preview-section">
                         <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="preview-title">Náhľad štítka (2" x 1")</span></h3>
                         
@@ -352,6 +342,23 @@
                                 <!-- Piaty riadok: Polica -->
                                 <div class="preview-polica" id="previewPolica">A1-B2-C3</div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> <span data-lang="stats-title">Štatistiky</span></h2>
+                        
+                        <div class="database-stats">
+                            <div class="stat-grid">
+                                <div class="stat-item">
+                                    <div class="stat-number" id="totalCount">0</div>
+                                    <div class="stat-label" data-lang="stat-total">Celkom</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container" style="display: none;">
+                            <canvas id="categoryChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -819,6 +826,57 @@
                 <button class="btn btn-success" onclick="window.print()">
                     <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> <span data-lang="btn-print-now">Tlačiť teraz</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pre nápovedu -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content help-modal-content">
+            <div class="modal-header">
+                <h3 data-lang="help-modal-title">Nápoveda - Systém tlačenia štítkov</h3>
+                <span class="close" id="closeHelp">&times;</span>
+            </div>
+            <div class="help-content-modal">
+                <div class="help-section">
+                    <h4 data-lang="help-overview-title">📋 Prehľad systému</h4>
+                    <p data-lang="help-overview-desc">Profesionálny systém pre tlačenie štítkov umožňuje rýchle vytváranie a tlač štítkov pre produkty, police a menovky zamestnancov.</p>
+                </div>
+                
+                <div class="help-section">
+                    <h4 data-lang="help-labels-title">🏷️ Základné štítky</h4>
+                    <ul>
+                        <li data-lang="help-labels-search">Vyhľadávanie v databáze - zadajte artikel, názov alebo policu</li>
+                        <li data-lang="help-labels-quick">Rýchly štítok - zadajte údaje manuálne pre okamžité vytvorenie</li>
+                        <li data-lang="help-labels-preview">Náhľad - vidíte, ako bude štítok vyzerať pred tlačou</li>
+                        <li data-lang="help-labels-templates">Šablóny - vyberte si zo štandardnej, kompaktnej alebo detailnej</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h4 data-lang="help-bulk-title">📦 Hromadná tlač</h4>
+                    <p data-lang="help-bulk-desc">Zadajte viacero artiklov naraz (každý na nový riadok). Systém automaticky vyhľadá údaje v databáze.</p>
+                </div>
+                
+                <div class="help-section">
+                    <h4 data-lang="help-shelf-title">📚 Tlač police</h4>
+                    <p data-lang="help-shelf-desc">Vytvorte štítky pre označenie políc zadaním čísla Fach a umiestnenia.</p>
+                </div>
+                
+                <div class="help-section">
+                    <h4 data-lang="help-nametag-title">👤 Menovky</h4>
+                    <p data-lang="help-nametag-desc">Vytvorte menovky pre zamestnancov s menom, priezviskom, osobným číslom a oddelením.</p>
+                </div>
+                
+                <div class="help-section">
+                    <h4 data-lang="help-tips-title">💡 Tipy a triky</h4>
+                    <ul>
+                        <li data-lang="help-tip1">Používajte klávesové skratky: Enter po zadaní údajov pridá štítok</li>
+                        <li data-lang="help-tip2">Náhľad štítka sa aktualizuje v reálnom čase</li>
+                        <li data-lang="help-tip3">Štítky môžete upravovať pred tlačou kliknutím na ne</li>
+                        <li data-lang="help-tip4">História tlače uchováva záznamy o vytlačených štítkoch</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
