@@ -1516,10 +1516,15 @@ body {
     transform-origin: center center;
     margin: 0 !important;
     box-sizing: border-box !important;
+    page-break-before: always !important;
+  }
+  
+  .print-label:first-child {
+    page-break-before: auto !important;
   }
 }
 
-
+@media print {
     /* Zabezpečí presné farby pri tlači */
     * {
         -webkit-print-color-adjust: exact !important;
@@ -1669,8 +1674,9 @@ body {
         width: 100%;
         margin: 0 !important;
     }
+}
 
-/* ===== HROMADNÁ TLAČ A MENOVKY ŠTÝLY ===== */
+/* ===== HROMADNÁ TLAČ A MENOVKY ŠTÝLY =====*/
 
 /* Hromadná tlač štýly */
 .bulk-status {
