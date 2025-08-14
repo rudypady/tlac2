@@ -368,6 +368,31 @@ body {
     background: rgba(255, 255, 255, 0.3);
 }
 
+/* Tlačidlo nápovedy */
+.help-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+}
+
+.help-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.help-toggle svg {
+    transition: var(--transition);
+}
+
+.help-toggle:hover svg {
+    transform: rotate(15deg);
+}
+
 /* Výber jazyka */
 .language-select {
     background: rgba(255, 255, 255, 0.2);
@@ -459,24 +484,42 @@ body {
     }
 }
 
-/* Karta (box) pre obsah */
+/* Karta (box) pre obsah - modernizované */
 .card {
     background: var(--bg-secondary);
-    padding: 30px; /* Zväčšená vzdušnosť */
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+    padding: 32px;
+    border-radius: 16px; /* Väčšie zaoblenie */
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--border-color);
     height: fit-content;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    margin-bottom: 25px; /* Zväčšená vzdušnosť */
-    transition: var(--transition);
+    margin-bottom: 28px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-2px); /* Jemný hover efekt */
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.card:hover::before {
+    opacity: 1;
 }
 
 .card h2 {
@@ -903,18 +946,38 @@ body {
     margin-left: 15px;
 }
 
-/* Sekcia náhľadu štítka */
+/* Sekcia náhľadu štítka - modernizovaný dizajn */
 .preview-section {
     background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
     border: 2px solid #0ea5e9;
-    border-radius: var(--border-radius);
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 16px; /* Väčšie zaoblenie */
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(14, 165, 233, 0.15); /* Výraznejší tieň */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Plynulejšia animácia */
+    position: relative;
+    overflow: hidden;
+}
+
+.preview-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0ea5e9, #06b6d4, #0891b2);
+    border-radius: 16px 16px 0 0;
 }
 
 [data-theme="dark"] .preview-section {
     background: linear-gradient(135deg, #1e3a8a, #1e40af);
     border-color: #3b82f6;
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .preview-section::before {
+    background: linear-gradient(90deg, #3b82f6, #06b6d4, #0891b2);
 }
 
 .preview-section h3 {
@@ -922,6 +985,11 @@ body {
     margin-bottom: 20px;
     font-weight: 700;
     text-align: center;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
 }
 
 [data-theme="dark"] .preview-section h3 {
@@ -930,23 +998,39 @@ body {
 
 .preview-controls {
     display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 12px;
+    margin-bottom: 18px;
     justify-content: center;
 }
 
 .template-select {
-    padding: 8px 16px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background: var(--bg-secondary);
+    padding: 10px 20px;
+    border: 2px solid rgba(14, 165, 233, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
     color: var(--text-primary);
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.template-select:hover {
+    border-color: #0ea5e9;
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+}
+
+.template-select:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 .preview-label {
     background: white;
-    border: 1px solid #000;
+    border: 2px solid #000;
     padding: 8px;
     width: 192px; /* 2 inches at 96dpi */
     height: 96px; /* 1 inch at 96dpi */
@@ -954,9 +1038,16 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     position: relative;
-    overflow: hidden; /* Skryje pretečenie obsahu */
+    overflow: hidden;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.preview-label:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
 }
 
 /* Nové 5-riadkové rozloženie štítka podľa špecifikácie */
@@ -1764,5 +1855,72 @@ body {
         flex-direction: column;
         gap: 6px;
     }
+}
+
+/* ===== HELP MODAL STYLES ===== */
+.help-modal-content {
+    max-width: 900px;
+    max-height: 85vh;
+}
+
+.help-content-modal {
+    padding: 20px 0;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.help-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.help-section:hover {
+    transform: translateX(4px);
+    background: var(--bg-secondary);
+    box-shadow: 0 4px 12px rgba(0, 80, 140, 0.1);
+}
+
+.help-section h4 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.help-section ul {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-secondary);
+}
+
+.help-section li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.help-section li::marker {
+    color: var(--primary-color);
+}
+
+/* Dark theme support for help modal */
+[data-theme="dark"] .help-section {
+    background: #2d3748;
+}
+
+[data-theme="dark"] .help-section:hover {
+    background: #4a5568;
 }
 }

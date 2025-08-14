@@ -172,7 +172,28 @@ const translations = {
         'shelf-example-fach': 'Fach:',
         'shelf-example-polica': 'Polica:',
         'shelf-example-barcode': 'Čiarový kód:',
-        'shelf-help-note': 'Údaje sa berú z manuálneho zadania, nie z databázy.'
+        'shelf-help-note': 'Údaje sa berú z manuálneho zadania, nie z databázy.',
+        
+        // Help modal translations
+        'help-modal-title': 'Nápoveda - Systém tlačenia štítkov',
+        'help-overview-title': '📋 Prehľad systému',
+        'help-overview-desc': 'Profesionálny systém pre tlačenie štítkov umožňuje rýchle vytváranie a tlač štítkov pre produkty, police a menovky zamestnancov.',
+        'help-labels-title': '🏷️ Základné štítky',
+        'help-labels-search': 'Vyhľadávanie v databáze - zadajte artikel, názov alebo policu',
+        'help-labels-quick': 'Rýchly štítok - zadajte údaje manuálne pre okamžité vytvorenie',
+        'help-labels-preview': 'Náhľad - vidíte, ako bude štítok vyzerať pred tlačou',
+        'help-labels-templates': 'Šablóny - vyberte si zo štandardnej, kompaktnej alebo detailnej',
+        'help-bulk-title': '📦 Hromadná tlač',
+        'help-bulk-desc': 'Zadajte viacero artiklov naraz (každý na nový riadok). Systém automaticky vyhľadá údaje v databáze.',
+        'help-shelf-title': '📚 Tlač police',
+        'help-shelf-desc': 'Vytvorte štítky pre označenie políc zadaním čísla Fach a umiestnenia.',
+        'help-nametag-title': '👤 Menovky',
+        'help-nametag-desc': 'Vytvorte menovky pre zamestnancov s menom, priezviskom, osobným číslom a oddelením.',
+        'help-tips-title': '💡 Tipy a triky',
+        'help-tip1': 'Používajte klávesové skratky: Enter po zadaní údajov pridá štítok',
+        'help-tip2': 'Náhľad štítka sa aktualizuje v reálnom čase',
+        'help-tip3': 'Štítky môžete upravovať pred tlačou kliknutím na ne',
+        'help-tip4': 'História tlače uchováva záznamy o vytlačených štítkoch'
     },
     en: {
         'title': 'Label Printing System PRO',
@@ -552,6 +573,32 @@ function setupEventListeners() {
     // --- Nastavenia (Settings) tab Event Listenery ---
     if (elements.saveSettingsBtn) {
         elements.saveSettingsBtn.addEventListener('click', saveSettings);
+    }
+
+    // --- Help Modal Event Listeners ---
+    const helpToggle = document.getElementById('helpToggle');
+    const helpModal = document.getElementById('helpModal');
+    const closeHelp = document.getElementById('closeHelp');
+    
+    if (helpToggle) {
+        helpToggle.addEventListener('click', () => {
+            helpModal.style.display = 'block';
+        });
+    }
+    
+    if (closeHelp) {
+        closeHelp.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+    }
+    
+    // Close help modal when clicking outside
+    if (helpModal) {
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
     }
 }
 
