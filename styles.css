@@ -1508,28 +1508,23 @@ body {
         top: 0;
         width: 100%;
         background: white;
-        display: flex; /* Flexbox pre usporiadanie štítkov */
-        flex-wrap: wrap; /* Zalamovanie štítkov na ďalší riadok */
-        justify-content: flex-start; /* Zarovnanie na začiatok pre presné pozície */
-        align-items: flex-start;
-        align-content: flex-start; /* Zarovnanie riadkov na začiatok */
+        white-space: nowrap;
     }
     
     .print-label {
-        width: 25.4mm; /* Presne 25,4 mm ako požadované */
+        width: 25.4mm;
         height: 1in;
+        display: inline-block;
+        margin-right: 3mm;
+        margin-bottom: 3mm;
+        vertical-align: top;
+        page-break-inside: avoid;
+        break-after: always;
         border: 0px solid #000 !important; /* Okraj štítka */
-        margin: 0 3mm 0 0; /* 3mm medzera medzi štítkami vpravo */
         padding: 0;
-        page-break-inside: avoid; /* Zabraňuje rozdeleniu štítka cez strany */
-        /* Odstránené page-break-after: always pre viacero štítkov na jednej strane */
         font-family: Arial, sans-serif !important;
         background: white !important;
         box-sizing: border-box;
-        display: flex;
-        flex-direction: column; /* Vertikálne usporiadanie */
-        align-items: center; /* Centrovanie obsahu */
-        justify-content: center;
         position: relative;
         overflow: hidden;
         padding: 4px; /* Pridať padding pre tlač */
