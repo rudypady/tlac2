@@ -16,7 +16,8 @@ function saveDataToLocalStorage() {
             theme: currentTheme,
             language: currentLanguage,
             showLogo: showLogo,
-            currentTemplate: currentTemplate
+            currentTemplate: currentTemplate,
+            showPolica: showPolica
         };
         localStorage.setItem('schaffleLabelSettings', JSON.stringify(settings));
         
@@ -40,6 +41,7 @@ function loadDataFromLocalStorage() {
             currentLanguage = settings.language || 'sk';
             showLogo = settings.showLogo !== undefined ? settings.showLogo : false;
             currentTemplate = settings.currentTemplate || 'default'; // Nastavenie "standard" ako default
+            showPolica = settings.showPolica !== undefined ? settings.showPolica : true; // Predvolene zapnuté
         }
         
         // Načítať dočasné zmeny databázy
@@ -82,6 +84,7 @@ function loadDataFromLocalStorage() {
         currentLanguage = 'sk';
         showLogo = false;
         currentTemplate = 'default';
+        showPolica = true;
     }
 }
 
@@ -102,6 +105,11 @@ function updateSettingsUI() {
     // Aktualizácia dropdown pre logo
     if (elements.logoSelect) {
         elements.logoSelect.value = showLogo ? 'show' : 'hide';
+    }
+    
+    // Aktualizácia dropdown pre polica
+    if (elements.policaSelect) {
+        elements.policaSelect.value = showPolica ? 'show' : 'hide';
     }
     
     // Aktualizácia dropdown pre predvolenú šablónu
@@ -238,6 +246,7 @@ function saveSettings() {
     const newLanguage = elements.languageSettingSelect.value;
     const newShowLogo = elements.logoSelect.value === 'show';
     const newDefaultTemplate = elements.defaultTemplateSelect.value;
+    const newShowPolica = elements.policaSelect.value === 'show';
     
     // Aplikovanie nových nastavení
     if (newTheme !== currentTheme) {
@@ -254,6 +263,7 @@ function saveSettings() {
     
     showLogo = newShowLogo;
     currentTemplate = newDefaultTemplate;
+    showPolica = newShowPolica;
     
     // Aktualizácia template selectu v náhľade
     if (elements.templateSelect) {
