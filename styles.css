@@ -1517,10 +1517,12 @@ body {
     margin: 0 !important;
     box-sizing: border-box !important;
     page-break-before: always !important;
+    break-before: page !important;
   }
   
   .print-label:first-child {
     page-break-before: auto !important;
+    break-before: auto !important;
   }
 }
 
