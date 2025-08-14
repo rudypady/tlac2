@@ -39,6 +39,7 @@ const translations = {
         'btn-add-print': 'Pridať na tlač',
         'btn-save-print': 'Uložiť + tlač',
         'preview-title': 'Náhľad štítka (2" x 1")',
+        'show-polica-field': 'Zobraziť pole „polica"',
         'template-default': 'Štandardný',
         'template-compact': 'Kompaktný',
         'template-detailed': 'Detailný',
@@ -216,6 +217,7 @@ const translations = {
         'label-shelf': 'Shelf',
         'btn-add-print': 'Add to Print',
         'preview-title': 'Label Preview (2" x 1")',
+        'show-polica-field': 'Show "shelf" field',
         'template-default': 'Standard',
         'template-compact': 'Compact',
         'template-detailed': 'Detailed',
@@ -261,6 +263,7 @@ const translations = {
         'label-shelf': 'Regal',
         'btn-add-print': 'Zum Druck hinzufügen',
         'preview-title': 'Etikettenvorschau (2" x 1")',
+        'show-polica-field': 'Zeige „Regal" Feld',
         'template-default': 'Standard',
         'template-compact': 'Kompakt',
         'template-detailed': 'Detailliert',
@@ -312,6 +315,7 @@ function initializeElements() {
     elements.previewPolica = document.getElementById('previewPolica');
     elements.previewBarcode = document.getElementById('previewBarcode');
     elements.templateSelect = document.getElementById('templateSelect');
+    elements.policaToggle = document.getElementById('policaToggle');
     
     // Štítky na tlač
     elements.labelsList = document.getElementById('labelsList');
@@ -465,6 +469,11 @@ function setupEventListeners() {
             updatePreview();
             saveDataToLocalStorage();
         });
+    }
+    
+    // Polica toggle for preview
+    if (elements.policaToggle) {
+        elements.policaToggle.addEventListener('change', togglePreviewPolica);
     }
 
     // Tlačové funkcie
