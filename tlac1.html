@@ -237,36 +237,6 @@
 
                 <!-- STREDNÝ STĹPEC -->
                 <div>
-                    <!-- Náhľad štítka -->
-                    <div class="preview-section">
-                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="preview-title">Náhľad štítka (2" x 1")</span></h3>
-                        
-                        <div class="preview-controls">
-                            <select class="template-select" id="templateSelect">
-                                <option value="default" data-lang="template-default">Štandardný</option>
-                                <option value="compact" data-lang="template-compact">Kompaktný</option>
-                                <option value="detailed" data-lang="template-detailed">Detailný</option>
-                            </select>
-                        </div>
-                        
-                        <div class="preview-label">
-                            <div class="preview-content">
-                                <!-- Prvý riadok: Čiarový kód -->
-                                <div class="preview-barcode-row">
-                                    <svg id="previewBarcode"></svg>
-                                </div>
-                                <!-- Druhý riadok: Artikel -->
-                                <div class="preview-artikel" id="previewArtikel">123-456-789</div>
-                                <!-- Tretí riadok: Názov produktu -->
-                                <div class="preview-nazov" id="previewNazov">Ukážkový produkt s dlhším názvom</div>
-                                <!-- Štvrtý riadok: Horizontálna čiara -->
-                                <div class="preview-line"></div>
-                                <!-- Piaty riadok: Polica -->
-                                <div class="preview-polica" id="previewPolica">A1-B2-C3</div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Štítky na tlač -->
                     <div class="card">
                         <div class="labels-header">
@@ -352,6 +322,36 @@
 
                         <div class="chart-container" style="display: none;">
                             <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Náhľad štítka -->
+                    <div class="preview-section">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="preview-title">Náhľad štítka (2" x 1")</span></h3>
+                        
+                        <div class="preview-controls">
+                            <select class="template-select" id="templateSelect">
+                                <option value="default" data-lang="template-default">Štandardný</option>
+                                <option value="compact" data-lang="template-compact">Kompaktný</option>
+                                <option value="detailed" data-lang="template-detailed">Detailný</option>
+                            </select>
+                        </div>
+                        
+                        <div class="preview-label">
+                            <div class="preview-content">
+                                <!-- Prvý riadok: Čiarový kód -->
+                                <div class="preview-barcode-row">
+                                    <svg id="previewBarcode"></svg>
+                                </div>
+                                <!-- Druhý riadok: Artikel -->
+                                <div class="preview-artikel" id="previewArtikel">123-456-789</div>
+                                <!-- Tretí riadok: Názov produktu -->
+                                <div class="preview-nazov" id="previewNazov">Ukážkový produkt s dlhším názvom</div>
+                                <!-- Štvrtý riadok: Horizontálna čiara -->
+                                <div class="preview-line"></div>
+                                <!-- Piaty riadok: Polica -->
+                                <div class="preview-polica" id="previewPolica">A1-B2-C3</div>
+                            </div>
                         </div>
                     </div>
                 </div>
