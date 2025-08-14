@@ -11,6 +11,7 @@ let currentTheme = 'light'; // Aktuálna téma ('light', 'dark', 'auto')
 let currentLanguage = 'sk'; // Aktuálny jazyk ('sk', 'en', 'de')
 let showLogo = false; // Zobraziť logo na štítkoch - NASTAVENÉ NA FALSE
 let currentTemplate = 'default'; // Aktuálna šablóna štítka - ŠTANDARDNÁ ako default
+let showPolica = true; // Zobraziť pole "polica" na štítkoch - PREDVOLENE ZAPNUTÉ
 
 // Cache pre DOM elementy
 const elements = {};
@@ -75,6 +76,9 @@ const translations = {
         'setting-logo': 'Logo na štítkoch',
         'logo-show': 'Zobraziť',
         'logo-hide': 'Skryť',
+        'setting-polica': 'Pole "polica" na štítkoch',
+        'polica-show': 'Zobraziť',
+        'polica-hide': 'Skryť',
         'setting-template': 'Predvolená šablóna',
         'btn-save-settings': 'Uložiť nastavenia',
         'btn-print-shelf-labels': 'Tlač police',
@@ -226,6 +230,19 @@ const translations = {
         'preview-nazov-placeholder': 'Sample product with a longer name',
         'btn-print-shelf-labels': 'Print Shelves',
         'btn-generate-personal-code': 'Generate',
+        'setting-theme': 'Theme',
+        'theme-light': 'Light',
+        'theme-dark': 'Dark',
+        'theme-auto': 'Auto',
+        'setting-lang': 'Language',
+        'setting-logo': 'Logo on labels',
+        'logo-show': 'Show',
+        'logo-hide': 'Hide',
+        'setting-polica': 'Shelf field on labels',
+        'polica-show': 'Show',
+        'polica-hide': 'Hide',
+        'setting-template': 'Default template',
+        'btn-save-settings': 'Save settings',
     },
     de: {
         'title': 'Etikettendruck',
@@ -258,6 +275,19 @@ const translations = {
         'preview-nazov-placeholder': 'Beispielprodukt mit längerem Namen',
         'btn-print-shelf-labels': 'Regale drucken',
         'btn-generate-personal-code': 'Generieren',
+        'setting-theme': 'Erscheinungsbild',
+        'theme-light': 'Hell',
+        'theme-dark': 'Dunkel',
+        'theme-auto': 'Automatisch',
+        'setting-lang': 'Sprache',
+        'setting-logo': 'Logo auf Etiketten',
+        'logo-show': 'Anzeigen',
+        'logo-hide': 'Verstecken',
+        'setting-polica': 'Regalfeld auf Etiketten',
+        'polica-show': 'Anzeigen',
+        'polica-hide': 'Verstecken',
+        'setting-template': 'Standard-Vorlage',
+        'btn-save-settings': 'Einstellungen speichern',
     }
 };
 
@@ -364,6 +394,7 @@ function initializeElements() {
     elements.themeSelect = document.getElementById('themeSelect');
     elements.languageSettingSelect = document.getElementById('languageSettingSelect');
     elements.logoSelect = document.getElementById('logoSelect');
+    elements.policaSelect = document.getElementById('policaSelect');
     elements.defaultTemplateSelect = document.getElementById('defaultTemplateSelect');
     elements.saveSettingsBtn = document.getElementById('saveSettingsBtn');
     elements.languageSelect = document.getElementById('languageSelect');

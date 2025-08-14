@@ -150,11 +150,13 @@ function createPrintableLabel(label) {
         lineDiv.className = 'print-line';
         contentDiv.appendChild(lineDiv);
         
-        // Polica
-        const policaDiv = document.createElement('div');
-        policaDiv.className = 'print-polica';
-        policaDiv.textContent = label.polica;
-        contentDiv.appendChild(policaDiv);
+        // Polica (conditionally based on showPolica setting)
+        if (showPolica) {
+            const policaDiv = document.createElement('div');
+            policaDiv.className = 'print-polica';
+            policaDiv.textContent = label.polica;
+            contentDiv.appendChild(policaDiv);
+        }
     }
     
     labelDiv.appendChild(contentDiv);

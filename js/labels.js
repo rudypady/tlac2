@@ -216,7 +216,14 @@ function updatePreview() {
     const formattedArtikel = formatArtikel(artikel);
     elements.previewArtikel.textContent = formattedArtikel;
     elements.previewNazov.textContent = nazov;
-    elements.previewPolica.textContent = polica;
+    
+    // Nastavenie polica podľa globálneho nastavenia
+    if (showPolica) {
+        elements.previewPolica.textContent = polica;
+        elements.previewPolica.style.display = '';
+    } else {
+        elements.previewPolica.style.display = 'none';
+    }
 
     // Aplikovať šablónu
     const template = elements.templateSelect.value || currentTemplate;
