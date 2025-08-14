@@ -1504,7 +1504,7 @@ body {
   #printArea {
     width: 100vw !important;
     height: 100vh !important;
-    display: flex !important;
+    display: block !important;
     justify-content: center !important;
     align-items: center !important;
     margin: 0 !important;
