@@ -217,9 +217,9 @@ function updatePreview() {
     elements.previewArtikel.textContent = formattedArtikel;
     elements.previewNazov.textContent = nazov;
     
-    // Nastavenie polica podľa globálneho nastavenia
-    if (showPolica) {
-        elements.previewPolica.textContent = polica;
+    // Nastavenie polica podľa toggle prepínača v náhľade
+    elements.previewPolica.textContent = polica;
+    if (elements.policaToggle && elements.policaToggle.checked) {
         elements.previewPolica.style.display = '';
     } else {
         elements.previewPolica.style.display = 'none';
@@ -261,6 +261,20 @@ function applyTemplateToPreview(template) {
     
     // Aktualizuj globálnu premennú
     currentTemplate = template;
+}
+
+/**
+ * Prepne viditeľnosť poľa "polica" v náhľade štítka.
+ * Táto funkcia je nezávislá od globálneho nastavenia showPolica.
+ */
+function togglePreviewPolica() {
+    if (!elements.previewPolica || !elements.policaToggle) return;
+    
+    if (elements.policaToggle.checked) {
+        elements.previewPolica.style.display = '';
+    } else {
+        elements.previewPolica.style.display = 'none';
+    }
 }
 
 /**

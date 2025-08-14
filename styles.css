@@ -1001,6 +1001,8 @@ body {
     gap: 12px;
     margin-bottom: 18px;
     justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .template-select {
@@ -1026,6 +1028,90 @@ body {
     outline: none;
     border-color: #0ea5e9;
     box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+/* Modern Toggle Switch for Polica Field */
+.polica-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+.polica-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.polica-toggle-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.polica-toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    background: rgba(14, 165, 233, 0.2);
+    border-radius: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(14, 165, 233, 0.3);
+}
+
+.polica-toggle-slider:before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.polica-toggle-input:checked + .polica-toggle-slider {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+}
+
+.polica-toggle-input:checked + .polica-toggle-slider:before {
+    transform: translateX(20px);
+    background: white;
+}
+
+.polica-toggle-label:hover .polica-toggle-slider {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.polica-toggle-input:focus + .polica-toggle-slider {
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.polica-toggle-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .polica-toggle-slider {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .polica-toggle-input:checked + .polica-toggle-slider {
+    background: #3b82f6;
+    border-color: #3b82f6;
 }
 
 .preview-label {
