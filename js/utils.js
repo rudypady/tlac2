@@ -29,22 +29,18 @@ function normalizeArtikel(artikel) {
 }
 
 /**
- * Formátuje artikel pre zobrazenie (s pomlčkou po 9. znaku).
+ * Formátuje artikel pre zobrazenie (po trojiciach číslic s pomlčkami).
  * @param {string} artikel - Artikel na formátovanie.
- * @returns {string} Formátovaný artikel s pomlčkou alebo pôvodný ak je kratší.
+ * @returns {string} Formátovaný artikel vo formáte 123-456-789.
  */
 function formatArtikel(artikel) {
     if (!artikel) return '';
     
     const cleanArtikel = normalizeArtikel(artikel);
     
-    // Ak má 10 alebo viac znakov, pridá pomlčku po deviatom znaku
-    if (cleanArtikel.length >= 10) {
-        return cleanArtikel.substring(0, 9) + '-' + cleanArtikel.substring(9);
-    }
-    
-    // Ak má 9 alebo menej znakov, vráti bez pomlčky
-    return cleanArtikel;
+    // Formátuje po trojiciach číslic s pomlčkami (123-456-789)
+    const formatted = cleanArtikel.replace(/(\d{3})(?=\d)/g, '$1-');
+    return formatted;
 }
 
 /**
