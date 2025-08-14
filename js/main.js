@@ -18,8 +18,8 @@ const elements = {};
 // Preklady pre rôzne jazyky
 const translations = {
     sk: {
-        'title': 'Tlačenie štítkov PRO',
-        'subtitle': 'Profesionálny systém pre Schaeffler',
+        'title': 'Tlačenie štítkov',
+        'subtitle': 'Profesionálny systém pre tlač štítkov',
         'tab-labels': 'Štítky',
         'tab-bulk-print': 'Hromadná tlač',
         'tab-shelf-print': 'Tlač police',
@@ -196,8 +196,8 @@ const translations = {
         'help-tip4': 'História tlače uchováva záznamy o vytlačených štítkoch'
     },
     en: {
-        'title': 'Label Printing System PRO',
-        'subtitle': 'Professional System for Schaeffler',
+        'title': 'Label Printing',
+        'subtitle': 'Professional System for Label Printing',
         'tab-labels': 'Labels',
         'tab-history': 'Print History',
         'tab-settings': 'Settings',
@@ -228,8 +228,8 @@ const translations = {
         'btn-generate-personal-code': 'Generate',
     },
     de: {
-        'title': 'Etikettendruck-System PRO',
-        'subtitle': 'Professionelles System für Schaeffler',
+        'title': 'Etikettendruck',
+        'subtitle': 'Professionelles System für Etikettendruck',
         'tab-labels': 'Etiketten',
         'tab-history': 'Druckhistorie',
         'tab-settings': 'Einstellungen',
