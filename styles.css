@@ -1474,50 +1474,9 @@ body {
     background: rgba(0, 80, 140, 0.1); /* Schäffler modrá s priehľadnosťou */
 }
 
-/* Štýly pre tlač */
+/* Štýly pre tlač - konsolidované pre presné zarovnanie štítkov */
 @media print {
-  body, html {
-    margin: 0;
-    padding: 0px;
-  }
-  .print-label {
-    width: 2in !important;
-    height: 1in !important;
-    margin: 0 !important;
-    padding: 10px !important;
-    border: 1px solid #000 !important;
-    box-sizing: border-box;
-    page-break-inside: avoid;
-    page-break-after: always;
-  }
 
-
-
-@media print {
-  body, html {
-    width: 100vw;
-    height: 100vh;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: white !important;
-  }
-  #printArea {
-    width: 100vw !important;
-    height: 100vh !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: white !important;
-  }
-  .print-label {
-    transform: scale(1.5);
-    transform-origin: center center;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-  }
-}
 
 
     /* Zabezpečí presné farby pri tlači */
@@ -1550,19 +1509,20 @@ body {
         width: 100%;
         background: white;
         display: flex; /* Flexbox pre usporiadanie štítkov */
-        flex-wrap: wrap; /* Zalamovanie štítkov */
-        justify-content: flex-start; /* Zarovnanie na začiatok */
+        flex-wrap: wrap; /* Zalamovanie štítkov na ďalší riadok */
+        justify-content: flex-start; /* Zarovnanie na začiatok pre presné pozície */
         align-items: flex-start;
+        align-content: flex-start; /* Zarovnanie riadkov na začiatok */
     }
     
     .print-label {
-        width: 2in;
+        width: 25.4mm; /* Presne 25,4 mm ako požadované */
         height: 1in;
         border: 0px solid #000 !important; /* Okraj štítka */
-        margin: 0;
+        margin: 0 3mm 0 0; /* 3mm medzera medzi štítkami vpravo */
         padding: 0;
         page-break-inside: avoid; /* Zabraňuje rozdeleniu štítka cez strany */
-        page-break-after: always; /* Vždy zalomí stranu po štítku */
+        /* Odstránené page-break-after: always pre viacero štítkov na jednej strane */
         font-family: Arial, sans-serif !important;
         background: white !important;
         box-sizing: border-box;
@@ -1576,7 +1536,7 @@ body {
     }
     
     .print-label:last-child {
-        page-break-after: auto; /* Posledný štítok nezalomí stranu */
+        margin-right: 0; /* Posledný štítok nemá pravú medzeru */
     }
     
     .print-content {
