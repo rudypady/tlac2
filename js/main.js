@@ -11,6 +11,7 @@ let currentTheme = 'light'; // Aktuálna téma ('light', 'dark', 'auto')
 let currentLanguage = 'sk'; // Aktuálny jazyk ('sk', 'en', 'de')
 let showLogo = false; // Zobraziť logo na štítkoch - NASTAVENÉ NA FALSE
 let currentTemplate = 'default'; // Aktuálna šablóna štítka - ŠTANDARDNÁ ako default
+let showPolica = true; // Zobraziť policu na štítkoch - globálny prepínač
 
 // Cache pre DOM elementy
 const elements = {};
@@ -75,6 +76,9 @@ const translations = {
         'setting-logo': 'Logo na štítkoch',
         'logo-show': 'Zobraziť',
         'logo-hide': 'Skryť',
+        'setting-polica': 'Polica na štítkoch',
+        'polica-show': 'Zobraziť',
+        'polica-hide': 'Skryť',
         'setting-template': 'Predvolená šablóna',
         'btn-save-settings': 'Uložiť nastavenia',
         'btn-print-shelf-labels': 'Tlač police',
@@ -364,6 +368,7 @@ function initializeElements() {
     elements.themeSelect = document.getElementById('themeSelect');
     elements.languageSettingSelect = document.getElementById('languageSettingSelect');
     elements.logoSelect = document.getElementById('logoSelect');
+    elements.policaSelect = document.getElementById('policaSelect');
     elements.defaultTemplateSelect = document.getElementById('defaultTemplateSelect');
     elements.saveSettingsBtn = document.getElementById('saveSettingsBtn');
     elements.languageSelect = document.getElementById('languageSelect');
