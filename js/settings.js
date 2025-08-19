@@ -16,7 +16,8 @@ function saveDataToLocalStorage() {
             theme: currentTheme,
             language: currentLanguage,
             showLogo: showLogo,
-            currentTemplate: currentTemplate
+            currentTemplate: currentTemplate,
+            showPolica: showPolica
         };
         localStorage.setItem('schaffleLabelSettings', JSON.stringify(settings));
         
@@ -40,6 +41,7 @@ function loadDataFromLocalStorage() {
             currentLanguage = settings.language || 'sk';
             showLogo = settings.showLogo !== undefined ? settings.showLogo : false;
             currentTemplate = settings.currentTemplate || 'default'; // Nastavenie "standard" ako default
+            showPolica = settings.showPolica !== undefined ? settings.showPolica : true;
         }
         
         // Načítať dočasné zmeny databázy
@@ -71,6 +73,7 @@ function loadDataFromLocalStorage() {
         // Aplikovať načítané nastavenia
         applyTheme(currentTheme);
         applyLanguage(currentLanguage);
+        applyPolicaVisibility();
         
         // Aktualizovať UI formuláre nastavení
         updateSettingsUI();
@@ -82,6 +85,7 @@ function loadDataFromLocalStorage() {
         currentLanguage = 'sk';
         showLogo = false;
         currentTemplate = 'default';
+        showPolica = true;
     }
 }
 
@@ -102,6 +106,11 @@ function updateSettingsUI() {
     // Aktualizácia dropdown pre logo
     if (elements.logoSelect) {
         elements.logoSelect.value = showLogo ? 'show' : 'hide';
+    }
+    
+    // Aktualizácia dropdown pre policu
+    if (elements.policaSelect) {
+        elements.policaSelect.value = showPolica ? 'show' : 'hide';
     }
     
     // Aktualizácia dropdown pre predvolenú šablónu
@@ -238,6 +247,7 @@ function saveSettings() {
     const newLanguage = elements.languageSettingSelect.value;
     const newShowLogo = elements.logoSelect.value === 'show';
     const newDefaultTemplate = elements.defaultTemplateSelect.value;
+    const newShowPolica = elements.policaSelect ? elements.policaSelect.value === 'show' : true;
     
     // Aplikovanie nových nastavení
     if (newTheme !== currentTheme) {
@@ -254,6 +264,10 @@ function saveSettings() {
     
     showLogo = newShowLogo;
     currentTemplate = newDefaultTemplate;
+    showPolica = newShowPolica;
+    
+    // Aplikovať CSS triedy pre skrytie polica
+    applyPolicaVisibility();
     
     // Aktualizácia template selectu v náhľade
     if (elements.templateSelect) {
@@ -267,6 +281,18 @@ function saveSettings() {
     saveDataToLocalStorage();
     
     showToast(translations[currentLanguage]['toast-success-settings'], 'success');
+}
+
+/**
+ * Aplikuje viditeľnosť polica na celú aplikáciu.
+ */
+function applyPolicaVisibility() {
+    const body = document.body;
+    if (showPolica) {
+        body.classList.remove('hide-polica');
+    } else {
+        body.classList.add('hide-polica');
+    }
 }
 
 /**

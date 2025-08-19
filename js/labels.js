@@ -217,6 +217,11 @@ function updatePreview() {
     elements.previewArtikel.textContent = formattedArtikel;
     elements.previewNazov.textContent = nazov;
     elements.previewPolica.textContent = polica;
+    
+    // Aplikovať viditeľnosť polica podľa globálneho nastavenia
+    if (elements.previewPolica) {
+        elements.previewPolica.style.display = showPolica ? '' : 'none';
+    }
 
     // Aplikovať šablónu
     const template = elements.templateSelect.value || currentTemplate;

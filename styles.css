@@ -1565,6 +1565,12 @@ body {
     background: rgba(0, 80, 140, 0.1); /* Schäffler modrá s priehľadnosťou */
 }
 
+/* Globálne skrytie polica keď je vypnuté v nastaveniach */
+.hide-polica .preview-polica,
+.hide-polica .print-polica {
+    display: none !important;
+}
+
 /* Štýly pre tlač */
 @media print {
   body, html {
