@@ -11,8 +11,8 @@
     <!-- JsBarcode library for CODE128 barcode generation -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://unpkg.com/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <!-- QRCode.js library for QR code generation -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- QRious library for QR code generation -->
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <!-- jsPDF library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- svg2pdf.js library for SVG to PDF conversion -->
@@ -91,21 +91,52 @@
             };
         }
         
-        // Fallback QRCode implementation if CDN fails
-        if (typeof QRCode === 'undefined') {
-            console.log('QRCode library loaded from local implementation');
-            // Create a temporary fallback until LocalQRCode is loaded
-            window.QRCode = {
-                toSVG: function(text, options, callback) {
-                    const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                        <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
-                        <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="black">${text}</text>
-                    </svg>`;
-                    if (callback) {
-                        setTimeout(() => callback(null, fallbackSvg), 0);
+        // Fallback QRious implementation if CDN fails
+        if (typeof QRious === 'undefined') {
+            console.log('QRious library not available, creating fallback implementation');
+            // Create a fallback QRious class
+            window.QRious = function(options) {
+                console.log('QRious fallback called with options:', options);
+                const canvas = options.element || document.createElement('canvas');
+                const size = options.size || 100;
+                canvas.width = size;
+                canvas.height = size;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, size, size);
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, 0, size, size);
+                ctx.fillStyle = 'black';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(options.value || 'QR', size/2, size/2);
+                
+                // Store the value so it can be updated
+                this.element = canvas;
+                this.value = options.value;
+                
+                // Method to update value
+                this.set = function(newOptions) {
+                    if (newOptions.value !== undefined) {
+                        this.value = newOptions.value;
+                        ctx.clearRect(0, 0, size, size);
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, size, size);
+                        ctx.strokeStyle = 'black';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, size, size);
+                        ctx.fillStyle = 'black';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(this.value, size/2, size/2);
                     }
-                    return Promise.resolve(fallbackSvg);
-                }
+                };
+                
+                return this;
             };
         }
         
@@ -1013,11 +1044,12 @@
     <script src="js/main.js"></script>
     
     <script>
-        // Ensure QRCode is properly set up after all scripts load
+        // Ensure QRious is properly set up after all scripts load
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof QRCode === 'undefined' && typeof LocalQRCode !== 'undefined') {
-                console.log('Setting up QRCode from LocalQRCode');
-                window.QRCode = window.LocalQRCode;
+            if (typeof QRious === 'undefined') {
+                console.log('QRious not available, fallback already created');
+            } else {
+                console.log('QRious library loaded successfully');
             }
         });
     </script>

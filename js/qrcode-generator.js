@@ -237,7 +237,7 @@ window.LocalQRCode = {
 };
 
 /**
- * Unified QR Code generator for both preview and print
+ * Unified QR Code generator for both preview and print using QRious
  * Ensures consistent QR code generation across all contexts
  * @param {HTMLElement} element - Element to insert QR code into
  * @param {string} text - Text to encode in QR code
@@ -251,40 +251,66 @@ window.generateUnifiedQRCode = function(element, text, options = {}) {
             return;
         }
         
-        // Try to use external QRCode library first
-        if (typeof QRCode !== 'undefined' && QRCode.toSVG) {
-            QRCode.toSVG(text, { 
-                margin: options.margin || 1,
-                width: options.width || undefined,
-                scale: options.scale || undefined
-            }, function (err, svg) {
-                if (err) {
-                    console.warn('External QRCode library failed, using fallback:', err);
-                    useLocalImplementation();
-                } else {
-                    element.innerHTML = svg;
-                    resolve(svg);
-                }
-            });
-        } else {
-            // Use local implementation
+        try {
+            // Clear element
+            element.innerHTML = '';
+            
+            // Create canvas element
+            const canvas = document.createElement('canvas');
+            const size = 100; // 10x10mm will be controlled by CSS
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Try to use QRious library first
+            if (typeof QRious !== 'undefined') {
+                const qr = new QRious({
+                    element: canvas,
+                    value: text,
+                    size: size,
+                    background: 'white',
+                    foreground: 'black',
+                    level: 'M'
+                });
+                
+                element.appendChild(canvas);
+                resolve(canvas);
+            } else {
+                // Use local fallback implementation
+                useLocalImplementation();
+            }
+            
+        } catch (error) {
+            console.warn('QRious library failed, using fallback:', error);
             useLocalImplementation();
         }
         
         function useLocalImplementation() {
             try {
+                // Create fallback using local QR generator  
                 const svg = generateSimpleQRCode(text, options.size || 21);
                 element.innerHTML = svg;
-                resolve(svg);
+                resolve(element.firstChild);
             } catch (error) {
                 console.error('QR code generation failed:', error);
-                // Ultimate fallback - simple text in box
-                const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
-                    <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="black">${text}</text>
-                </svg>`;
-                element.innerHTML = fallbackSvg;
-                resolve(fallbackSvg);
+                // Ultimate fallback - simple canvas with text
+                const canvas = document.createElement('canvas');
+                canvas.width = 100;
+                canvas.height = 100;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 100, 100);
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, 0, 100, 100);
+                ctx.fillStyle = 'black';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, 50, 50);
+                
+                element.innerHTML = '';
+                element.appendChild(canvas);
+                resolve(canvas);
             }
         }
     });

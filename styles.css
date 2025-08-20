@@ -1798,6 +1798,20 @@ body {
         overflow: visible;
     }
     
+    /* QR Code canvas styling for print */
+    .print-qr-row canvas {
+        width: 10mm !important;
+        height: 10mm !important;
+        max-width: 10mm !important;
+        max-height: 10mm !important;
+        min-width: 10mm !important;
+        min-height: 10mm !important;
+        display: block !important;
+        image-rendering: pixelated !important;
+        image-rendering: -moz-crisp-edges !important;
+        image-rendering: crisp-edges !important;
+    }
+    
     /* Druhý riadok: Artikel vo formáte xxx-xxx-xxx */
     .print-artikel {
         font-size: var(--label-artikel-font-size) !important; /* Použitie CSS premennej */

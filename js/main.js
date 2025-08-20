@@ -1358,10 +1358,7 @@ function updateRemenePreviewTab() {
     
     // Generuje QR kód
     if (remenePreviewQRCode) {
-        // Ensure QRCode is properly set up
-        if (typeof QRCode === 'undefined' && typeof LocalQRCode !== 'undefined') {
-            window.QRCode = window.LocalQRCode;
-        }
+        // QRious will be used automatically by generateQRCode function
         generateQRCode(remenePreviewQRCode, formatArtikelForBarcode(artikel));
     }
 }
