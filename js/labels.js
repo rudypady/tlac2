@@ -557,26 +557,18 @@ function updateRemenePreview() {
 
 /**
  * Generuje QR kód do zadaného elementu.
+ * @param {HTMLElement} element - Element kam vložiť QR kód
+ * @param {string} text - Text na zakódovanie
  */
 function generateQRCode(element, text) {
-    if (typeof QRCode !== 'undefined' && QRCode.toSVG) {
-        // Generate QR code without specific pixel dimensions - let CSS control exact 10mm sizing
-        QRCode.toSVG(text, { 
-            margin: 1 
-        }, function (err, svg) {
-            if (err) {
-                console.error('Chyba pri generovaní QR kódu:', err);
-                // Fallback with CSS-controlled sizing
-                element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
-                    <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="black">${text}</text>
-                </svg>`;
-            } else {
-                element.innerHTML = svg;
-            }
+    // Use the unified QR code generator
+    if (typeof generateUnifiedQRCode === 'function') {
+        generateUnifiedQRCode(element, text, { margin: 1 }).catch(error => {
+            console.error('Chyba pri generovaní QR kódu:', error);
         });
     } else {
-        // Fallback ak QRCode knižnica nie je dostupná - use viewBox for CSS scaling
+        // Legacy fallback
+        console.warn('Unified QR code generator not available, using basic fallback');
         element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
             <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
             <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="black">${text}</text>

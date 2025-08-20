@@ -27,6 +27,7 @@
     padding: 2px;
 }
 
+/* QR code sizing - exactly 10x10mm as required */
 .template-remene .preview-qr-code,
 .template-remene .print-qr-code {
     width: 10mm;
@@ -35,6 +36,7 @@
     max-height: 10mm;
     min-width: 10mm;
     min-height: 10mm;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .template-remene .preview-qr-code svg,
@@ -46,6 +48,11 @@
     min-width: 10mm !important;
     min-height: 10mm !important;
     display: block;
+    /* Ensure crisp rendering for print */
+    shape-rendering: crispEdges;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 /* Right side: Text content container */
@@ -95,6 +102,8 @@
 
 /* ===== PRINT STYLES FOR REMENE LABELS ===== */
 
+/* ===== PRINT STYLES FOR REMENE LABELS ===== */
+
 @media print {
     /* Remene label print layout */
     .template-remene .print-content {
@@ -119,6 +128,17 @@
         padding: 2px !important;
     }
     
+    /* Enhanced QR code print styles */
+    .template-remene .print-qr-code {
+        width: 10mm !important;
+        height: 10mm !important;
+        max-width: 10mm !important;
+        max-height: 10mm !important;
+        min-width: 10mm !important;
+        min-height: 10mm !important;
+        flex-shrink: 0 !important;
+    }
+    
     .template-remene .print-qr-code svg {
         width: 10mm !important;
         height: 10mm !important;
@@ -127,6 +147,15 @@
         min-width: 10mm !important;
         min-height: 10mm !important;
         display: block !important;
+        /* Enhanced print rendering */
+        shape-rendering: crispEdges !important;
+        image-rendering: pixelated !important;
+        image-rendering: -moz-crisp-edges !important;
+        image-rendering: crisp-edges !important;
+        /* Ensure SVG prints correctly */
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
     }
     
     /* Text container for print */
@@ -169,5 +198,24 @@
         display: -webkit-box !important;
         -webkit-line-clamp: 3 !important;
         -webkit-box-orient: vertical !important;
+    }
+}
+
+/* ===== SVG EXPORT COMPATIBILITY ===== */
+
+/* Ensure QR codes work well with svg2pdf and other export tools */
+.template-remene .print-qr-code svg,
+.template-remene .preview-qr-code svg {
+    /* Ensure vector graphics export properly */
+    vector-effect: non-scaling-stroke;
+    /* Prevent antialiasing issues in exports */
+    shape-rendering: crispEdges;
+}
+
+/* For PDF export specifically */
+@media print, (prefers-color-scheme: print) {
+    .template-remene .print-qr-code svg * {
+        vector-effect: non-scaling-stroke !important;
+        shape-rendering: crispEdges !important;
     }
 }
