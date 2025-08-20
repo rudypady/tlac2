@@ -210,28 +210,26 @@ function createPrintableLabel(label) {
  */
 function generateQRCodeForPrint(element, text) {
     if (typeof QRCode !== 'undefined' && QRCode.toSVG) {
-        // Generate QR code with exact 10mm size (approximately 38 pixels at 96 DPI)
+        // Generate QR code without specific pixel dimensions - let CSS control exact 10mm sizing
         QRCode.toSVG(text, { 
-            width: 38, 
-            height: 38,
             margin: 1 
         }, function (err, svg) {
             if (err) {
                 console.error('Chyba pri generovaní QR kódu pre tlač:', err);
-                // Fallback
-                element.innerHTML = `<svg width="38" height="38" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="38" height="38" fill="white" stroke="black" stroke-width="2"/>
-                    <text x="19" y="19" text-anchor="middle" font-size="6" fill="black">${text}</text>
+                // Fallback with CSS-controlled sizing
+                element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="black">${text}</text>
                 </svg>`;
             } else {
                 element.innerHTML = svg;
             }
         });
     } else {
-        // Fallback ak QRCode knižnica nie je dostupná
-        element.innerHTML = `<svg width="38" height="38" xmlns="http://www.w3.org/2000/svg">
-            <rect width="38" height="38" fill="white" stroke="black" stroke-width="2"/>
-            <text x="19" y="19" text-anchor="middle" font-size="6" fill="black">${text}</text>
+        // Fallback ak QRCode knižnica nie je dostupná - use viewBox for CSS scaling
+        element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+            <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="black">${text}</text>
         </svg>`;
     }
 }
