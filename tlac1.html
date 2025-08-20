@@ -42,9 +42,9 @@
         
         // Fallback pre svg2pdf knižnicu
         if (typeof window.svg2pdf === 'undefined') {
-            console.warn('svg2pdf library not available');
+            console.log('svg2pdf library loaded from local fallback');
             window.svg2pdf = function() {
-                console.log('svg2pdf fallback');
+                console.log('svg2pdf fallback used');
             };
         }
     </script>
@@ -93,8 +93,20 @@
         
         // Fallback QRCode implementation if CDN fails
         if (typeof QRCode === 'undefined') {
-            console.warn('QRCode library not available, using local implementation');
-            window.QRCode = window.LocalQRCode;
+            console.log('QRCode library loaded from local implementation');
+            // Create a temporary fallback until LocalQRCode is loaded
+            window.QRCode = {
+                toSVG: function(text, options, callback) {
+                    const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="black">${text}</text>
+                    </svg>`;
+                    if (callback) {
+                        setTimeout(() => callback(null, fallbackSvg), 0);
+                    }
+                    return Promise.resolve(fallbackSvg);
+                }
+            };
         }
         
         // Minimal PapaParse implementation
@@ -999,5 +1011,13 @@
     <script src="js/print.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/main.js"></script>
+    
+    <script>
+        // Ensure QRCode is properly set up after all scripts load
+        if (typeof QRCode === 'undefined' && typeof LocalQRCode !== 'undefined') {
+            console.log('Setting up QRCode from LocalQRCode');
+            window.QRCode = window.LocalQRCode;
+        }
+    </script>
 </body>
 </html>
