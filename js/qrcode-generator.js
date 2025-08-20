@@ -178,7 +178,8 @@ window.LocalQRCode = {
         try {
             const svg = generateSimpleQRCode(text);
             if (callback) {
-                callback(null, svg);
+                // Use setTimeout to make it async like the real library
+                setTimeout(() => callback(null, svg), 0);
             }
             return Promise.resolve(svg);
         } catch (error) {
@@ -187,7 +188,7 @@ window.LocalQRCode = {
                 <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="black">${text}</text>
             </svg>`;
             if (callback) {
-                callback(error, fallbackSvg);
+                setTimeout(() => callback(null, fallbackSvg), 0);
             }
             return Promise.resolve(fallbackSvg);
         }
