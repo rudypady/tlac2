@@ -254,13 +254,18 @@ function applyTemplateToPreview(template) {
     if (!previewLabel) return;
 
     // Odstráni všetky existujúce template triedy
-    previewLabel.classList.remove('template-default', 'template-compact', 'template-detailed');
+    previewLabel.classList.remove('template-default', 'template-compact', 'template-detailed', 'template-remene');
     
     // Pridá novú template triedu
     previewLabel.classList.add(`template-${template}`);
     
     // Aktualizuj globálnu premennú
     currentTemplate = template;
+    
+    // Špeciálne spracovanie pre remene template
+    if (template === 'remene') {
+        updateRemenePreview();
+    }
 }
 
 /**
@@ -492,4 +497,82 @@ function updatePrintSetsDropdown() {
         option.textContent = setName;
         elements.printSetsSelect.appendChild(option);
     });
+}
+
+/**
+ * Aktualizuje náhľad pre remene template s QR kódom.
+ */
+function updateRemenePreview() {
+    const previewLabel = document.querySelector('.preview-label');
+    if (!previewLabel) return;
+    
+    const artikel = elements.quickArtikel.value || '123456789';
+    const nazov = elements.quickNazov.value || translations[currentLanguage]['preview-nazov-placeholder'] || 'Ukážkový produkt s dlhším názvom';
+    
+    // Vymaž existujúci obsah
+    const previewContent = previewLabel.querySelector('.preview-content');
+    if (previewContent) {
+        previewContent.innerHTML = '';
+        
+        // Vytvor QR kód kontajner
+        const qrContainer = document.createElement('div');
+        qrContainer.className = 'preview-qr-container';
+        
+        const qrCodeDiv = document.createElement('div');
+        qrCodeDiv.className = 'preview-qr-code';
+        qrContainer.appendChild(qrCodeDiv);
+        
+        // Generuj QR kód
+        generateQRCode(qrCodeDiv, formatArtikelForBarcode(artikel));
+        
+        // Vytvor text kontajner
+        const textContainer = document.createElement('div');
+        textContainer.className = 'preview-text-container';
+        
+        // Pridaj artikel
+        const artikelDiv = document.createElement('div');
+        artikelDiv.className = 'preview-artikel';
+        artikelDiv.textContent = formatArtikel(artikel);
+        textContainer.appendChild(artikelDiv);
+        
+        // Pridaj názov
+        const nazovDiv = document.createElement('div');
+        nazovDiv.className = 'preview-nazov';
+        nazovDiv.textContent = nazov;
+        textContainer.appendChild(nazovDiv);
+        
+        // Pridaj do preview content
+        previewContent.appendChild(qrContainer);
+        previewContent.appendChild(textContainer);
+    }
+}
+
+/**
+ * Generuje QR kód do zadaného elementu.
+ */
+function generateQRCode(element, text) {
+    if (typeof QRCode !== 'undefined' && QRCode.toSVG) {
+        QRCode.toSVG(text, { 
+            width: 100, 
+            height: 100,
+            margin: 1 
+        }, function (err, svg) {
+            if (err) {
+                console.error('Chyba pri generovaní QR kódu:', err);
+                // Fallback
+                element.innerHTML = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
+                </svg>`;
+            } else {
+                element.innerHTML = svg;
+            }
+        });
+    } else {
+        // Fallback ak QRCode knižnica nie je dostupná
+        element.innerHTML = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+            <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
+        </svg>`;
+    }
 }

@@ -11,6 +11,8 @@
     <!-- JsBarcode library for CODE128 barcode generation -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://unpkg.com/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- QRCode.js library for QR code generation -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <!-- jsPDF library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- svg2pdf.js library for SVG to PDF conversion -->
@@ -89,6 +91,22 @@
             };
         }
         
+        // Fallback QRCode implementation if CDN fails
+        if (typeof QRCode === 'undefined') {
+            console.warn('QRCode library not available, using fallback');
+            window.QRCode = {
+                toSVG: function(text, options, callback) {
+                    // Create a simple fallback SVG with text when real library is not available
+                    const svg = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
+                    </svg>`;
+                    if (callback) callback(null, svg);
+                    return Promise.resolve(svg);
+                }
+            };
+        }
+        
         // Minimal PapaParse implementation
         window.PapaParse = {
             parse: function(text, options) {
@@ -138,6 +156,7 @@
     <link rel="stylesheet" href="css/label-compact.css">
     <link rel="stylesheet" href="css/label-detailed.css">
     <link rel="stylesheet" href="css/label-nametag-shelf.css">
+    <link rel="stylesheet" href="css/label-remene.css">
 </head>
 <body>
     <div class="container">
@@ -324,6 +343,7 @@
                                 <option value="default" data-lang="template-default">Štandardný</option>
                                 <option value="compact" data-lang="template-compact">Kompaktný</option>
                                 <option value="detailed" data-lang="template-detailed">Detailný</option>
+                                <option value="remene" data-lang="template-remene">Remene</option>
                             </select>
                             
                             <div class="polica-toggle-container">
@@ -815,6 +835,7 @@
                         <option value="default" data-lang="template-default">Štandardný</option>
                         <option value="compact" data-lang="template-compact">Kompaktný</option>
                         <option value="detailed" data-lang="template-detailed">Detailný</option>
+                        <option value="remene" data-lang="template-remene">Remene</option>
                     </select>
                 </div>
                 

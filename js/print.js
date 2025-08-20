@@ -44,6 +44,8 @@ function createPrintableLabel(label) {
         templateClass = 'template-nametag';
     } else if (label.type === 'shelf') {
         templateClass = 'template-shelf';
+    } else if (currentTemplate === 'remene') {
+        templateClass = 'template-remene';
     }
     
     labelDiv.className = `print-label ${templateClass}`;
@@ -52,35 +54,72 @@ function createPrintableLabel(label) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'print-content';
     
-    // Čiarový kód
-    const barcodeDiv = document.createElement('div');
-    barcodeDiv.className = 'print-barcode-row';
-    const barcodeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    barcodeDiv.appendChild(barcodeSvg);
-    
-    // Generovanie čiarového kódu
-    let barcodeData;
-    if (label.type === 'nametag') {
-        barcodeData = label.osobneCislo;
-    } else if (label.type === 'shelf') {
-        barcodeData = `${label.fach}\t${label.policaLocation}`;
+    // Handle remene template differently (uses QR code instead of barcode)
+    if (currentTemplate === 'remene' && label.type !== 'nametag' && label.type !== 'shelf') {
+        // Remene template - QR code on left, text on right
+        
+        // QR code container
+        const qrContainer = document.createElement('div');
+        qrContainer.className = 'print-qr-container';
+        
+        const qrCodeDiv = document.createElement('div');
+        qrCodeDiv.className = 'print-qr-code';
+        qrContainer.appendChild(qrCodeDiv);
+        
+        // Generate QR code for print
+        generateQRCodeForPrint(qrCodeDiv, formatArtikelForBarcode(label.artikel));
+        
+        // Text container
+        const textContainer = document.createElement('div');
+        textContainer.className = 'print-text-container';
+        
+        // Artikel
+        const artikelDiv = document.createElement('div');
+        artikelDiv.className = 'print-artikel';
+        artikelDiv.textContent = formatArtikel(label.artikel);
+        textContainer.appendChild(artikelDiv);
+        
+        // Názov
+        const nazovDiv = document.createElement('div');
+        nazovDiv.className = 'print-nazov';
+        nazovDiv.textContent = label.nazov;
+        textContainer.appendChild(nazovDiv);
+        
+        contentDiv.appendChild(qrContainer);
+        contentDiv.appendChild(textContainer);
+        
     } else {
-        barcodeData = formatArtikelForBarcode(label.artikel);
-    }
-    
-    try {
-        JsBarcode(barcodeSvg, barcodeData, {
-            format: "CODE128",
-            width: 1,
-            height: 20,
-            displayValue: false,
-            margin: 0
-        });
-    } catch (error) {
-        console.error('Chyba pri generovaní čiarového kódu pre tlač:', error);
-    }
-    
-    contentDiv.appendChild(barcodeDiv);
+        // Standard templates with barcode
+        
+        // Čiarový kód
+        const barcodeDiv = document.createElement('div');
+        barcodeDiv.className = 'print-barcode-row';
+        const barcodeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        barcodeDiv.appendChild(barcodeSvg);
+        
+        // Generovanie čiarového kódu
+        let barcodeData;
+        if (label.type === 'nametag') {
+            barcodeData = label.osobneCislo;
+        } else if (label.type === 'shelf') {
+            barcodeData = `${label.fach}\t${label.policaLocation}`;
+        } else {
+            barcodeData = formatArtikelForBarcode(label.artikel);
+        }
+        
+        try {
+            JsBarcode(barcodeSvg, barcodeData, {
+                format: "CODE128",
+                width: 1,
+                height: 20,
+                displayValue: false,
+                margin: 0
+            });
+        } catch (error) {
+            console.error('Chyba pri generovaní čiarového kódu pre tlač:', error);
+        }
+        
+        contentDiv.appendChild(barcodeDiv);
     
     // Generate different content based on label type
     if (label.type === 'nametag') {
@@ -158,9 +197,40 @@ function createPrintableLabel(label) {
             contentDiv.appendChild(policaDiv);
         }
     }
+    }
     
     labelDiv.appendChild(contentDiv);
     return labelDiv;
+}
+
+/**
+ * Generuje QR kód pre tlač do zadaného elementu.
+ */
+function generateQRCodeForPrint(element, text) {
+    if (typeof QRCode !== 'undefined' && QRCode.toSVG) {
+        QRCode.toSVG(text, { 
+            width: 100, 
+            height: 100,
+            margin: 1 
+        }, function (err, svg) {
+            if (err) {
+                console.error('Chyba pri generovaní QR kódu pre tlač:', err);
+                // Fallback
+                element.innerHTML = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
+                </svg>`;
+            } else {
+                element.innerHTML = svg;
+            }
+        });
+    } else {
+        // Fallback ak QRCode knižnica nie je dostupná
+        element.innerHTML = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+            <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
+        </svg>`;
+    }
 }
 
 /**
