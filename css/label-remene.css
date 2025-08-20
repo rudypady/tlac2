@@ -29,17 +29,18 @@
 
 .template-remene .preview-qr-code,
 .template-remene .print-qr-code {
-    width: 100%;
-    height: auto;
-    max-height: 100%;
+    width: 10mm;
+    height: 10mm;
+    max-width: 10mm;
+    max-height: 10mm;
 }
 
 .template-remene .preview-qr-code svg,
 .template-remene .print-qr-code svg {
-    width: 100%;
-    height: auto;
-    max-width: 100%;
-    max-height: 100%;
+    width: 10mm;
+    height: 10mm;
+    max-width: 10mm;
+    max-height: 10mm;
 }
 
 /* Right side: Text content container */
@@ -114,10 +115,10 @@
     }
     
     .template-remene .print-qr-code svg {
-        width: 100% !important;
-        height: auto !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
+        width: 10mm !important;
+        height: 10mm !important;
+        max-width: 10mm !important;
+        max-height: 10mm !important;
     }
     
     /* Text container for print */
