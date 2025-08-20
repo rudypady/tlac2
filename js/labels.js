@@ -21,7 +21,15 @@ function addLabelToPrintList(item, sourceElement = null) {
             artikel: normalizedArtikel, // Interné ukladanie bez pomlčky
             nazov: item.nazov,
             polica: item.polica,
-            quantity: item.quantity || 1
+            quantity: item.quantity || 1,
+            type: item.type, // Preserve label type if provided
+            // Preserve additional properties for special label types
+            ...(item.meno && { meno: item.meno }),
+            ...(item.priezvisko && { priezvisko: item.priezvisko }),
+            ...(item.osobneCislo && { osobneCislo: item.osobneCislo }),
+            ...(item.oddelenie && { oddelenie: item.oddelenie }),
+            ...(item.fach && { fach: item.fach }),
+            ...(item.policaLocation && { policaLocation: item.policaLocation })
         });
     }
     

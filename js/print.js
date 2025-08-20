@@ -54,8 +54,8 @@ function createPrintableLabel(label) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'print-content';
     
-    // Handle remene template differently (uses QR code instead of barcode)
-    if (currentTemplate === 'remene' && label.type !== 'nametag' && label.type !== 'shelf') {
+    // Handle remene label type differently (uses QR code instead of barcode)
+    if (label.type === 'remene' || (currentTemplate === 'remene' && label.type !== 'nametag' && label.type !== 'shelf')) {
         // Remene template - QR code on left, text on right
         
         // QR code container
