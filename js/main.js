@@ -24,6 +24,7 @@ const translations = {
         'tab-labels': 'Štítky',
         'tab-bulk-print': 'Hromadná tlač',
         'tab-shelf-print': 'Tlač police',
+        'tab-remene-print': 'Tlač remene',
         'tab-name-tag': 'Tlač menovky',
         'tab-history': 'História tlače',
         'tab-settings': 'Nastavenia',
@@ -180,6 +181,25 @@ const translations = {
         'shelf-example-barcode': 'Čiarový kód:',
         'shelf-help-note': 'Údaje sa berú z manuálneho zadania, nie z databázy.',
         
+        // Remene labels translations
+        'remene-print-title': 'Tlač remene',
+        'remene-artikel-label': 'Artikel',
+        'remene-artikel-placeholder': 'REM001',
+        'remene-nazov-label': 'Názov',
+        'remene-nazov-placeholder': 'Remene Belt Product',
+        'remene-polica-label': 'Polica',
+        'remene-polica-placeholder': 'R1-A2-B3',
+        'btn-add-remene-label': 'Pridať remene štítok na tlač',
+        'remene-preview-title': 'Náhľad remene štítka',
+        'remene-help-title': 'Nápoveda',
+        'remene-help-desc': 'Zadajte artikel, názov a policu pre remene štítok. QR kód sa vygeneruje z artiklu a zobrazí sa na ľavej strane štítka.',
+        'remene-help-example': 'Príklad:',
+        'remene-example-artikel': 'Artikel:',
+        'remene-example-nazov': 'Názov:',
+        'remene-example-polica': 'Polica:',
+        'remene-example-qr': 'QR kód:',
+        'remene-help-note': 'Remene štítky používajú QR kód namiesto čiarového kódu pre lepšiu čitateľnosť.',
+        
         // Help modal translations
         'help-modal-title': 'Nápoveda - Systém tlačenia štítkov',
         'help-overview-title': '📋 Prehľad systému',
@@ -205,6 +225,10 @@ const translations = {
         'title': 'Label Printing',
         'subtitle': 'Professional System for Label Printing',
         'tab-labels': 'Labels',
+        'tab-bulk-print': 'Bulk Print',
+        'tab-shelf-print': 'Shelf Printing',
+        'tab-remene-print': 'Belt Printing',
+        'tab-name-tag': 'Name Tag Printing',
         'tab-history': 'Print History',
         'tab-settings': 'Settings',
         'search-title': 'Search Database',
@@ -247,11 +271,34 @@ const translations = {
         'polica-hide': 'Hide',
         'setting-template': 'Default template',
         'btn-save-settings': 'Save settings',
+        
+        // Remene labels translations
+        'remene-print-title': 'Belt Printing',
+        'remene-artikel-label': 'Article',
+        'remene-artikel-placeholder': 'REM001',
+        'remene-nazov-label': 'Name',
+        'remene-nazov-placeholder': 'Belt Product',
+        'remene-polica-label': 'Shelf',
+        'remene-polica-placeholder': 'R1-A2-B3',
+        'btn-add-remene-label': 'Add belt label to print',
+        'remene-preview-title': 'Belt label preview',
+        'remene-help-title': 'Help',
+        'remene-help-desc': 'Enter article, name and shelf for belt label. QR code will be generated from article and displayed on the left side of the label.',
+        'remene-help-example': 'Example:',
+        'remene-example-artikel': 'Article:',
+        'remene-example-nazov': 'Name:',
+        'remene-example-polica': 'Shelf:',
+        'remene-example-qr': 'QR code:',
+        'remene-help-note': 'Belt labels use QR code instead of barcode for better readability.',
     },
     de: {
         'title': 'Etikettendruck',
         'subtitle': 'Professionelles System für Etikettendruck',
         'tab-labels': 'Etiketten',
+        'tab-bulk-print': 'Massendruck',
+        'tab-shelf-print': 'Regaldruck',
+        'tab-remene-print': 'Riemendruck',
+        'tab-name-tag': 'Namensschild-Druck',
         'tab-history': 'Druckhistorie',
         'tab-settings': 'Einstellungen',
         'search-title': 'Datenbank durchsuchen',
@@ -294,6 +341,25 @@ const translations = {
         'polica-hide': 'Verstecken',
         'setting-template': 'Standard-Vorlage',
         'btn-save-settings': 'Einstellungen speichern',
+        
+        // Remene labels translations
+        'remene-print-title': 'Riemendruck',
+        'remene-artikel-label': 'Artikel',
+        'remene-artikel-placeholder': 'REM001',
+        'remene-nazov-label': 'Name',
+        'remene-nazov-placeholder': 'Riemen Produkt',
+        'remene-polica-label': 'Regal',
+        'remene-polica-placeholder': 'R1-A2-B3',
+        'btn-add-remene-label': 'Riemen-Etikett zum Druck hinzufügen',
+        'remene-preview-title': 'Riemen-Etikett Vorschau',
+        'remene-help-title': 'Hilfe',
+        'remene-help-desc': 'Geben Sie Artikel, Name und Regal für Riemen-Etikett ein. QR-Code wird aus Artikel generiert und auf der linken Seite des Etiketts angezeigt.',
+        'remene-help-example': 'Beispiel:',
+        'remene-example-artikel': 'Artikel:',
+        'remene-example-nazov': 'Name:',
+        'remene-example-polica': 'Regal:',
+        'remene-example-qr': 'QR-Code:',
+        'remene-help-note': 'Riemen-Etiketten verwenden QR-Code anstelle von Barcode für bessere Lesbarkeit.',
     }
 };
 
@@ -358,6 +424,15 @@ function initializeElements() {
     elements.shelfPreviewShelfDesc = document.getElementById('shelfPreviewShelfDesc');
     elements.shelfPreviewShelfLocation = document.getElementById('shelfPreviewShelfLocation');
     elements.shelfPreviewBarcode = document.getElementById('shelfPreviewBarcode');
+    
+    // Tlač remene
+    elements.remeneArtikel = document.getElementById('remeneArtikel');
+    elements.remeneNazov = document.getElementById('remeneNazov');
+    elements.remenePolica = document.getElementById('remenePolica');
+    elements.addRemeneLabelBtn = document.getElementById('addRemeneLabelBtn');
+    elements.remenePreviewArtikel = document.getElementById('remenePreviewArtikel');
+    elements.remenePreviewNazov = document.getElementById('remenePreviewNazov');
+    elements.remenePreviewQRCode = document.getElementById('remenePreviewQRCode');
     
     // Hromadné operácie
     elements.printSetsSection = document.getElementById('printSetsSection');
@@ -556,6 +631,23 @@ function setupEventListeners() {
     }
     if (elements.addShelfLabelBtn) {
         elements.addShelfLabelBtn.addEventListener('click', addShelfLabel);
+    }
+
+    // --- Tlač remene (Remene Print) tab Event Listenery ---
+    if (elements.remeneArtikel) {
+        elements.remeneArtikel.addEventListener('input', updateRemeneButtons);
+        elements.remeneArtikel.addEventListener('input', updateRemenePreviewTab);
+    }
+    if (elements.remeneNazov) {
+        elements.remeneNazov.addEventListener('input', updateRemeneButtons);
+        elements.remeneNazov.addEventListener('input', updateRemenePreviewTab);
+    }
+    if (elements.remenePolica) {
+        elements.remenePolica.addEventListener('input', updateRemeneButtons);
+        elements.remenePolica.addEventListener('input', updateRemenePreviewTab);
+    }
+    if (elements.addRemeneLabelBtn) {
+        elements.addRemeneLabelBtn.addEventListener('click', addRemeneLabel);
     }
 
     // --- Databáza (Database) tab Event Listenery ---
@@ -1022,7 +1114,8 @@ function addShelfLabel() {
         artikel: fach,
         nazov: 'Polica štítok',
         polica: barcodeValue,
-        quantity: 1
+        quantity: 1,
+        type: 'shelf' // Mark as shelf type
     }, elements.addShelfLabelBtn);
     
     // Vymazať formulár
@@ -1205,6 +1298,74 @@ function updateShelfButtons() {
     const isValid = fach && polica;
     if (elements.addShelfLabelBtn) {
         elements.addShelfLabelBtn.disabled = !isValid;
+    }
+}
+
+/**
+ * Pridá remene štítok do zoznamu na tlač.
+ */
+function addRemeneLabel() {
+    const artikel = elements.remeneArtikel.value.trim();
+    const nazov = elements.remeneNazov.value.trim();
+    const polica = elements.remenePolica.value.trim();
+    
+    if (!artikel || !nazov || !polica) {
+        showToast('Vyplňte všetky polia pre remene štítok!', 'error');
+        return;
+    }
+    
+    addLabelToPrintList({
+        artikel: artikel,
+        nazov: nazov,
+        polica: polica,
+        quantity: 1,
+        type: 'remene' // Mark as remene type
+    }, elements.addRemeneLabelBtn);
+    
+    // Vymazať formulár
+    elements.remeneArtikel.value = '';
+    elements.remeneNazov.value = '';
+    elements.remenePolica.value = '';
+    elements.addRemeneLabelBtn.disabled = true;
+    
+    // Resetovať náhľad
+    updateRemenePreviewTab();
+    
+    showToast('Remene štítok bol pridaný na tlač!', 'success');
+}
+
+/**
+ * Aktualizuje náhľad remene štítka v tab-e.
+ */
+function updateRemenePreviewTab() {
+    const artikel = elements.remeneArtikel ? elements.remeneArtikel.value.trim() : 'REM001';
+    const nazov = elements.remeneNazov ? elements.remeneNazov.value.trim() : 'Remene Belt Product';
+    
+    // Aktualizuje text vo náhľade
+    if (elements.remenePreviewArtikel) {
+        elements.remenePreviewArtikel.textContent = formatArtikel(artikel);
+    }
+    if (elements.remenePreviewNazov) {
+        elements.remenePreviewNazov.textContent = nazov;
+    }
+    
+    // Generuje QR kód
+    if (elements.remenePreviewQRCode && artikel) {
+        generateQRCode(elements.remenePreviewQRCode, formatArtikelForBarcode(artikel));
+    }
+}
+
+/**
+ * Aktualizuje tlačidlá remene formulára.
+ */
+function updateRemeneButtons() {
+    const artikel = elements.remeneArtikel ? elements.remeneArtikel.value.trim() : '';
+    const nazov = elements.remeneNazov ? elements.remeneNazov.value.trim() : '';
+    const polica = elements.remenePolica ? elements.remenePolica.value.trim() : '';
+
+    const isValid = artikel && nazov && polica;
+    if (elements.addRemeneLabelBtn) {
+        elements.addRemeneLabelBtn.disabled = !isValid;
     }
 }
 
