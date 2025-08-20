@@ -560,17 +560,18 @@ function updateRemenePreview() {
  */
 function generateQRCode(element, text) {
     if (typeof QRCode !== 'undefined' && QRCode.toSVG) {
+        // Generate QR code with exact 10mm size (approximately 38 pixels at 96 DPI)
         QRCode.toSVG(text, { 
-            width: 100, 
-            height: 100,
+            width: 38, 
+            height: 38,
             margin: 1 
         }, function (err, svg) {
             if (err) {
                 console.error('Chyba pri generovaní QR kódu:', err);
                 // Fallback
-                element.innerHTML = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
-                    <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
+                element.innerHTML = `<svg width="38" height="38" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="38" height="38" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="19" y="19" text-anchor="middle" font-size="6" fill="black">${text}</text>
                 </svg>`;
             } else {
                 element.innerHTML = svg;
@@ -578,9 +579,9 @@ function generateQRCode(element, text) {
         });
     } else {
         // Fallback ak QRCode knižnica nie je dostupná
-        element.innerHTML = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
-            <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
+        element.innerHTML = `<svg width="38" height="38" xmlns="http://www.w3.org/2000/svg">
+            <rect width="38" height="38" fill="white" stroke="black" stroke-width="2"/>
+            <text x="19" y="19" text-anchor="middle" font-size="6" fill="black">${text}</text>
         </svg>`;
     }
 }
