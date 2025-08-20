@@ -93,18 +93,8 @@
         
         // Fallback QRCode implementation if CDN fails
         if (typeof QRCode === 'undefined') {
-            console.warn('QRCode library not available, using fallback');
-            window.QRCode = {
-                toSVG: function(text, options, callback) {
-                    // Create a simple fallback SVG with text when real library is not available
-                    const svg = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
-                        <text x="50" y="50" text-anchor="middle" font-size="8" fill="black">${text}</text>
-                    </svg>`;
-                    if (callback) callback(null, svg);
-                    return Promise.resolve(svg);
-                }
-            };
+            console.warn('QRCode library not available, using local implementation');
+            window.QRCode = window.LocalQRCode;
         }
         
         // Minimal PapaParse implementation
@@ -1002,6 +992,7 @@
     <div id="toast" class="toast"></div>
 
     <!-- Modular JavaScript files -->
+    <script src="js/qrcode-generator.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/database.js"></script>
     <script src="js/labels.js"></script>
