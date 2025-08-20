@@ -40,7 +40,9 @@
 }
 
 .template-remene .preview-qr-code svg,
-.template-remene .print-qr-code svg {
+.template-remene .print-qr-code svg,
+.template-remene .preview-qr-code canvas,
+.template-remene .print-qr-code canvas {
     width: 10mm !important;
     height: 10mm !important;
     max-width: 10mm !important;
@@ -139,7 +141,8 @@
         flex-shrink: 0 !important;
     }
     
-    .template-remene .print-qr-code svg {
+    .template-remene .print-qr-code svg,
+    .template-remene .print-qr-code canvas {
         width: 10mm !important;
         height: 10mm !important;
         max-width: 10mm !important;
@@ -205,7 +208,9 @@
 
 /* Ensure QR codes work well with svg2pdf and other export tools */
 .template-remene .print-qr-code svg,
-.template-remene .preview-qr-code svg {
+.template-remene .preview-qr-code svg,
+.template-remene .print-qr-code canvas,
+.template-remene .preview-qr-code canvas {
     /* Ensure vector graphics export properly */
     vector-effect: non-scaling-stroke;
     /* Prevent antialiasing issues in exports */
@@ -214,7 +219,8 @@
 
 /* For PDF export specifically */
 @media print, (prefers-color-scheme: print) {
-    .template-remene .print-qr-code svg * {
+    .template-remene .print-qr-code svg *,
+    .template-remene .print-qr-code canvas {
         vector-effect: non-scaling-stroke !important;
         shape-rendering: crispEdges !important;
     }
