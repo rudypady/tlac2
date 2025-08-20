@@ -1338,20 +1338,31 @@ function addRemeneLabel() {
  * Aktualizuje náhľad remene štítka v tab-e.
  */
 function updateRemenePreviewTab() {
-    const artikel = elements.remeneArtikel ? elements.remeneArtikel.value.trim() : 'REM001';
-    const nazov = elements.remeneNazov ? elements.remeneNazov.value.trim() : 'Remene Belt Product';
+    // Get elements directly from DOM to avoid dependency on elements object
+    const remeneArtikel = document.getElementById('remeneArtikel');
+    const remeneNazov = document.getElementById('remeneNazov');
+    const remenePreviewArtikel = document.getElementById('remenePreviewArtikel');
+    const remenePreviewNazov = document.getElementById('remenePreviewNazov');
+    const remenePreviewQRCode = document.getElementById('remenePreviewQRCode');
+    
+    const artikel = remeneArtikel ? remeneArtikel.value.trim() : 'REM001';
+    const nazov = remeneNazov ? remeneNazov.value.trim() : 'Remene Belt Product';
     
     // Aktualizuje text vo náhľade
-    if (elements.remenePreviewArtikel) {
-        elements.remenePreviewArtikel.textContent = formatArtikel(artikel);
+    if (remenePreviewArtikel) {
+        remenePreviewArtikel.textContent = formatArtikel(artikel);
     }
-    if (elements.remenePreviewNazov) {
-        elements.remenePreviewNazov.textContent = nazov;
+    if (remenePreviewNazov) {
+        remenePreviewNazov.textContent = nazov;
     }
     
     // Generuje QR kód
-    if (elements.remenePreviewQRCode && artikel) {
-        generateQRCode(elements.remenePreviewQRCode, formatArtikelForBarcode(artikel));
+    if (remenePreviewQRCode) {
+        // Ensure QRCode is properly set up
+        if (typeof QRCode === 'undefined' && typeof LocalQRCode !== 'undefined') {
+            window.QRCode = window.LocalQRCode;
+        }
+        generateQRCode(remenePreviewQRCode, formatArtikelForBarcode(artikel));
     }
 }
 

@@ -235,6 +235,13 @@ function switchTab(tabId) {
     if (tabId === 'labels') {
         updatePreview();
     }
+    if (tabId === 'remene-print') {
+        // Ensure QRCode is properly set up before updating preview
+        if (typeof LocalQRCode !== 'undefined' && typeof QRCode !== 'undefined') {
+            window.QRCode = window.LocalQRCode;
+        }
+        updateRemenePreviewTab();
+    }
 }
 
 /**

@@ -1014,10 +1014,12 @@
     
     <script>
         // Ensure QRCode is properly set up after all scripts load
-        if (typeof QRCode === 'undefined' && typeof LocalQRCode !== 'undefined') {
-            console.log('Setting up QRCode from LocalQRCode');
-            window.QRCode = window.LocalQRCode;
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof QRCode === 'undefined' && typeof LocalQRCode !== 'undefined') {
+                console.log('Setting up QRCode from LocalQRCode');
+                window.QRCode = window.LocalQRCode;
+            }
+        });
     </script>
 </body>
 </html>
