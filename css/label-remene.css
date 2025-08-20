@@ -1,0 +1,164 @@
+/* 🏷️ REMENE ŠTÍTKY - Remene belt label specific styles */
+
+/* ===== REMENE SPECIFIC STYLES ===== */
+
+/* Remene label preview and print layout - horizontal layout with QR code and text */
+.template-remene .preview-content,
+.template-remene .print-content {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    gap: 2px;
+}
+
+/* Left side: QR code container */
+.template-remene .preview-qr-container,
+.template-remene .print-qr-container {
+    flex: 0 0 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+    padding: 2px;
+}
+
+.template-remene .preview-qr-code,
+.template-remene .print-qr-code {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+}
+
+.template-remene .preview-qr-code svg,
+.template-remene .print-qr-code svg {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Right side: Text content container */
+.template-remene .preview-text-container,
+.template-remene .print-text-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 4px;
+    gap: 1px;
+}
+
+/* Artikel number styling (large font) */
+.template-remene .preview-artikel,
+.template-remene .print-artikel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 2px;
+}
+
+/* Product name styling */
+.template-remene .preview-nazov,
+.template-remene .print-nazov {
+    font-size: 10px;
+    font-weight: 500;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    max-height: 50%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* ===== PRINT STYLES FOR REMENE LABELS ===== */
+
+@media print {
+    /* Remene label print layout */
+    .template-remene .print-content {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: stretch !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 2px !important;
+        gap: 2px !important;
+    }
+    
+    /* QR code container for print */
+    .template-remene .print-qr-container {
+        flex: 0 0 40% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #f8f9fa !important;
+        border-radius: 3px !important;
+        padding: 2px !important;
+    }
+    
+    .template-remene .print-qr-code svg {
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+    }
+    
+    /* Text container for print */
+    .template-remene .print-text-container {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 2px 4px !important;
+        gap: 1px !important;
+    }
+    
+    /* Artikel for print */
+    .template-remene .print-artikel {
+        font-size: 16px !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        width: 100% !important;
+        margin-bottom: 2px !important;
+    }
+    
+    /* Product name for print */
+    .template-remene .print-nazov {
+        font-size: 10px !important;
+        font-weight: 500 !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        width: 100% !important;
+        max-height: 50% !important;
+        overflow: hidden !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important;
+        -webkit-box-orient: vertical !important;
+    }
+}
