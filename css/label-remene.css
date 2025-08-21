@@ -1,41 +1,41 @@
-/* 🏷️ REMENE ŠTÍTKY - Remene belt label specific styles */
+/* 🏷️ REMENE ŠTÍTKY - Remene belt label with specific 50mm x 25.4mm dimensions */
 
-/* ===== REMENE SPECIFIC STYLES ===== */
-
-/* Remene label preview and print layout - horizontal layout with QR code and text */
+/* Remene label specific dimensions and layout - horizontal layout with QR code and text */
 .template-remene .preview-content,
 .template-remene .print-content {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    justify-content: space-between;
+    justify-content: flex-start;
     width: 100%;
     height: 100%;
-    padding: 2px;
-    gap: 2px;
+    padding: 2mm; /* 2mm margins on each side */
+    gap: 2mm;
+    box-sizing: border-box;
+    font-family: 'Roboto', Arial, sans-serif;
 }
 
 /* Left side: QR code container */
 .template-remene .preview-qr-container,
 .template-remene .print-qr-container {
-    flex: 0 0 40%;
+    flex: 0 0 21.4mm; /* Fixed width for QR code */
+    height: 21.4mm; /* QR code height according to label height minus margins */
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f8f9fa;
-    border-radius: 3px;
-    padding: 2px;
+    background-color: transparent;
+    padding: 0;
 }
 
-/* QR code sizing - exactly 10x10mm as required */
+/* QR code sizing - exactly 21.4mm as required */
 .template-remene .preview-qr-code,
 .template-remene .print-qr-code {
-    width: 10mm;
-    height: 10mm;
-    max-width: 10mm;
-    max-height: 10mm;
-    min-width: 10mm;
-    min-height: 10mm;
+    width: 21.4mm;
+    height: 21.4mm;
+    max-width: 21.4mm;
+    max-height: 21.4mm;
+    min-width: 21.4mm;
+    min-height: 21.4mm;
     flex-shrink: 0; /* Prevent shrinking */
 }
 
@@ -43,12 +43,12 @@
 .template-remene .print-qr-code svg,
 .template-remene .preview-qr-code canvas,
 .template-remene .print-qr-code canvas {
-    width: 10mm !important;
-    height: 10mm !important;
-    max-width: 10mm !important;
-    max-height: 10mm !important;
-    min-width: 10mm !important;
-    min-height: 10mm !important;
+    width: 21.4mm !important;
+    height: 21.4mm !important;
+    max-width: 21.4mm !important;
+    max-height: 21.4mm !important;
+    min-width: 21.4mm !important;
+    min-height: 21.4mm !important;
     display: block;
     /* Ensure crisp rendering for print */
     shape-rendering: crispEdges;
@@ -65,14 +65,26 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2px 4px;
-    gap: 1px;
+    padding: 0;
+    gap: 2mm;
+    height: 100%;
+}
+
+/* Artikel text area - large text, centered vertically and horizontally */
+.template-remene .preview-artikel-container,
+.template-remene .print-artikel-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
 /* Artikel number styling (large font) */
 .template-remene .preview-artikel,
 .template-remene .print-artikel {
-    font-size: 16px;
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 20px; /* Large text for Artikel */
     font-weight: bold;
     color: #000;
     line-height: 1.1;
@@ -81,28 +93,28 @@
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    margin-bottom: 2px;
 }
 
-/* Product name styling */
+/* Popis text area - smaller text, full width */
+.template-remene .preview-popis,
+.template-remene .print-popis,
 .template-remene .preview-nazov,
 .template-remene .print-nazov {
-    font-size: 10px;
-    font-weight: 500;
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 12px; /* Smaller text for Popis */
+    font-weight: normal;
     color: #000;
-    line-height: 1.1;
+    line-height: 1.2;
     text-align: center;
     word-wrap: break-word;
     overflow-wrap: break-word;
     width: 100%;
-    max-height: 50%;
+    max-height: 30%;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
-
-/* ===== PRINT STYLES FOR REMENE LABELS ===== */
 
 /* ===== PRINT STYLES FOR REMENE LABELS ===== */
 
@@ -112,43 +124,46 @@
         display: flex !important;
         flex-direction: row !important;
         align-items: stretch !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-        height: 100% !important;
-        padding: 2px !important;
-        gap: 2px !important;
+        justify-content: flex-start !important;
+        width: 50mm !important; /* Explicit width for print */
+        height: 25.4mm !important; /* Explicit height for print */
+        padding: 2mm !important; /* 2mm margins */
+        gap: 2mm !important;
+        box-sizing: border-box !important;
+        font-family: 'Roboto', Arial, sans-serif !important;
+        border: none !important; /* No border */
     }
     
     /* QR code container for print */
     .template-remene .print-qr-container {
-        flex: 0 0 40% !important;
+        flex: 0 0 21.4mm !important;
+        height: 21.4mm !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        background-color: #f8f9fa !important;
-        border-radius: 3px !important;
-        padding: 2px !important;
+        background-color: transparent !important;
+        padding: 0 !important;
     }
     
     /* Enhanced QR code print styles */
     .template-remene .print-qr-code {
-        width: 10mm !important;
-        height: 10mm !important;
-        max-width: 10mm !important;
-        max-height: 10mm !important;
-        min-width: 10mm !important;
-        min-height: 10mm !important;
+        width: 21.4mm !important;
+        height: 21.4mm !important;
+        max-width: 21.4mm !important;
+        max-height: 21.4mm !important;
+        min-width: 21.4mm !important;
+        min-height: 21.4mm !important;
         flex-shrink: 0 !important;
     }
     
     .template-remene .print-qr-code svg,
     .template-remene .print-qr-code canvas {
-        width: 10mm !important;
-        height: 10mm !important;
-        max-width: 10mm !important;
-        max-height: 10mm !important;
-        min-width: 10mm !important;
-        min-height: 10mm !important;
+        width: 21.4mm !important;
+        height: 21.4mm !important;
+        max-width: 21.4mm !important;
+        max-height: 21.4mm !important;
+        min-width: 21.4mm !important;
+        min-height: 21.4mm !important;
         display: block !important;
         /* Enhanced print rendering */
         shape-rendering: crispEdges !important;
@@ -168,13 +183,24 @@
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 2px 4px !important;
-        gap: 1px !important;
+        padding: 0 !important;
+        gap: 2mm !important;
+        height: 100% !important;
+    }
+    
+    /* Artikel container for print */
+    .template-remene .print-artikel-container {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
     }
     
     /* Artikel for print */
     .template-remene .print-artikel {
-        font-size: 16px !important;
+        font-family: 'Roboto', Arial, sans-serif !important;
+        font-size: 20px !important;
         font-weight: bold !important;
         color: #000 !important;
         line-height: 1.1 !important;
@@ -183,23 +209,24 @@
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         width: 100% !important;
-        margin-bottom: 2px !important;
     }
     
-    /* Product name for print */
+    /* Popis for print */
+    .template-remene .print-popis,
     .template-remene .print-nazov {
-        font-size: 10px !important;
-        font-weight: 500 !important;
+        font-family: 'Roboto', Arial, sans-serif !important;
+        font-size: 12px !important;
+        font-weight: normal !important;
         color: #000 !important;
-        line-height: 1.1 !important;
+        line-height: 1.2 !important;
         text-align: center !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
         width: 100% !important;
-        max-height: 50% !important;
+        max-height: 30% !important;
         overflow: hidden !important;
         display: -webkit-box !important;
-        -webkit-line-clamp: 3 !important;
+        -webkit-line-clamp: 2 !important;
         -webkit-box-orient: vertical !important;
     }
 }
