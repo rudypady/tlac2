@@ -1,0 +1,251 @@
+/* 🏷️ QR ŠTÍTOK - QR label template with specific 50mm x 25.4mm dimensions */
+
+/* QR label specific dimensions and layout - horizontal layout with QR code and text */
+.template-qr .preview-content,
+.template-qr .print-content {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 2mm; /* 2mm margins on each side */
+    gap: 2mm;
+    box-sizing: border-box;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Left side: QR code container */
+.template-qr .preview-qr-container,
+.template-qr .print-qr-container {
+    flex: 0 0 21.4mm; /* Fixed width for QR code */
+    height: 21.4mm; /* QR code height according to label height minus margins */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    padding: 0;
+}
+
+/* QR code sizing - exactly 21.4mm as required */
+.template-qr .preview-qr-code,
+.template-qr .print-qr-code {
+    width: 21.4mm;
+    height: 21.4mm;
+    max-width: 21.4mm;
+    max-height: 21.4mm;
+    min-width: 21.4mm;
+    min-height: 21.4mm;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.template-qr .preview-qr-code svg,
+.template-qr .print-qr-code svg,
+.template-qr .preview-qr-code canvas,
+.template-qr .print-qr-code canvas {
+    width: 21.4mm !important;
+    height: 21.4mm !important;
+    max-width: 21.4mm !important;
+    max-height: 21.4mm !important;
+    min-width: 21.4mm !important;
+    min-height: 21.4mm !important;
+    display: block;
+    /* Ensure crisp rendering for print */
+    shape-rendering: crispEdges;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* Right side: Text content container */
+.template-qr .preview-text-container,
+.template-qr .print-text-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    gap: 2mm;
+    height: 100%;
+}
+
+/* Artikel text area - large text, centered vertically and horizontally */
+.template-qr .preview-artikel-container,
+.template-qr .print-artikel-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Artikel number styling (large font) */
+.template-qr .preview-artikel,
+.template-qr .print-artikel {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 20px; /* Large text for Artikel */
+    font-weight: bold;
+    color: #000;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Popis text area - smaller text, full width */
+.template-qr .preview-popis,
+.template-qr .print-popis {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 12px; /* Smaller text for Popis */
+    font-weight: normal;
+    color: #000;
+    line-height: 1.2;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    max-height: 30%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* ===== PRINT STYLES FOR QR LABELS ===== */
+
+@media print {
+    /* QR label print layout */
+    .template-qr .print-content {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        width: 50mm !important; /* Explicit width for print */
+        height: 25.4mm !important; /* Explicit height for print */
+        padding: 2mm !important; /* 2mm margins */
+        gap: 2mm !important;
+        box-sizing: border-box !important;
+        font-family: 'Roboto', Arial, sans-serif !important;
+        border: none !important; /* No border */
+    }
+    
+    /* QR code container for print */
+    .template-qr .print-qr-container {
+        flex: 0 0 21.4mm !important;
+        height: 21.4mm !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+    }
+    
+    /* Enhanced QR code print styles */
+    .template-qr .print-qr-code {
+        width: 21.4mm !important;
+        height: 21.4mm !important;
+        max-width: 21.4mm !important;
+        max-height: 21.4mm !important;
+        min-width: 21.4mm !important;
+        min-height: 21.4mm !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .template-qr .print-qr-code svg,
+    .template-qr .print-qr-code canvas {
+        width: 21.4mm !important;
+        height: 21.4mm !important;
+        max-width: 21.4mm !important;
+        max-height: 21.4mm !important;
+        min-width: 21.4mm !important;
+        min-height: 21.4mm !important;
+        display: block !important;
+        /* Enhanced print rendering */
+        shape-rendering: crispEdges !important;
+        image-rendering: pixelated !important;
+        image-rendering: -moz-crisp-edges !important;
+        image-rendering: crisp-edges !important;
+        /* Ensure SVG prints correctly */
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Text container for print */
+    .template-qr .print-text-container {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        gap: 2mm !important;
+        height: 100% !important;
+    }
+    
+    /* Artikel container for print */
+    .template-qr .print-artikel-container {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+    
+    /* Artikel for print */
+    .template-qr .print-artikel {
+        font-family: 'Roboto', Arial, sans-serif !important;
+        font-size: 20px !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        width: 100% !important;
+    }
+    
+    /* Popis for print */
+    .template-qr .print-popis {
+        font-family: 'Roboto', Arial, sans-serif !important;
+        font-size: 12px !important;
+        font-weight: normal !important;
+        color: #000 !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        width: 100% !important;
+        max-height: 30% !important;
+        overflow: hidden !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+    }
+}
+
+/* ===== SVG EXPORT COMPATIBILITY ===== */
+
+/* Ensure QR codes work well with svg2pdf and other export tools */
+.template-qr .print-qr-code svg,
+.template-qr .preview-qr-code svg,
+.template-qr .print-qr-code canvas,
+.template-qr .preview-qr-code canvas {
+    /* Ensure vector graphics export properly */
+    vector-effect: non-scaling-stroke;
+    /* Prevent antialiasing issues in exports */
+    shape-rendering: crispEdges;
+}
+
+/* For PDF export specifically */
+@media print, (prefers-color-scheme: print) {
+    .template-qr .print-qr-code svg *,
+    .template-qr .print-qr-code canvas {
+        vector-effect: non-scaling-stroke !important;
+        shape-rendering: crispEdges !important;
+    }
+}

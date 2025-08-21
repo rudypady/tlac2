@@ -46,8 +46,12 @@ function createPrintableLabel(label) {
         templateClass = 'template-shelf';
     } else if (label.type === 'remene') {
         templateClass = 'template-remene';
+    } else if (label.type === 'qr') {
+        templateClass = 'template-qr';
     } else if (currentTemplate === 'remene') {
         templateClass = 'template-remene';
+    } else if (currentTemplate === 'qr') {
+        templateClass = 'template-qr';
     }
     
     labelDiv.className = `print-label ${templateClass}`;
@@ -57,7 +61,7 @@ function createPrintableLabel(label) {
     contentDiv.className = 'print-content';
     
     // Handle remene label type differently (uses QR code instead of barcode)
-    if (label.type === 'remene' || (currentTemplate === 'remene' && label.type !== 'nametag' && label.type !== 'shelf')) {
+    if (label.type === 'remene' || (currentTemplate === 'remene' && label.type !== 'nametag' && label.type !== 'shelf' && label.type !== 'qr')) {
         // Remene template - QR code on left, text on right
         
         // QR code container
@@ -86,6 +90,43 @@ function createPrintableLabel(label) {
         nazovDiv.className = 'print-nazov';
         nazovDiv.textContent = label.nazov;
         textContainer.appendChild(nazovDiv);
+        
+        contentDiv.appendChild(qrContainer);
+        contentDiv.appendChild(textContainer);
+        
+    } else if (label.type === 'qr' || (currentTemplate === 'qr' && label.type !== 'nametag' && label.type !== 'shelf' && label.type !== 'remene')) {
+        // QR template - QR code on left, text on right (similar to remene but different layout)
+        
+        // QR code container
+        const qrContainer = document.createElement('div');
+        qrContainer.className = 'print-qr-container';
+        
+        const qrCodeDiv = document.createElement('div');
+        qrCodeDiv.className = 'print-qr-code';
+        qrContainer.appendChild(qrCodeDiv);
+        
+        // Generate QR code for print
+        generateQRCodeForPrint(qrCodeDiv, formatArtikelForBarcode(label.artikel));
+        
+        // Text container
+        const textContainer = document.createElement('div');
+        textContainer.className = 'print-text-container';
+        
+        // Artikel container (for centering)
+        const artikelContainer = document.createElement('div');
+        artikelContainer.className = 'print-artikel-container';
+        
+        const artikelDiv = document.createElement('div');
+        artikelDiv.className = 'print-artikel';
+        artikelDiv.textContent = formatArtikel(label.artikel);
+        artikelContainer.appendChild(artikelDiv);
+        textContainer.appendChild(artikelContainer);
+        
+        // Popis (using nazov field for compatibility)
+        const popisDiv = document.createElement('div');
+        popisDiv.className = 'print-popis';
+        popisDiv.textContent = label.nazov;
+        textContainer.appendChild(popisDiv);
         
         contentDiv.appendChild(qrContainer);
         contentDiv.appendChild(textContainer);
