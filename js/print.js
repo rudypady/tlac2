@@ -79,13 +79,18 @@ function createPrintableLabel(label) {
         const textContainer = document.createElement('div');
         textContainer.className = 'print-text-container';
         
-        // Artikel
+        // Artikel container (for centering)
+        const artikelContainer = document.createElement('div');
+        artikelContainer.className = 'print-artikel-container';
+        
         const artikelDiv = document.createElement('div');
         artikelDiv.className = 'print-artikel';
         artikelDiv.textContent = formatArtikel(label.artikel);
-        textContainer.appendChild(artikelDiv);
+        artikelContainer.appendChild(artikelDiv);
         
-        // Názov
+        textContainer.appendChild(artikelContainer);
+        
+        // Názov (Popis)
         const nazovDiv = document.createElement('div');
         nazovDiv.className = 'print-nazov';
         nazovDiv.textContent = label.nazov;
