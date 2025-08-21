@@ -190,6 +190,7 @@
     <link rel="stylesheet" href="css/label-detailed.css">
     <link rel="stylesheet" href="css/label-nametag-shelf.css">
     <link rel="stylesheet" href="css/label-remene.css">
+    <link rel="stylesheet" href="css/label-qr.css">
 </head>
 <body>
     <div class="container">
@@ -232,6 +233,7 @@
             <button class="tab" data-tab="bulk-print" data-lang="tab-bulk-print">Hromadná tlač</button>
             <button class="tab" data-tab="shelf-print" data-lang="tab-shelf-print">Tlač police</button>
             <button class="tab" data-tab="remene-print" data-lang="tab-remene-print">Tlač remene</button>
+            <button class="tab" data-tab="qr" data-lang="tab-qr">QR štítky</button>
             <button class="tab" data-tab="name-tag" data-lang="tab-name-tag">Tlač menovky</button>
             <button class="tab" data-tab="history" data-lang="tab-history">História tlače</button>
             <button class="tab" data-tab="settings" data-lang="tab-settings">Nastavenia</button>
@@ -378,6 +380,7 @@
                                 <option value="compact" data-lang="template-compact">Kompaktný</option>
                                 <option value="detailed" data-lang="template-detailed">Detailný</option>
                                 <option value="remene" data-lang="template-remene">Remene</option>
+                                <option value="qr" data-lang="template-qr">QR štítok</option>
                             </select>
                             
                             <div class="polica-toggle-container">
@@ -676,6 +679,91 @@
             </div>
         </div>
 
+        <!-- Tab: QR štítok -->
+        <div class="tab-content" id="qr-tab">
+            <div class="main-grid">
+                <!-- ĽAVÝ STĹPEC -->
+                <div>
+                    <!-- Formulár pre QR štítky -->
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect></svg> <span data-lang="qr-title">QR štítky</span></h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="qrArtikel" data-lang="qr-artikel-label">Artikel</label>
+                                <input type="text" id="qrArtikel" class="form-input" placeholder="123-456-789" data-lang-placeholder="qr-artikel-placeholder">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="qrPopis" data-lang="qr-popis-label">Popis</label>
+                            <input type="text" id="qrPopis" class="form-input" placeholder="Popis produktu" data-lang-placeholder="qr-popis-placeholder">
+                        </div>
+                        
+                        <div class="form-row">
+                            <button id="addQrLabelBtn" class="btn btn-primary" disabled>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <span data-lang="btn-add-qr-label">Pridať QR štítok</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Náhľad štítka -->
+                    <div class="preview-section qr-preview">
+                        <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> <span data-lang="qr-preview-title">Náhľad QR štítka</span></h3>
+                        
+                        <div class="preview-label template-qr">
+                            <div class="preview-content">
+                                <!-- QR kód kontajner -->
+                                <div class="preview-qr-container">
+                                    <div class="preview-qr-code" id="qrPreviewQRCode"></div>
+                                </div>
+                                <!-- Text kontajner -->
+                                <div class="preview-text-container">
+                                    <div class="preview-artikel-container">
+                                        <div class="preview-artikel" id="qrPreviewArtikel">123-456-789</div>
+                                    </div>
+                                    <div class="preview-popis" id="qrPreviewPopis">Popis produktu</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRAVÝ STĹPEC -->
+                <div>
+                    <div class="card">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h4"></path><path d="M15 11h4a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-4"></path><path d="M12 2l3 7H9l3-7z"></path></svg> <span data-lang="qr-help-title">Nápoveda</span></h2>
+                        
+                        <div class="help-content">
+                            <p data-lang="qr-help-desc">Špecializovaný štítok s rozmermi 50mm x 25,4mm s QR kódom v ľavom hornom rohu a textom vedľa. Ideálny pre kompaktné označovanie s QR kódom.</p>
+                            
+                            <h4 data-lang="qr-help-specs">Špecifikácie:</h4>
+                            <ul>
+                                <li><strong data-lang="qr-spec-size">Rozmery:</strong> 50mm x 25,4mm</li>
+                                <li><strong data-lang="qr-spec-orientation">Orientácia:</strong> Horizontálne</li>
+                                <li><strong data-lang="qr-spec-margins">Okraje:</strong> 2mm na každej strane</li>
+                                <li><strong data-lang="qr-spec-qr-size">QR kód:</strong> 21,4mm (ľavý horný roh)</li>
+                                <li><strong data-lang="qr-spec-font">Font:</strong> Roboto</li>
+                            </ul>
+                            
+                            <h4 data-lang="qr-help-example">Príklad:</h4>
+                            <ul>
+                                <li><strong data-lang="qr-example-artikel">Artikel:</strong> 123-456-789</li>
+                                <li><strong data-lang="qr-example-popis">Popis:</strong> Popis produktu</li>
+                                <li><strong data-lang="qr-example-qr">QR kód:</strong> 123-456-789</li>
+                            </ul>
+                            
+                            <div class="help-note">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                                <span data-lang="qr-help-note">QR štítky používajú horizontálne rozloženie s QR kódom vľavo a textom vpravo.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tab: Tlač menovky -->
         <div class="tab-content" id="name-tag-tab">
             <div class="main-grid">
@@ -949,6 +1037,7 @@
                         <option value="compact" data-lang="template-compact">Kompaktný</option>
                         <option value="detailed" data-lang="template-detailed">Detailný</option>
                         <option value="remene" data-lang="template-remene">Remene</option>
+                        <option value="qr" data-lang="template-qr">QR štítok</option>
                     </select>
                 </div>
                 
