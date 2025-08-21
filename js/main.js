@@ -45,6 +45,7 @@ const translations = {
         'template-compact': 'Kompaktný',
         'template-detailed': 'Detailný',
         'template-remene': 'Remene',
+        'template-qr': 'QR štítok',
         'labels-title': 'Štítky na tlač',
         'labels-count-suffix': 'štítkov',
         'btn-preview': 'Náhľad tlače',
@@ -200,6 +201,29 @@ const translations = {
         'remene-example-qr': 'QR kód:',
         'remene-help-note': 'Remene štítky používajú QR kód namiesto čiarového kódu pre lepšiu čitateľnosť.',
         
+        // QR labels translations
+        'tab-qr': 'QR štítky',
+        'qr-title': 'QR štítky',
+        'qr-artikel-label': 'Artikel',
+        'qr-artikel-placeholder': '123-456-789',
+        'qr-popis-label': 'Popis',
+        'qr-popis-placeholder': 'Popis produktu',
+        'btn-add-qr-label': 'Pridať QR štítok',
+        'qr-preview-title': 'Náhľad QR štítka',
+        'qr-help-title': 'Nápoveda',
+        'qr-help-desc': 'Špecializovaný štítok s rozmermi 50mm x 25,4mm s QR kódom v ľavom hornom rohu a textom vedľa. Ideálny pre kompaktné označovanie s QR kódom.',
+        'qr-help-specs': 'Špecifikácie:',
+        'qr-spec-size': 'Rozmery:',
+        'qr-spec-orientation': 'Orientácia:',
+        'qr-spec-margins': 'Okraje:',
+        'qr-spec-qr-size': 'QR kód:',
+        'qr-spec-font': 'Font:',
+        'qr-help-example': 'Príklad:',
+        'qr-example-artikel': 'Artikel:',
+        'qr-example-popis': 'Popis:',
+        'qr-example-qr': 'QR kód:',
+        'qr-help-note': 'QR štítky používajú horizontálne rozloženie s QR kódom vľavo a textom vpravo.',
+        
         // Help modal translations
         'help-modal-title': 'Nápoveda - Systém tlačenia štítkov',
         'help-overview-title': '📋 Prehľad systému',
@@ -247,6 +271,7 @@ const translations = {
         'template-compact': 'Compact',
         'template-detailed': 'Detailed',
         'template-remene': 'Belt',
+        'template-qr': 'QR Label',
         'labels-title': 'Labels to Print',
         'labels-count-suffix': 'labels',
         'btn-preview': 'Print Preview',
@@ -290,6 +315,29 @@ const translations = {
         'remene-example-polica': 'Shelf:',
         'remene-example-qr': 'QR code:',
         'remene-help-note': 'Belt labels use QR code instead of barcode for better readability.',
+        
+        // QR labels translations
+        'tab-qr': 'QR Labels',
+        'qr-title': 'QR Labels',
+        'qr-artikel-label': 'Article',
+        'qr-artikel-placeholder': '123-456-789',
+        'qr-popis-label': 'Description',
+        'qr-popis-placeholder': 'Product description',
+        'btn-add-qr-label': 'Add QR Label',
+        'qr-preview-title': 'QR Label Preview',
+        'qr-help-title': 'Help',
+        'qr-help-desc': 'Specialized label with 50mm x 25.4mm dimensions with QR code in top-left corner and text beside it. Ideal for compact QR code labeling.',
+        'qr-help-specs': 'Specifications:',
+        'qr-spec-size': 'Dimensions:',
+        'qr-spec-orientation': 'Orientation:',
+        'qr-spec-margins': 'Margins:',
+        'qr-spec-qr-size': 'QR Code:',
+        'qr-spec-font': 'Font:',
+        'qr-help-example': 'Example:',
+        'qr-example-artikel': 'Article:',
+        'qr-example-popis': 'Description:',
+        'qr-example-qr': 'QR Code:',
+        'qr-help-note': 'QR labels use horizontal layout with QR code on the left and text on the right.',
     },
     de: {
         'title': 'Etikettendruck',
@@ -317,6 +365,7 @@ const translations = {
         'template-compact': 'Kompakt',
         'template-detailed': 'Detailliert',
         'template-remene': 'Riemen',
+        'template-qr': 'QR-Etikett',
         'labels-title': 'Etiketten zum Drucken',
         'labels-count-suffix': 'Etiketten',
         'btn-preview': 'Druckvorschau',
@@ -360,6 +409,29 @@ const translations = {
         'remene-example-polica': 'Regal:',
         'remene-example-qr': 'QR-Code:',
         'remene-help-note': 'Riemen-Etiketten verwenden QR-Code anstelle von Barcode für bessere Lesbarkeit.',
+        
+        // QR labels translations
+        'tab-qr': 'QR-Etiketten',
+        'qr-title': 'QR-Etiketten',
+        'qr-artikel-label': 'Artikel',
+        'qr-artikel-placeholder': '123-456-789',
+        'qr-popis-label': 'Beschreibung',
+        'qr-popis-placeholder': 'Produktbeschreibung',
+        'btn-add-qr-label': 'QR-Etikett hinzufügen',
+        'qr-preview-title': 'QR-Etikett Vorschau',
+        'qr-help-title': 'Hilfe',
+        'qr-help-desc': 'Spezialetikett mit 50mm x 25,4mm Abmessungen mit QR-Code in der oberen linken Ecke und Text daneben. Ideal für kompakte QR-Code-Kennzeichnung.',
+        'qr-help-specs': 'Spezifikationen:',
+        'qr-spec-size': 'Abmessungen:',
+        'qr-spec-orientation': 'Ausrichtung:',
+        'qr-spec-margins': 'Ränder:',
+        'qr-spec-qr-size': 'QR-Code:',
+        'qr-spec-font': 'Schriftart:',
+        'qr-help-example': 'Beispiel:',
+        'qr-example-artikel': 'Artikel:',
+        'qr-example-popis': 'Beschreibung:',
+        'qr-example-qr': 'QR-Code:',
+        'qr-help-note': 'QR-Etiketten verwenden horizontales Layout mit QR-Code links und Text rechts.',
     }
 };
 
@@ -433,6 +505,14 @@ function initializeElements() {
     elements.remenePreviewArtikel = document.getElementById('remenePreviewArtikel');
     elements.remenePreviewNazov = document.getElementById('remenePreviewNazov');
     elements.remenePreviewQRCode = document.getElementById('remenePreviewQRCode');
+    
+    // QR štítky
+    elements.qrArtikel = document.getElementById('qrArtikel');
+    elements.qrPopis = document.getElementById('qrPopis');
+    elements.addQrLabelBtn = document.getElementById('addQrLabelBtn');
+    elements.qrPreviewArtikel = document.getElementById('qrPreviewArtikel');
+    elements.qrPreviewPopis = document.getElementById('qrPreviewPopis');
+    elements.qrPreviewQRCode = document.getElementById('qrPreviewQRCode');
     
     // Hromadné operácie
     elements.printSetsSection = document.getElementById('printSetsSection');
@@ -648,6 +728,19 @@ function setupEventListeners() {
     }
     if (elements.addRemeneLabelBtn) {
         elements.addRemeneLabelBtn.addEventListener('click', addRemeneLabel);
+    }
+
+    // --- QR štítky tab Event Listenery ---
+    if (elements.qrArtikel) {
+        elements.qrArtikel.addEventListener('input', updateQrButtons);
+        elements.qrArtikel.addEventListener('input', updateQrPreviewTab);
+    }
+    if (elements.qrPopis) {
+        elements.qrPopis.addEventListener('input', updateQrButtons);
+        elements.qrPopis.addEventListener('input', updateQrPreviewTab);
+    }
+    if (elements.addQrLabelBtn) {
+        elements.addQrLabelBtn.addEventListener('click', addQrLabel);
     }
 
     // --- Databáza (Database) tab Event Listenery ---
@@ -1374,6 +1467,79 @@ function updateRemeneButtons() {
     const isValid = artikel && nazov && polica;
     if (elements.addRemeneLabelBtn) {
         elements.addRemeneLabelBtn.disabled = !isValid;
+    }
+}
+
+/**
+ * Pridá QR štítok do zoznamu na tlač.
+ */
+function addQrLabel() {
+    const artikel = elements.qrArtikel.value.trim();
+    const popis = elements.qrPopis.value.trim();
+    
+    if (!artikel || !popis) {
+        showToast('Vyplňte všetky polia pre QR štítok!', 'error');
+        return;
+    }
+    
+    addLabelToPrintList({
+        artikel: artikel,
+        nazov: popis, // Use popis as nazov for compatibility
+        polica: '', // QR labels don't have polica
+        quantity: 1,
+        type: 'qr' // Mark as QR type
+    }, elements.addQrLabelBtn);
+    
+    // Vymazať formulár
+    elements.qrArtikel.value = '';
+    elements.qrPopis.value = '';
+    elements.addQrLabelBtn.disabled = true;
+    
+    // Resetovať náhľad
+    updateQrPreviewTab();
+    
+    showToast('QR štítok bol pridaný na tlač!', 'success');
+}
+
+/**
+ * Aktualizuje náhľad QR štítka v tab-e.
+ */
+function updateQrPreviewTab() {
+    // Get elements directly from DOM to avoid dependency on elements object
+    const qrArtikel = document.getElementById('qrArtikel');
+    const qrPopis = document.getElementById('qrPopis');
+    const qrPreviewArtikel = document.getElementById('qrPreviewArtikel');
+    const qrPreviewPopis = document.getElementById('qrPreviewPopis');
+    const qrPreviewQRCode = document.getElementById('qrPreviewQRCode');
+    
+    const artikel = qrArtikel ? qrArtikel.value.trim() : '123-456-789';
+    const popis = qrPopis ? qrPopis.value.trim() : 'Popis produktu';
+    
+    // Aktualizuje text vo náhľade
+    if (qrPreviewArtikel) {
+        qrPreviewArtikel.textContent = formatArtikel(artikel);
+    }
+    if (qrPreviewPopis) {
+        qrPreviewPopis.textContent = popis;
+    }
+    
+    // Generuje QR kód
+    if (qrPreviewQRCode) {
+        // QRious will be used automatically by generateQRCode function
+        generateQRCode(qrPreviewQRCode, formatArtikelForBarcode(artikel));
+    }
+}
+
+/**
+ * Aktualizuje tlačidlá QR formulára.
+ */
+function updateQrButtons() {
+    const artikel = elements.qrArtikel ? elements.qrArtikel.value.trim() : '';
+    const popis = elements.qrPopis ? elements.qrPopis.value.trim() : '';
+
+    const isValid = artikel && popis;
+    if (elements.addQrLabelBtn) {
+        elements.addQrLabelBtn.disabled = !isValid;
     }
 }
 
