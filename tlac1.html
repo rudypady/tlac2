@@ -458,7 +458,13 @@
                         
                         <div class="form-group">
                             <label class="form-label" for="shelfFach" data-lang="shelf-fach-label">Fach</label>
-                            <input type="text" id="shelfFach" class="form-input" placeholder="0501" data-lang-placeholder="shelf-fach-placeholder">
+                            <select id="shelfFach" class="form-input">
+                                <option value="">Vyberte fach...</option>
+                                <option value="050">050</option>
+                                <option value="051">051</option>
+                                <option value="052">052</option>
+                                <option value="053">053</option>
+                            </select>
                         </div>
                         
                         <div class="form-group">
@@ -487,13 +493,13 @@
                                     <svg id="shelfPreviewBarcode"></svg>
                                 </div>
                                 <!-- Druhý riadok: Fach -->
-                                <div class="preview-fach" id="shelfPreviewFach">0501</div>
+                                <div class="preview-fach" id="shelfPreviewFach">051</div>
                                 <!-- Tretí riadok: Popis police -->
                                 <div class="preview-shelf-desc" id="shelfPreviewShelfDesc">Polica štítok</div>
                                 <!-- Štvrtý riadok: Horizontálna čiara -->
                                 <div class="preview-line"></div>
                                 <!-- Piaty riadok: Umiestnenie police -->
-                                <div class="preview-shelf-location" id="shelfPreviewShelfLocation">0501	00-00-00</div>
+                                <div class="preview-shelf-location" id="shelfPreviewShelfLocation">051	00-00-00</div>
                             </div>
                         </div>
                     </div>
@@ -509,9 +515,9 @@
                             
                             <h4 data-lang="shelf-help-example">Príklad:</h4>
                             <ul>
-                                <li><strong data-lang="shelf-example-fach">Fach:</strong> 0501</li>
+                                <li><strong data-lang="shelf-example-fach">Fach:</strong> 050, 051, 052 alebo 053</li>
                                 <li><strong data-lang="shelf-example-polica">Polica:</strong> 00-00-00</li>
-                                <li><strong data-lang="shelf-example-barcode">Čiarový kód:</strong> 0501[TAB]00-00-00</li>
+                                <li><strong data-lang="shelf-example-barcode">Čiarový kód:</strong> 051[TAB]00-00-00</li>
                             </ul>
                             
                             <div class="help-note">

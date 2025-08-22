@@ -310,15 +310,6 @@ function initializeElements() {
     // Štatistiky
     elements.totalCount = document.getElementById('totalCount');
     
-    // Shelf print elements
-    elements.shelfFach = document.getElementById('shelfFach');
-    elements.shelfPolica = document.getElementById('shelfPolica');
-    elements.addShelfLabelBtn = document.getElementById('addShelfLabelBtn');
-    elements.shelfPreviewBarcode = document.getElementById('shelfPreviewBarcode');
-    elements.shelfPreviewArtikel = document.getElementById('shelfPreviewArtikel');
-    elements.shelfPreviewNazov = document.getElementById('shelfPreviewNazov');
-    elements.shelfPreviewPolica = document.getElementById('shelfPreviewPolica');
-    
     // Name tag elements (updated)
     elements.nameTagFach = document.getElementById('nameTagFach');
     elements.nameTagPolica = document.getElementById('nameTagPolica');
@@ -888,15 +879,15 @@ function updateShelfLabelState() {
  * @param {string} polica - Polica hodnota
  */
 function updateShelfLabelPreview(fach, polica) {
-    if (!elements.shelfPreviewBarcode || !elements.shelfPreviewArtikel || 
-        !elements.shelfPreviewNazov || !elements.shelfPreviewPolica) return;
+    if (!elements.shelfPreviewBarcode || !elements.shelfPreviewFach || 
+        !elements.shelfPreviewShelfDesc || !elements.shelfPreviewShelfLocation) return;
         
-    const artikel = fach || '0501';
-    const barcodeValue = `${fach || '0501'}\t${polica || '00-00-00'}`;
+    const artikel = fach || '051';
+    const barcodeValue = `${fach || '051'}\t${polica || '00-00-00'}`;
     
-    elements.shelfPreviewArtikel.textContent = artikel;
-    elements.shelfPreviewNazov.textContent = 'Polica štítok';
-    elements.shelfPreviewPolica.textContent = barcodeValue;
+    elements.shelfPreviewFach.textContent = artikel;
+    elements.shelfPreviewShelfDesc.textContent = 'Polica štítok';
+    elements.shelfPreviewShelfLocation.textContent = barcodeValue;
     
     // Generovať čiarový kód
     try {
@@ -929,7 +920,10 @@ function addShelfLabel() {
     const barcodeValue = `${fach}\t${polica}`;
     
     addLabelToPrintList({
-        artikel: fach,
+        type: 'shelf',
+        fach: fach,
+        policaLocation: polica,
+        artikel: fach, // Použiť fach ako artikel pre kompatibilitu
         nazov: 'Polica štítok',
         polica: barcodeValue,
         quantity: 1
@@ -947,7 +941,7 @@ function addShelfLabel() {
 }
 
 /**
- * Tlač štítkov políc - generuje štítky vo formáte "polica00-00-00"
+ * Tlač štítkov políc - generuje štítky vo formáte "fach\tpolica"
  */
 function printShelfLabels() {
     // Získať unikátne police z databázy
@@ -964,33 +958,36 @@ function printShelfLabels() {
         labels.length = 0; // Vymazať existujúce štítky
     }
     
+    // Validné hodnoty fachov
+    const validFachs = ['050', '051', '052', '053'];
+    
     // Generovať štítky pre každú policu
     uniqueShelves.forEach(shelf => {
         // Formátovať policu do požadovaného formátu
-        let formattedShelf = shelf.trim();
+        let policaLocation = shelf.trim();
         
-        // Ak polica už nie je vo formáte "polica00-00-00", pokúsiť sa ju sformátovať
-        if (!formattedShelf.match(/^\d{3}\t\d{2}-\d{2}-\d{2}$/)) {
-            // Extrahovania čísel z polica (napr. "A1-B2-C3" -> "051")
-            const matches = shelf.match(/\d+/g);
-            if (matches && matches.length >= 1) {
-                const num = matches[0].padStart(3, '0');
-                formattedShelf = `${num}\t00-00-00`;
-            } else {
-                // Ak nie sú žiadne čísla, použiť predvolenú hodnotu
-                formattedShelf = `051\t00-00-00`;
+        // Určiť fach na základe police alebo použiť predvolený
+        let fach = '051'; // predvolený fach
+        
+        // Pokúsiť sa extrahovať fach z názvu police
+        const matches = shelf.match(/\d+/g);
+        if (matches && matches.length >= 1) {
+            const num = matches[0].padStart(3, '0');
+            // Overiť, či je extrahovený číselný fach platný
+            if (validFachs.includes(num)) {
+                fach = num;
             }
         }
         
-        // Vytvoriť unikátny artikel pre policu
-        const artikel = `POLICA${Date.now()}${Math.random().toString(36).substr(2, 5)}`.toUpperCase();
-        
-        // Pridať štítok polica do zoznamu na tlač
+        // Pridať štítok polica do zoznamu na tlač s type='shelf'
         labels.push({
             id: uuidv4(),
-            artikel: artikel,
-            nazov: `Polica ${shelf}`,
-            polica: formattedShelf,
+            type: 'shelf',
+            fach: fach,
+            policaLocation: policaLocation,
+            artikel: fach, // Použiť fach ako artikel pre kompatibilitu
+            nazov: 'Polica štítok',
+            polica: `${fach}\t${policaLocation}`, // Formát pre zobrazenie
             quantity: 1
         });
     });
@@ -1060,7 +1057,7 @@ function updateNameTagPreview() {
  * Aktualizuje náhľad štítka police na základe vstupov.
  */
 function updateShelfPreview() {
-    const fach = elements.shelfFach ? elements.shelfFach.value || '0501' : '0501';
+    const fach = elements.shelfFach ? elements.shelfFach.value || '051' : '051';
     const polica = elements.shelfPolica ? elements.shelfPolica.value || '00-00-00' : '00-00-00';
 
     if (elements.shelfPreviewFach) {
