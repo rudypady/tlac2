@@ -208,7 +208,7 @@ function updatePrintButtons() {
  * Aktualizuje náhľad štítka na základe vstupov alebo vybraného štítka.
  */
 function updatePreview() {
-    const artikel = elements.quickArtikel.value || '123456789';
+    const artikel = elements.quickArtikel.value || '1234567890000';
     const nazov = elements.quickNazov.value || translations[currentLanguage]['preview-nazov-placeholder'] || 'Ukážkový produkt s dlhším názvom';
     const polica = elements.quickPolica.value || 'A1-B2-C3';
 
