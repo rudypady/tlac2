@@ -47,13 +47,13 @@ function generateZPL(label) {
  * @returns {string} Combined ZPL string for all labels
  */
 function buildLabelsZPL() {
-    if (!window.labels || window.labels.length === 0) {
+    if (!labels || labels.length === 0) {
         throw new Error('No labels to print');
     }
     
     let combinedZPL = '';
     
-    window.labels.forEach(label => {
+    labels.forEach(label => {
         // Generate ZPL for each quantity
         for (let i = 0; i < label.quantity; i++) {
             combinedZPL += generateZPL(label);
@@ -69,7 +69,7 @@ function buildLabelsZPL() {
  * @returns {Promise} Response from print service
  */
 async function sendZPLToPrinter(zpl) {
-    const apiUrl = '/api/print'; // Assume proxy runs on same domain
+    const apiUrl = '/api/print'; // Relative URL for production deployment
     
     const headers = {
         'Content-Type': 'application/json'
@@ -100,7 +100,7 @@ async function sendZPLToPrinter(zpl) {
 async function startSilentPrint() {
     try {
         // Check if there are labels to print
-        if (!window.labels || window.labels.length === 0) {
+        if (!labels || labels.length === 0) {
             showToast(translations[currentLanguage]['toast-warning-no-labels'] || 'No labels to print', 'warning');
             return;
         }
