@@ -210,6 +210,11 @@ function updatePrintButtons() {
         elements.previewBtn.classList.add('hidden');
         elements.printBtn.classList.add('hidden');
     }
+    
+    // Update direct print buttons if direct print module is available
+    if (typeof updateDirectPrintButtons === 'function') {
+        updateDirectPrintButtons();
+    }
 }
 
 /**

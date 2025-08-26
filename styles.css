@@ -2023,4 +2023,146 @@ body {
 [data-theme="dark"] .help-section:hover {
     background: #4a5568;
 }
+
+/* Direct Print Styles */
+.printer-settings-section {
+    border-top: 2px solid var(--border-color);
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.printer-management {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.printers-list {
+    margin-top: 20px;
+}
+
+.printers-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 10px;
+    background: var(--bg-secondary);
+}
+
+.printer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 10px;
+    background: var(--bg-primary);
+    transition: var(--transition);
+}
+
+.printer-item:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-1px);
+}
+
+.printer-info {
+    flex: 1;
+}
+
+.printer-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.printer-details {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.default-badge {
+    background: var(--success-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.printer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.direct-print-section {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+}
+
+.printer-selection {
+    margin-bottom: 10px;
+}
+
+.printer-selection .form-label {
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 500;
+}
+
+.form-help {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* ZPL Preview Modal */
+.zpl-content {
+    padding: 20px 0;
+}
+
+.zpl-content textarea {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    resize: vertical;
+    min-height: 400px;
+}
+
+[data-theme="dark"] .zpl-content textarea {
+    background: #1a202c;
+    color: #e2e8f0;
+}
+
+/* Responsive adjustments for printer settings */
+@media (max-width: 768px) {
+    .printer-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .printer-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .printer-management .form-row {
+        flex-direction: column;
+    }
+    
+    .printer-management .form-group {
+        flex: none !important;
+        width: 100%;
+    }
+}
 }
