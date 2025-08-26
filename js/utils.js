@@ -57,7 +57,7 @@ function formatArtikelForBarcode(artikel) {
 }
 
 /**
- * Validuje osobné číslo na základe formátu 123456789-0000.
+ * Validuje osobné číslo (6-15 číslic, bez pomlčiek).
  * @param {string} personalNumber - Osobné číslo na validáciu.
  * @returns {boolean} True ak je osobné číslo platné, inak false.
  */
@@ -66,12 +66,16 @@ function validatePersonalNumber(personalNumber) {
         return false;
     }
     
-    const cleaned = personalNumber.trim();
+    // Odstráni všetky medzery a pomlčky
+    const cleanNumber = personalNumber.replace(/[-\s]/g, '');
     
-    // Požadovaný formát: 9 číslic + pomlčka + 4 nuly
-    const personalNumberFormat = /^\d{9}-0000$/;
+    // Kontrola, či obsahuje len čísla
+    if (!/^\d+$/.test(cleanNumber)) {
+        return false;
+    }
     
-    return personalNumberFormat.test(cleaned);
+    // Kontrola dĺžky: aspoň 6 číslic, maximálne 15
+    return cleanNumber.length >= 6 && cleanNumber.length <= 15;
 }
 
 /**
@@ -217,12 +221,15 @@ function filterDatabase() {
     });
 
     // Aplikovanie aktívneho filtra
-    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-    if (activeFilter === 'location') {
-        // Filter len na základe polica
-        filteredResults = filteredResults.filter(item => 
-            item.polica.toLowerCase().includes(searchTerm)
-        );
+    const activeFilterElement = document.querySelector('.filter-btn.active');
+    if (activeFilterElement) {
+        const activeFilter = activeFilterElement.dataset.filter;
+        if (activeFilter === 'location') {
+            // Filter len na základe polica
+            filteredResults = filteredResults.filter(item => 
+                item.polica.toLowerCase().includes(searchTerm)
+            );
+        }
     }
 
     renderSearchResults(filteredResults);

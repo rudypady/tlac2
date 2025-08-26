@@ -276,10 +276,20 @@ function initializeSettingsModule() {
     // Listener pre zmeny systémovej témy (pri nastavení "auto")
     if (window.matchMedia) {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        mediaQuery.addListener((e) => {
-            if (currentTheme === 'auto') {
-                applyTheme('auto');
-            }
-        });
+        // Use addEventListener with fallback for older browsers
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', (e) => {
+                if (currentTheme === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+        } else {
+            // Fallback for older browsers
+            mediaQuery.addListener((e) => {
+                if (currentTheme === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+        }
     }
 }
