@@ -354,6 +354,24 @@
                                 <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> <span data-lang="btn-print">Tlačiť</span>
                             </button>
                         </div>
+                        
+                        <!-- Direct Print Section -->
+                        <div id="directPrintSection" class="direct-print-section hidden" style="margin-bottom: 15px;">
+                            <div class="printer-selection">
+                                <label class="form-label" data-lang="select-printer">Vybrať tlačiareň:</label>
+                                <select id="activePrinterSelect" class="category-select">
+                                    <option value="" data-lang="no-printer-selected">Žiadna tlačiareň</option>
+                                </select>
+                            </div>
+                            <div class="form-row" style="margin-top: 10px;">
+                                <button id="directPrintBtn" class="btn btn-primary hidden" disabled>
+                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> <span data-lang="btn-direct-print">Priama tlač</span>
+                                </button>
+                                <button id="generateZplBtn" class="btn btn-secondary hidden">
+                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14,2 14,8 20,8"></polyline></svg> <span data-lang="btn-generate-zpl">Vygenerovať ZPL</span>
+                                </button>
+                            </div>
+                        </div>
 
                         <div id="emptyState" class="empty-state">
                             <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -1045,6 +1063,76 @@
                     </select>
                 </div>
                 
+                <!-- Printer Settings Section -->
+                <div class="form-group">
+                    <label class="form-label" data-lang="setting-print-mode">Režim tlače</label>
+                    <select id="printModeSelect" class="category-select">
+                        <option value="browser" data-lang="print-mode-browser">Prehliadač (štandardný)</option>
+                        <option value="direct" data-lang="print-mode-direct">Priama tlač na tlačiareň</option>
+                    </select>
+                    <small class="form-help" data-lang="print-mode-help">Priama tlač umožňuje tiché tlačenie bez dialógových okien prehliadača.</small>
+                </div>
+                
+                <div id="printerSettingsSection" class="printer-settings-section" style="display: none;">
+                    <h3><svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> <span data-lang="printer-settings-title">Nastavenia tlačiarní</span></h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label" data-lang="default-printer">Predvolená tlačiareň</label>
+                        <select id="defaultPrinterSelect" class="category-select">
+                            <option value="" data-lang="no-printer-selected">Žiadna tlačiareň</option>
+                        </select>
+                    </div>
+                    
+                    <div class="printer-management">
+                        <h4 data-lang="printer-management-title">Správa tlačiarní</h4>
+                        
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" data-lang="printer-name">Názov tlačiarne</label>
+                                <input type="text" id="printerName" class="form-input" placeholder="Zebra ZT410" data-lang-placeholder="printer-name-placeholder">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" data-lang="printer-ip">IP adresa</label>
+                                <input type="text" id="printerIP" class="form-input" placeholder="192.168.1.100" data-lang-placeholder="printer-ip-placeholder">
+                            </div>
+                            <div class="form-group" style="flex: 0 0 120px;">
+                                <label class="form-label" data-lang="printer-port">Port</label>
+                                <input type="number" id="printerPort" class="form-input" placeholder="9100" value="9100">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" data-lang="printer-format">Formát tlače</label>
+                                <select id="printerFormat" class="category-select">
+                                    <option value="zpl" data-lang="format-zpl">ZPL (Zebra)</option>
+                                    <option value="epl" data-lang="format-epl">EPL (Eltron)</option>
+                                    <option value="raw" data-lang="format-raw">Raw Commands</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <button id="addPrinterBtn" class="btn btn-primary">
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-add-printer">Pridať tlačiareň</span>
+                            </button>
+                            <button id="testPrinterBtn" class="btn btn-secondary" disabled>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="9,12 12,15 16,9"></polyline></svg> <span data-lang="btn-test-printer">Testovať pripojenie</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="printersList" class="printers-list" style="margin-top: 20px;">
+                        <h4 data-lang="configured-printers">Nakonfigurované tlačiarne</h4>
+                        <div id="printersListContainer" class="printers-container">
+                            <div class="no-results" data-lang="no-printers">Žiadne nakonfigurované tlačiarne</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <button id="saveSettingsBtn" class="btn btn-success">
                     <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17,21 17,13 7,13 7,21"></polyline><polyline points="7,3 7,8 15,8"></polyline></svg> <span data-lang="btn-save-settings">Uložiť nastavenia</span>
                 </button>
@@ -1133,6 +1221,7 @@
     <script src="js/database.js"></script>
     <script src="js/labels.js"></script>
     <script src="js/print.js"></script>
+    <script src="js/direct-print.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/main.js"></script>
     
