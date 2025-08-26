@@ -10,7 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- JsBarcode library for CODE128 barcode generation -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://unpkg.com/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <!-- jsPDF library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- svg2pdf.js library for SVG to PDF conversion -->
@@ -316,6 +315,9 @@
                             </button>
                             <button id="printBtn" class="btn btn-success hidden">
                                 <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> <span data-lang="btn-print">Tlačiť</span>
+                            </button>
+                            <button id="silentPrintBtn" class="btn btn-primary hidden">
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 6,2 18,2 18,9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect><path d="M8 18h8"></path></svg> <span data-lang="btn-silent-print">Tlačiť priamo (ZPL)</span>
                             </button>
                         </div>
 
@@ -828,6 +830,7 @@
     <script src="js/labels.js"></script>
     <script src="js/print.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/direct-print.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

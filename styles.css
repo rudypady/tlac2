@@ -1475,51 +1475,11 @@ body {
 }
 
 /* Štýly pre tlač */
-@media print {
-  body, html {
+@page {
     margin: 0;
-    padding: 0px;
-  }
-  .print-label {
-    width: 2in !important;
-    height: 1in !important;
-    margin: 0 !important;
-    padding: 10px !important;
-    border: 1px solid #000 !important;
-    box-sizing: border-box;
-    page-break-inside: avoid;
-    page-break-after: always;
-  }
-
-
-
-@media print {
-  body, html {
-    width: 100vw;
-    height: 100vh;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: white !important;
-  }
-  #printArea {
-    width: 100vw !important;
-    height: 100vh !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: white !important;
-  }
-  .print-label {
-    transform: scale(1.5);
-    transform-origin: center center;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-  }
 }
 
-
+@media print {
     /* Zabezpečí presné farby pri tlači */
     * {
         -webkit-print-color-adjust: exact !important;
@@ -1527,13 +1487,58 @@ body {
         print-color-adjust: exact !important;
     }
     
-    body {
-        margin: 0;
-        padding: 0;
-        background: white !important; /* Biely podklad pre tlač */
+    body, html {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
     }
     
     /* Skryje všetko okrem oblasti tlače */
+    body * {
+        visibility: hidden;
+    }
+    
+    #printArea,
+    #printArea * {
+        visibility: visible;
+    }
+    
+    #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    
+    .print-label {
+        width: 2in !important;
+        height: 1in !important;
+        margin: 0 !important;
+        padding: 4px !important;
+        border: 1px solid #000 !important;
+        box-sizing: border-box;
+        page-break-inside: avoid;
+        font-family: Arial, sans-serif !important;
+        background: white !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .print-label:last-child {
+        page-break-after: auto;
+    }
+}
+
+/* Skrytá oblasť pre tlač */
     body * {
         visibility: hidden;
     }

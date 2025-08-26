@@ -45,6 +45,7 @@ const translations = {
         'labels-count-suffix': 'štítkov',
         'btn-preview': 'Náhľad tlače',
         'btn-print': 'Tlačiť',
+        'btn-silent-print': 'Tlačiť priamo (ZPL)',
         'btn-export-pdf': 'Exportovať PDF',
         'empty-title': 'Zatiaľ žiadne štítky na tlač',
         'empty-desc': 'Vyhľadajte produkt alebo pridajte rýchly štítok',
@@ -198,6 +199,7 @@ const translations = {
         'labels-count-suffix': 'labels',
         'btn-preview': 'Print Preview',
         'btn-print': 'Print',
+        'btn-silent-print': 'Direct Print (ZPL)',
         'empty-title': 'No labels to print yet',
         'empty-desc': 'Search for a product or add a quick label',
         'stats-title': 'Statistics',
@@ -230,6 +232,7 @@ const translations = {
         'labels-count-suffix': 'Etiketten',
         'btn-preview': 'Druckvorschau',
         'btn-print': 'Drucken',
+        'btn-silent-print': 'Direkt drucken (ZPL)',
         'empty-title': 'Noch keine Etiketten zum Drucken',
         'empty-desc': 'Suchen Sie nach einem Produkt oder fügen Sie ein Schnell-Etikett hinzu',
         'stats-title': 'Statistiken',
@@ -268,6 +271,7 @@ function initializeElements() {
     elements.emptyState = document.getElementById('emptyState');
     elements.previewBtn = document.getElementById('previewBtn');
     elements.printBtn = document.getElementById('printBtn');
+    elements.silentPrintBtn = document.getElementById('silentPrintBtn');
     
     // Hromadná tlač
     elements.bulkArtikelInput = document.getElementById('bulkArtikelInput');
@@ -421,6 +425,9 @@ function setupEventListeners() {
     }
     if (elements.printBtn) {
         elements.printBtn.addEventListener('click', printLabels);
+    }
+    if (elements.silentPrintBtn) {
+        elements.silentPrintBtn.addEventListener('click', startSilentPrint);
     }
 
     // Tlačové sady
@@ -929,10 +936,13 @@ function addShelfLabel() {
     const barcodeValue = `${fach}\t${polica}`;
     
     addLabelToPrintList({
-        artikel: fach,
+        artikel: fach, // Keep for compatibility
         nazov: 'Polica štítok',
         polica: barcodeValue,
-        quantity: 1
+        quantity: 1,
+        type: 'shelf', // Mark as shelf type
+        fach: fach, // Add fach field for ZPL generation
+        policaLocation: polica // Add policaLocation field for ZPL generation
     }, elements.addShelfLabelBtn);
     
     // Vymazať formulár
@@ -985,13 +995,19 @@ function printShelfLabels() {
         // Vytvoriť unikátny artikel pre policu
         const artikel = `POLICA${Date.now()}${Math.random().toString(36).substr(2, 5)}`.toUpperCase();
         
+        // Extract fach and location from formatted shelf
+        const [fach, location] = formattedShelf.split('\t');
+        
         // Pridať štítok polica do zoznamu na tlač
         labels.push({
             id: uuidv4(),
             artikel: artikel,
             nazov: `Polica ${shelf}`,
             polica: formattedShelf,
-            quantity: 1
+            quantity: 1,
+            type: 'shelf', // Mark as shelf type
+            fach: fach || '051', // Add fach field for ZPL generation
+            policaLocation: location || '00-00-00' // Add policaLocation field for ZPL generation
         });
     });
     
@@ -1000,25 +1016,6 @@ function printShelfLabels() {
     showToast(`Pridané ${uniqueShelves.length} štítkov políc na tlač!`, 'success');
 }
 
-/**
- * Validuje osobné číslo pre menovky.
- * @param {string} personalNumber - Osobné číslo na validáciu.
- * @returns {boolean} True ak je osobné číslo platné, false ak nie.
- */
-function validatePersonalNumber(personalNumber) {
-    if (!personalNumber) return false;
-    
-    // Odstráni všetky medzery a pomlčky
-    const cleanNumber = personalNumber.replace(/[-\s]/g, '');
-    
-    // Kontrola, či obsahuje len čísla
-    if (!/^\d+$/.test(cleanNumber)) {
-        return false;
-    }
-    
-    // Kontrola dĺžky: aspoň 6 číslic, maximálne 15
-    return cleanNumber.length >= 6 && cleanNumber.length <= 15;
-}
 
 /**
  * Aktualizuje náhľad menovky na základe vstupov.

@@ -198,9 +198,15 @@ function updatePrintButtons() {
     if (labels.length > 0) {
         elements.previewBtn.classList.remove('hidden');
         elements.printBtn.classList.remove('hidden');
+        if (elements.silentPrintBtn) {
+            elements.silentPrintBtn.classList.remove('hidden');
+        }
     } else {
         elements.previewBtn.classList.add('hidden');
         elements.printBtn.classList.add('hidden');
+        if (elements.silentPrintBtn) {
+            elements.silentPrintBtn.classList.add('hidden');
+        }
     }
 }
 
