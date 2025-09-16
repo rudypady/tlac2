@@ -1,8 +1,8 @@
 /* CSS premenné pre témy (svetlá/tmavá) */
 :root {
-    /* Farby inšpirované Schäffler.com */
-    --primary-color: #00508C; /* Schäffler modrá */
-    --secondary-color: #0072CE; /* Svetlejšia Schäffler modrá */
+    /* Farby inšpirované Schaeffler.com */
+    --primary-color: #00508C; /* Schaeffler modrá */
+    --secondary-color: #0072CE; /* Svetlejšia Schaeffler modrá */
     --success-color: #10b981; /* Zelená pre úspech */
     --danger-color: #ef4444; /* Červená pre chybu */
     --warning-color: #f59e0b; /* Oranžová pre upozornenie */
@@ -524,7 +524,7 @@ body {
     outline: none;
     border-color: var(--primary-color);
     background: var(--bg-secondary);
-    box-shadow: 0 0 0 3px rgba(0, 80, 140, 0.1); /* Schäffler modrá s priehľadnosťou */
+    box-shadow: 0 0 0 3px rgba(0, 80, 140, 0.1); /* Schaeffler modrá s priehľadnosťou */
 }
 
 .search-icon {
@@ -1471,7 +1471,7 @@ body {
 
 .drop-zone.drag-over {
     border-color: var(--primary-color);
-    background: rgba(0, 80, 140, 0.1); /* Schäffler modrá s priehľadnosťou */
+    background: rgba(0, 80, 140, 0.1); /* Schaeffler modrá s priehľadnosťou */
 }
 
 /* Štýly pre tlač */
