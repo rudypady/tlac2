@@ -73,6 +73,100 @@ select:focus {
     top: 6px;
 }
 
+/* Responsive design improvements */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .main-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .header-controls {
+        justify-content: center;
+    }
+    
+    .tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .tab {
+        flex: 1;
+        min-width: 120px;
+        font-size: 0.875rem;
+        padding: 8px 12px;
+    }
+    
+    .preview-label {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .database-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .database-actions {
+        justify-content: flex-end;
+    }
+    
+    .label-item .label-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .label-controls {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.25rem;
+    }
+    
+    .btn {
+        padding: 10px 15px;
+        font-size: 0.875rem;
+    }
+    
+    .form-input {
+        font-size: 16px; /* Zabráni zoom na iOS */
+    }
+    
+    .preview-label {
+        transform: scale(0.8);
+        transform-origin: center;
+    }
+}
+
 /* Tmavá téma */
 [data-theme="dark"] {
     --bg-primary: #1a202c; /* Tmavé pozadie */
