@@ -106,27 +106,74 @@ function renderLabelsToPrint() {
             const div = document.createElement('div');
             div.className = 'label-item';
             div.dataset.id = label.id; // Používame unikátne ID pre SortableJS
-            div.innerHTML = `
-                <div class="label-content">
-                    <div class="label-checkbox">
-                        <input type="checkbox" class="label-checkbox-input" data-label-id="${label.id}">
-                    </div>
-                    <div class="label-info">
-                        <div class="label-artikel">${formatArtikel(label.artikel)}</div>
-                        <div class="label-nazov">${label.nazov}</div>
-                        <div class="label-poznamka">
-                            <span class="database-polica">${label.polica}</span>
-                        </div>
-                    </div>
-                    <div class="label-controls">
-                        <span class="quantity-label" data-lang="quantity-label">Množstvo:</span>
-                        <input type="number" class="quantity-input" value="${label.quantity}" min="1" data-id="${label.id}">
-                        <button class="btn btn-danger btn-small remove-label-btn" data-id="${label.id}">
-                            ✖️
-                        </button>
-                    </div>
-                </div>
-            `;
+            
+            // Bezpečné vytvorenie DOM elementov namiesto innerHTML
+            const labelContent = document.createElement('div');
+            labelContent.className = 'label-content';
+            
+            // Checkbox sekcia
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.className = 'label-checkbox';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'label-checkbox-input';
+            checkbox.dataset.labelId = label.id;
+            checkboxDiv.appendChild(checkbox);
+            
+            // Info sekcia
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'label-info';
+            
+            const artikelDiv = document.createElement('div');
+            artikelDiv.className = 'label-artikel';
+            artikelDiv.textContent = formatArtikel(label.artikel);
+            
+            const nazovDiv = document.createElement('div');
+            nazovDiv.className = 'label-nazov';
+            nazovDiv.textContent = sanitizeHtml(label.nazov);
+            
+            const poznamkaDiv = document.createElement('div');
+            poznamkaDiv.className = 'label-poznamka';
+            const policaSpan = document.createElement('span');
+            policaSpan.className = 'database-polica';
+            policaSpan.textContent = sanitizeHtml(label.polica);
+            poznamkaDiv.appendChild(policaSpan);
+            
+            infoDiv.appendChild(artikelDiv);
+            infoDiv.appendChild(nazovDiv);
+            infoDiv.appendChild(poznamkaDiv);
+            
+            // Controls sekcia
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'label-controls';
+            
+            const quantityLabel = document.createElement('span');
+            quantityLabel.className = 'quantity-label';
+            quantityLabel.setAttribute('data-lang', 'quantity-label');
+            quantityLabel.textContent = 'Množstvo:';
+            
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.className = 'quantity-input';
+            quantityInput.value = label.quantity;
+            quantityInput.min = '1';
+            quantityInput.dataset.id = label.id;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'btn btn-danger btn-small remove-label-btn';
+            removeBtn.dataset.id = label.id;
+            removeBtn.textContent = '✖️';
+            
+            controlsDiv.appendChild(quantityLabel);
+            controlsDiv.appendChild(quantityInput);
+            controlsDiv.appendChild(removeBtn);
+            
+            // Zostavenie celého elementu
+            labelContent.appendChild(checkboxDiv);
+            labelContent.appendChild(infoDiv);
+            labelContent.appendChild(controlsDiv);
+            div.appendChild(labelContent);
+            
             elements.labelsList.appendChild(div);
         });
 
@@ -208,9 +255,9 @@ function updatePrintButtons() {
  * Aktualizuje náhľad štítka na základe vstupov alebo vybraného štítka.
  */
 function updatePreview() {
-    const artikel = elements.quickArtikel.value || '123456789';
-    const nazov = elements.quickNazov.value || translations[currentLanguage]['preview-nazov-placeholder'] || 'Ukážkový produkt s dlhším názvom';
-    const polica = elements.quickPolica.value || 'A1-B2-C3';
+    const artikel = sanitizeHtml(elements.quickArtikel.value || '123456789');
+    const nazov = sanitizeHtml(elements.quickNazov.value || translations[currentLanguage]['preview-nazov-placeholder'] || 'Ukážkový produkt s dlhším názvom');
+    const polica = sanitizeHtml(elements.quickPolica.value || 'A1-B2-C3');
 
     // Formátovanie artiklu s pomlčkami pre zobrazenie
     const formattedArtikel = formatArtikel(artikel);
@@ -264,21 +311,35 @@ function addQuickLabel() {
     const nazov = elements.quickNazov.value.trim();
     const polica = elements.quickPolica.value.trim();
 
-    if (!artikel || !nazov || !polica) {
-        showToast('Vyplňte všetky polia!', 'error');
+    // Validácia a sanitizácia vstupov
+    const artikelValidation = validateAndSanitizeArtikel(artikel);
+    const nazovValidation = validateAndSanitizeName(nazov);
+    const policaValidation = validateAndSanitizeShelf(polica);
+
+    // Kontrola všetkých validácií
+    if (!artikelValidation.isValid) {
+        showToast(artikelValidation.error, 'error');
+        elements.quickArtikel.focus();
         return;
     }
 
-    // Validácia artiklu
-    if (!validateArtikel(artikel)) {
-        showToast(translations[currentLanguage]['toast-error-invalid-artikel'], 'error');
+    if (!nazovValidation.isValid) {
+        showToast(nazovValidation.error, 'error');
+        elements.quickNazov.focus();
         return;
     }
 
+    if (!policaValidation.isValid) {
+        showToast(policaValidation.error, 'error');
+        elements.quickPolica.focus();
+        return;
+    }
+
+    // Použitie sanitizovaných hodnôt
     addLabelToPrintList({
-        artikel: artikel,
-        nazov: nazov,
-        polica: polica,
+        artikel: artikelValidation.sanitized,
+        nazov: nazovValidation.sanitized,
+        polica: policaValidation.sanitized,
         quantity: 1
     }, elements.addQuickBtn);
 

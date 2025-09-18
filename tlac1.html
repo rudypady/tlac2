@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Security: Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self';">
     <title>Schäffler sklad ND - Systém tlačenia štítkov PRO</title>
     
     <!-- Knižnice -->
@@ -136,6 +138,8 @@
     <link rel="stylesheet" href="css/label-nametag-shelf.css">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Preskočiť na hlavný obsah</a>
+    <a href="#search" class="skip-link">Preskočiť na vyhľadávanie</a>
     <div class="container">
         <div class="header">
             <div class="header-left">
@@ -164,30 +168,31 @@
         </div>
 
         <!-- Hlavné taby -->
-        <div class="tabs">
-            <button class="tab active" data-tab="labels" data-lang="tab-labels">Štítky</button>
-            <button class="tab" data-tab="bulk-print" data-lang="tab-bulk-print">Hromadná tlač</button>
-            <button class="tab" data-tab="shelf-print" data-lang="tab-shelf-print">Tlač police</button>
-            <button class="tab" data-tab="name-tag" data-lang="tab-name-tag">Tlač menovky</button>
-            <button class="tab" data-tab="history" data-lang="tab-history">História tlače</button>
-            <button class="tab" data-tab="settings" data-lang="tab-settings">Nastavenia</button>
-        </div>
+        <nav class="tabs" role="tablist" aria-label="Hlavná navigácia">
+            <button class="tab active" data-tab="labels" data-lang="tab-labels" role="tab" aria-selected="true" aria-controls="labels-tab" id="labels-tab-button">Štítky</button>
+            <button class="tab" data-tab="bulk-print" data-lang="tab-bulk-print" role="tab" aria-selected="false" aria-controls="bulk-print-tab" id="bulk-print-tab-button">Hromadná tlač</button>
+            <button class="tab" data-tab="shelf-print" data-lang="tab-shelf-print" role="tab" aria-selected="false" aria-controls="shelf-print-tab" id="shelf-print-tab-button">Tlač police</button>
+            <button class="tab" data-tab="name-tag" data-lang="tab-name-tag" role="tab" aria-selected="false" aria-controls="name-tag-tab" id="name-tag-tab-button">Tlač menovky</button>
+            <button class="tab" data-tab="history" data-lang="tab-history" role="tab" aria-selected="false" aria-controls="history-tab" id="history-tab-button">História tlače</button>
+            <button class="tab" data-tab="settings" data-lang="tab-settings" role="tab" aria-selected="false" aria-controls="settings-tab" id="settings-tab-button">Nastavenia</button>
+        </nav>
 
         <!-- Tab: Štítky -->
-        <div class="tab-content active" id="labels-tab">
+        <main class="tab-content active" id="labels-tab" role="tabpanel" aria-labelledby="labels-tab-button">
             <div class="main-grid">
                 <!-- ĽAVÝ STĹPEC -->
-                <div>
+                <section>
                     <div class="card">
-                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg> <span data-lang="search-title">Vyhľadať v databáze</span></h2>
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg> <span data-lang="search-title">Vyhľadať v databáze</span></h2>
                         
-                        <div class="filter-controls">
-                            <button class="filter-btn active" data-filter="all" data-lang="filter-all">Všetko</button>
-                            <button class="filter-btn" data-filter="location" data-lang="filter-location">Umiestnenie</button>
+                        <div class="filter-controls" role="group" aria-label="Filtre vyhľadávania">
+                            <button class="filter-btn active" data-filter="all" data-lang="filter-all" aria-pressed="true">Všetko</button>
+                            <button class="filter-btn" data-filter="location" data-lang="filter-location" aria-pressed="false">Umiestnenie</button>
                         </div>
                         
                         <div class="search-box">
-                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <label for="searchInput" class="sr-only">Vyhľadávanie v databáze</label>
+                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="m21 21-4.35-4.35"></path>
                             </svg>
@@ -197,10 +202,12 @@
                                 class="search-input" 
                                 placeholder="Zadajte artikel, názov alebo policu..."
                                 data-lang-placeholder="search-placeholder"
+                                aria-describedby="search-help"
                             />
+                            <div id="search-help" class="sr-only">Môžete použiť pokročilé vyhľadávanie: polica:A1, nazov:"text", artikel:123</div>
                         </div>
                         
-                        <div id="searchResults" class="hidden">
+                        <div id="searchResults" class="hidden" role="region" aria-live="polite" aria-label="Výsledky vyhľadávania">
                             <div class="results-list" id="resultsList">
                                 <div class="no-results" data-lang="no-results">Začnite písať pre vyhľadávanie...</div>
                             </div>
@@ -208,28 +215,34 @@
                     </div>
 
                     <div class="card">
-                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span data-lang="quick-label">Rýchly štítok</span></h2>
-                        <div class="form-group">
-                            <label class="form-label" for="quickArtikel" data-lang="label-artikel">Artikel</label>
-                            <input type="text" id="quickArtikel" class="form-input" placeholder="Zadajte artikel">
-                        </div>
-                        <div class="form-row">
+                        <h2><svg class="section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span data-lang="quick-label">Rýchly štítok</span></h2>
+                        <form id="quick-label-form" novalidate>
                             <div class="form-group">
-                                <label class="form-label" for="quickNazov" data-lang="label-name">Názov</label>
-                                <input type="text" id="quickNazov" class="form-input" placeholder="Zadajte názov">
+                                <label class="form-label" for="quickArtikel" data-lang="label-artikel">Artikel</label>
+                                <input type="text" id="quickArtikel" class="form-input" placeholder="Zadajte artikel" aria-required="true" aria-describedby="artikel-error">
+                                <div id="artikel-error" class="error-message" aria-live="polite"></div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="quickPolica" data-lang="label-shelf">Polica</label>
-                                <input type="text" id="quickPolica" class="form-input" placeholder="00-00-00">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="quickNazov" data-lang="label-name">Názov</label>
+                                    <input type="text" id="quickNazov" class="form-input" placeholder="Zadajte názov" aria-required="true" aria-describedby="nazov-error">
+                                    <div id="nazov-error" class="error-message" aria-live="polite"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="quickPolica" data-lang="label-shelf">Polica</label>
+                                    <input type="text" id="quickPolica" class="form-input" placeholder="00-00-00" aria-required="true" aria-describedby="polica-error">
+                                    <div id="polica-error" class="error-message" aria-live="polite"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <button id="addQuickBtn" class="btn btn-primary" disabled>
-                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-add-print">Pridať na tlač</span>
-                            </button>
-                        </div>
+                            <div class="form-row">
+                                <button type="button" id="addQuickBtn" class="btn btn-primary" disabled aria-describedby="add-button-help">
+                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span data-lang="btn-add-print">Pridať na tlač</span>
+                                </button>
+                                <div id="add-button-help" class="sr-only">Vyplňte všetky polia pre aktiváciu tlačidla</div>
+                            </div>
+                        </form>
                     </div>
-                </div>
+                </section>
 
                 <!-- STREDNÝ STĹPEC -->
                 <div>
@@ -823,6 +836,7 @@
     <div id="toast" class="toast"></div>
 
     <!-- Modular JavaScript files -->
+    <script src="js/error-handling.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/database.js"></script>
     <script src="js/labels.js"></script>

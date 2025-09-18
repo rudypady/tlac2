@@ -79,11 +79,59 @@ async function loadDatabaseFromServer() {
 }
 
 /**
+ * Validuje nahrávaný súbor pred spracovaním.
+ * @param {File} file - Súbor na validáciu
+ * @returns {Object} {isValid: boolean, error?: string}
+ */
+function validateUploadedFile(file) {
+    // Kontrola existencie súboru
+    if (!file) {
+        return { isValid: false, error: 'Žiadny súbor nebol vybraný' };
+    }
+    
+    // Kontrola veľkosti súboru (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+        return { isValid: false, error: 'Súbor je príliš veľký (max 10MB)' };
+    }
+    
+    // Kontrola typu súboru
+    const allowedTypes = [
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel.sheet.macroEnabled.12',
+        'text/csv',
+        'application/json'
+    ];
+    
+    const allowedExtensions = ['.xls', '.xlsx', '.xlsm', '.csv', '.json'];
+    const fileExtension = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+    
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+        return { isValid: false, error: 'Nepodporovaný typ súboru. Povolené sú len XLS, XLSX, XLSM, CSV a JSON súbory' };
+    }
+    
+    // Kontrola názvu súboru (zabránenie directory traversal)
+    if (file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {
+        return { isValid: false, error: 'Neplatný názov súboru' };
+    }
+    
+    return { isValid: true };
+}
+
+/**
  * Načíta databázu z Excel súboru data.xlsm nahraného používateľom.
  * @param {File} file - Excel súbor nahratý používateľom
  */
 async function loadDatabaseFromUserFile(file) {
     try {
+        // Validácia súboru pred spracovaním
+        const validation = validateUploadedFile(file);
+        if (!validation.isValid) {
+            showToast(validation.error, 'error');
+            return;
+        }
+        
         const arrayBuffer = await file.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
@@ -94,30 +142,46 @@ async function loadDatabaseFromUserFile(file) {
         const dataRows = rawData.slice(1);
         
         database = [];
+        let validRowsCount = 0;
+        let invalidRowsCount = 0;
+        
         dataRows.forEach((row, index) => {
             const artikel = (row[0] || '').toString().trim();
             const nazov = (row[1] || '').toString().trim();
             const polica = (row[2] || '').toString().trim();
             
-            if (artikel && nazov && polica) {
+            // Validácia každého riadku
+            const artikelValidation = validateAndSanitizeArtikel(artikel);
+            const nazovValidation = validateAndSanitizeName(nazov);
+            const policaValidation = validateAndSanitizeShelf(polica);
+            
+            if (artikelValidation.isValid && nazovValidation.isValid && policaValidation.isValid) {
                 database.push({
                     id: uuidv4(),
-                    artikel: normalizeArtikel(artikel), // Normalizácia artiklu
-                    nazov: nazov,
-                    polica: polica,
+                    artikel: normalizeArtikel(artikelValidation.sanitized),
+                    nazov: nazovValidation.sanitized,
+                    polica: policaValidation.sanitized,
                     addedDate: new Date().toISOString().slice(0, 10)
                 });
+                validRowsCount++;
+            } else {
+                invalidRowsCount++;
+                console.warn(`Neplatný riadok ${index + 2}: ${artikel} - ${nazov} - ${polica}`);
             }
         });
         
-        console.log(`Databáza načítaná z používateľského súboru: ${database.length} položiek`);
+        console.log(`Databáza načítaná z používateľského súboru: ${validRowsCount} platných položiek, ${invalidRowsCount} neplatných`);
         
         // Aktualizovať UI
         renderDatabaseList();
         updateStats();
         renderLabelsToPrint();
         
-        showToast(`Databáza načítaná: ${database.length} položiek z súboru ${file.name}`, 'success');
+        let message = `Databáza načítaná: ${validRowsCount} položiek z súboru ${sanitizeHtml(file.name)}`;
+        if (invalidRowsCount > 0) {
+            message += ` (${invalidRowsCount} riadkov preskočených kvôli chybám)`;
+        }
+        showToast(message, 'success');
         
     } catch (error) {
         console.error('Chyba pri načítaní Excel súboru:', error);
@@ -146,27 +210,58 @@ function renderDatabaseList() {
     filteredDatabase.forEach(item => {
         const div = document.createElement('div');
         div.className = 'database-item';
-        div.innerHTML = `
-            <div class="database-content">
-                <div class="database-artikel">${formatArtikel(item.artikel)}</div>
-                <div class="database-nazov">${item.nazov}</div>
-                <div class="database-polica">${item.polica}</div>
-            </div>
-            <div class="database-actions">
-                <button class="btn btn-primary btn-small add-to-print-btn" data-artikel="${item.artikel}" data-nazov="${item.nazov}" data-polica="${item.polica}">
-                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-                <button class="btn btn-danger btn-small delete-from-db-btn" data-id="${item.id}">
-                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3,6 5,6 21,6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                </button>
-            </div>
+        
+        // Bezpečné vytvorenie DOM elementov namiesto innerHTML
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'database-content';
+        
+        const artikelDiv = document.createElement('div');
+        artikelDiv.className = 'database-artikel';
+        artikelDiv.textContent = formatArtikel(item.artikel);
+        
+        const nazovDiv = document.createElement('div');
+        nazovDiv.className = 'database-nazov';
+        nazovDiv.textContent = sanitizeHtml(item.nazov);
+        
+        const policaDiv = document.createElement('div');
+        policaDiv.className = 'database-polica';
+        policaDiv.textContent = sanitizeHtml(item.polica);
+        
+        contentDiv.appendChild(artikelDiv);
+        contentDiv.appendChild(nazovDiv);
+        contentDiv.appendChild(policaDiv);
+        
+        // Actions sekcia
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'database-actions';
+        
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn btn-primary btn-small add-to-print-btn';
+        addBtn.dataset.artikel = item.artikel;
+        addBtn.dataset.nazov = item.nazov;
+        addBtn.dataset.polica = item.polica;
+        addBtn.innerHTML = `
+            <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
         `;
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-danger btn-small delete-from-db-btn';
+        deleteBtn.dataset.id = item.id;
+        deleteBtn.innerHTML = `
+            <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3,6 5,6 21,6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        `;
+        
+        actionsDiv.appendChild(addBtn);
+        actionsDiv.appendChild(deleteBtn);
+        
+        div.appendChild(contentDiv);
+        div.appendChild(actionsDiv);
         elements.databaseList.appendChild(div);
     });
 

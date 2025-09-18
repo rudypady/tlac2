@@ -114,12 +114,103 @@ function debounce(func, delay) {
 }
 
 /**
+ * Sanitizuje vstupný text na zabránenie XSS útokom.
+ * @param {string} text - Text na sanitizáciu.
+ * @returns {string} Sanitizovaný text.
+ */
+function sanitizeHtml(text) {
+    if (!text) return '';
+    
+    const element = document.createElement('div');
+    element.textContent = text;
+    return element.innerHTML;
+}
+
+/**
+ * Validuje a sanitizuje vstupné dáta pre artikel.
+ * @param {string} artikel - Artikel na validáciu.
+ * @returns {Object} {isValid: boolean, sanitized: string, error?: string}
+ */
+function validateAndSanitizeArtikel(artikel) {
+    if (!artikel || typeof artikel !== 'string') {
+        return { isValid: false, sanitized: '', error: 'Artikel je povinný' };
+    }
+    
+    const sanitized = sanitizeHtml(artikel.trim());
+    
+    // Kontrola povolených znakov (len čísla, písmená, pomlčky)
+    const allowedPattern = /^[a-zA-Z0-9\-\s]+$/;
+    if (!allowedPattern.test(sanitized)) {
+        return { isValid: false, sanitized: '', error: 'Artikel obsahuje nepovolené znaky' };
+    }
+    
+    // Kontrola dĺžky
+    if (sanitized.length > 50) {
+        return { isValid: false, sanitized: '', error: 'Artikel je príliš dlhý (max 50 znakov)' };
+    }
+    
+    return { isValid: true, sanitized };
+}
+
+/**
+ * Validuje a sanitizuje vstupné dáta pre názov produktu.
+ * @param {string} nazov - Názov na validáciu.
+ * @returns {Object} {isValid: boolean, sanitized: string, error?: string}
+ */
+function validateAndSanitizeName(nazov) {
+    if (!nazov || typeof nazov !== 'string') {
+        return { isValid: false, sanitized: '', error: 'Názov je povinný' };
+    }
+    
+    const sanitized = sanitizeHtml(nazov.trim());
+    
+    // Kontrola dĺžky
+    if (sanitized.length > 200) {
+        return { isValid: false, sanitized: '', error: 'Názov je príliš dlhý (max 200 znakov)' };
+    }
+    
+    if (sanitized.length < 2) {
+        return { isValid: false, sanitized: '', error: 'Názov je príliš krátky (min 2 znaky)' };
+    }
+    
+    return { isValid: true, sanitized };
+}
+
+/**
+ * Validuje a sanitizuje vstupné dáta pre policu.
+ * @param {string} polica - Polica na validáciu.
+ * @returns {Object} {isValid: boolean, sanitized: string, error?: string}
+ */
+function validateAndSanitizeShelf(polica) {
+    if (!polica || typeof polica !== 'string') {
+        return { isValid: false, sanitized: '', error: 'Polica je povinná' };
+    }
+    
+    const sanitized = sanitizeHtml(polica.trim());
+    
+    // Kontrola formátu police (XX-XX-XX alebo podobne)
+    const shelfPattern = /^[a-zA-Z0-9\-]+$/;
+    if (!shelfPattern.test(sanitized)) {
+        return { isValid: false, sanitized: '', error: 'Neplatný formát police' };
+    }
+    
+    // Kontrola dĺžky
+    if (sanitized.length > 20) {
+        return { isValid: false, sanitized: '', error: 'Polica je príliš dlhá (max 20 znakov)' };
+    }
+    
+    return { isValid: true, sanitized };
+}
+
+/**
  * Zobrazí toast notifikáciu.
  * @param {string} message - Správa, ktorá sa má zobraziť.
  * @param {string} type - Typ notifikácie ('success', 'error', 'warning').
  */
 function showToast(message, type = 'info') {
-    elements.toast.textContent = message;
+    // Sanitizácia správy pred zobrazením
+    const sanitizedMessage = sanitizeHtml(message);
+    elements.toast.textContent = sanitizedMessage;
     elements.toast.className = `toast show ${type}`;
     setTimeout(() => {
         elements.toast.className = 'toast';
